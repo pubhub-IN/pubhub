@@ -122,6 +122,7 @@ export default function Dashboard({ user }: DashboardProps) {
   }
 
   return (
+    <React.Fragment>
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
@@ -171,10 +172,10 @@ export default function Dashboard({ user }: DashboardProps) {
               <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                 <GitCommit className="w-5 h-5 text-green-600" />
               </div>
-              <h3 className="font-semibold text-gray-900">Total Commits</h3>
+              <h3 className="font-semibold text-gray-900">Total Public Repositories</h3>
             </div>
-            <p className="text-3xl font-bold text-gray-900">{user.total_commits || 0}</p>
-            <p className="text-sm text-gray-600">Past year</p>
+            <p className="text-3xl font-bold text-gray-900">{user.total_public_repos || 0}</p>
+            <p className="text-sm text-gray-600">On GitHub</p>
           </div>
 
           <div className="bg-white rounded-xl shadow-sm p-6">
@@ -268,5 +269,6 @@ export default function Dashboard({ user }: DashboardProps) {
         </div>
       </div>
     </div>
+    </React.Fragment>
   );
 }

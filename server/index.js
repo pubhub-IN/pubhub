@@ -17,6 +17,7 @@ const supabase = createClient(
   process.env.VITE_SUPABASE_ANON_KEY
 );
 
+
 // Middleware
 app.use(cors({
   origin: 'http://localhost:5173',
@@ -65,7 +66,7 @@ passport.use(new GitHubStrategy({
       avatar_url: profile.photos?.[0]?.value,
       email: profile.emails?.[0]?.value,
       name: profile.displayName,
-      total_commits: userRepos.reduce((sum, repo) => sum + (repo.size || 0), 0),
+      total_public_repos: userRepos.length,
       languages: languageStats,
       github_data: profile._json,
       access_token: accessToken,
