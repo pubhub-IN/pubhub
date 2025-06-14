@@ -175,7 +175,7 @@ async function fetchLanguageStats(token, repos) {
 }
 
 // Routes
-app.get('/auth/github/callback', passport.authenticate('github', { 
+app.get('/auth/github', passport.authenticate('github', { 
   scope: ['user:email', 'repo'] 
 }));
 
