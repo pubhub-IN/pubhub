@@ -14,7 +14,7 @@ function App() {
     const checkAuth = async () => {
       try {
         const currentUser = await authService.getCurrentUser();
-        setUser(currentUser);
+        if(currentUser)setUser(currentUser);
       } catch (error) {
         console.error('Auth check error:', error);
       } finally {
@@ -23,7 +23,7 @@ function App() {
     };
 
     checkAuth();
-  }, []);
+}, []);
 
   if (isLoading) {
     return (

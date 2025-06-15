@@ -44,7 +44,7 @@ export const authService = {
 
   // Get GitHub auth URL
   getGitHubAuthUrl() {
-    return `${API_BASE_URL}/auth/github/callback`;
+    return `${API_BASE_URL}/auth/github`;
   },
 
   // Logout
