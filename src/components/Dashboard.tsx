@@ -1,19 +1,50 @@
-import React, { useEffect, useState } from 'react';
-import { Github, Calendar, Code, TrendingUp, Users, GitCommit, LogOut } from 'lucide-react';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
-import { Line, Doughnut } from 'react-chartjs-2';
-import { format, eachDayOfInterval, subDays, isSameDay } from 'date-fns';
-import { authService } from '../lib/auth';
+import { useEffect, useState } from "react";
+import { LogOut, GitCommit, Code, TrendingUp, Calendar } from "lucide-react";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+} from "chart.js";
+import { Line, Doughnut } from "react-chartjs-2";
+import { format, eachDayOfInterval, subDays } from "date-fns";
+import { authService } from "../lib/auth";
+import { ThemeToggle } from "./ThemeToggle";
+import type { User } from "../lib/supabase";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement
+);
+
+interface CommitData {
+  date: string;
+  commits: number;
+}
 
 interface DashboardProps {
-  user: any;
+  user: User & {
+    total_public_repos?: number;
+  };
 }
 
 export default function Dashboard({ user }: DashboardProps) {
-  const [commitData, setCommitData] = useState<any[]>([]);
+  const [commitData, setCommitData] = useState<CommitData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Check if we're in dark mode
+  const isDarkMode = document.documentElement.classList.contains("dark");
 
   // Generate sample commit data for demonstration
   useEffect(() => {
@@ -21,10 +52,10 @@ export default function Dashboard({ user }: DashboardProps) {
       const endDate = new Date();
       const startDate = subDays(endDate, 365);
       const days = eachDayOfInterval({ start: startDate, end: endDate });
-      
-      return days.map(day => ({
-        date: format(day, 'yyyy-MM-dd'),
-        commits: Math.floor(Math.random() * 5) // Random commits 0-4
+
+      return days.map((day) => ({
+        date: format(day, "yyyy-MM-dd"),
+        commits: Math.floor(Math.random() * 5), // Random commits 0-4
       }));
     };
 
@@ -40,13 +71,15 @@ export default function Dashboard({ user }: DashboardProps) {
 
   // Prepare chart data
   const contributionChartData = {
-    labels: commitData.slice(-30).map(d => format(new Date(d.date), 'MMM dd')),
+    labels: commitData
+      .slice(-30)
+      .map((d) => format(new Date(d.date), "MMM dd")),
     datasets: [
       {
-        label: 'Daily Commits',
-        data: commitData.slice(-30).map(d => d.commits),
-        borderColor: 'rgb(34, 197, 94)',
-        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+        label: "Daily Commits",
+        data: commitData.slice(-30).map((d) => d.commits),
+        borderColor: "rgb(34, 197, 94)",
+        backgroundColor: "rgba(34, 197, 94, 0.1)",
         tension: 0.4,
         fill: true,
       },
@@ -59,20 +92,19 @@ export default function Dashboard({ user }: DashboardProps) {
       {
         data: Object.values(user.languages || {}),
         backgroundColor: [
-          '#3B82F6',
-          '#EF4444',
-          '#F59E0B',
-          '#10B981',
-          '#8B5CF6',
-          '#F97316',
-          '#06B6D4',
-          '#84CC16',
+          "#3B82F6",
+          "#EF4444",
+          "#F59E0B",
+          "#10B981",
+          "#8B5CF6",
+          "#F97316",
+          "#06B6D4",
+          "#84CC16",
         ],
         borderWidth: 0,
       },
     ],
   };
-
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -85,12 +117,20 @@ export default function Dashboard({ user }: DashboardProps) {
       y: {
         beginAtZero: true,
         grid: {
-          color: 'rgba(0, 0, 0, 0.05)',
+          color: isDarkMode
+            ? "rgba(255, 255, 255, 0.1)"
+            : "rgba(0, 0, 0, 0.05)",
+        },
+        ticks: {
+          color: isDarkMode ? "#e5e7eb" : "#374151",
         },
       },
       x: {
         grid: {
           display: false,
+        },
+        ticks: {
+          color: isDarkMode ? "#e5e7eb" : "#374151",
         },
       },
     },
@@ -101,10 +141,11 @@ export default function Dashboard({ user }: DashboardProps) {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'bottom' as const,
+        position: "bottom" as const,
         labels: {
           padding: 20,
           usePointStyle: true,
+          color: isDarkMode ? "#e5e7eb" : "#374151",
         },
       },
     },
@@ -122,153 +163,165 @@ export default function Dashboard({ user }: DashboardProps) {
   }
 
   return (
-    <React.Fragment>
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-6 py-6">
+      <header className="bg-white dark:bg-gray-800 shadow">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <img
-                src={user.avatar_url}
-                alt={user.github_username}
-                className="w-12 h-12 rounded-xl"
-              />
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {user.name || user.github_username}
-                </h1>
-                <p className="text-gray-600">@{user.github_username}</p>
-              </div>
+            <div className="flex items-center space-x-4">
+              <img src="/pubhub.png" alt="PubHub Logo" className="h-8 w-auto" />
+              <h1 className="text-xl font-semibold">Dashboard</h1>
             </div>
-            <div className="flex items-center gap-3">
-              <a
-                href={`https://github.com/${user.github_username}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors"
-              >
-                <Github className="w-5 h-5" />
-                View GitHub
-              </a>
+            <div className="flex items-center space-x-4">
+              <ThemeToggle />
               <button
                 onClick={handleLogout}
-                className="inline-flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-100 hover:bg-red-200 dark:hover:bg-red-800 transition-colors"
               >
-                <LogOut className="w-5 h-5" />
-                Logout
+                <LogOut className="w-4 h-4" />
+                <span>Logout</span>
               </button>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <GitCommit className="w-5 h-5 text-green-600" />
-              </div>
-              <h3 className="font-semibold text-gray-900">Total Public Repositories</h3>
-            </div>
-            <p className="text-3xl font-bold text-gray-900">{user.total_public_repos || 0}</p>
-            <p className="text-sm text-gray-600">On GitHub</p>
+      {/* Main content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {isLoading ? (
+          <div className="flex items-center justify-center h-[calc(100vh-200px)]">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
           </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Code className="w-5 h-5 text-blue-600" />
-              </div>
-              <h3 className="font-semibold text-gray-900">Languages</h3>
-            </div>
-            <p className="text-3xl font-bold text-gray-900">
-              {Object.keys(user.languages || {}).length}
-            </p>
-            <p className="text-sm text-gray-600">Used in repos</p>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-purple-600" />
-              </div>
-              <h3 className="font-semibold text-gray-900">Technologies</h3>
-            </div>
-            <p className="text-3xl font-bold text-gray-900">
-              {user.technologies?.length || 0}
-            </p>
-            <p className="text-sm text-gray-600">Learning/Working with</p>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                <Calendar className="w-5 h-5 text-orange-600" />
-              </div>
-              <h3 className="font-semibold text-gray-900">Active Days</h3>
-            </div>
-            <p className="text-3xl font-bold text-gray-900">
-              {commitData.filter(d => d.commits > 0).length}
-            </p>
-            <p className="text-sm text-gray-600">Past year</p>
-          </div>
-        </div>
-
-        {/* Charts */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Contribution Chart */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">
-              Contribution Activity (Last 30 Days)
-            </h3>
-            <div className="h-64">
-              <Line data={contributionChartData} options={chartOptions} />
-            </div>
-          </div>
-
-          {/* Language Distribution */}
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">
-              Language Distribution
-            </h3>
-            <div className="h-64">
-              {Object.keys(user.languages || {}).length > 0 ? (
-                <Doughnut data={languageChartData} options={doughnutOptions} />
-              ) : (
-                <div className="flex items-center justify-center h-full text-gray-500">
-                  No language data available
+        ) : (
+          <div className="space-y-6">
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+                    <GitCommit className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                    Total Public Repositories
+                  </h3>
                 </div>
+                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                  {user.total_public_repos || 0}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  On GitHub
+                </p>
+              </div>
+
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                    <Code className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                    Languages
+                  </h3>
+                </div>
+                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                  {Object.keys(user.languages || {}).length}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Used in repos
+                </p>
+              </div>
+
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                    Technologies
+                  </h3>
+                </div>
+                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                  {user.technologies?.length || 0}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Learning/Working with
+                </p>
+              </div>
+
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center">
+                    <Calendar className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                    Active Days
+                  </h3>
+                </div>
+                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                  {commitData.filter((d) => d.commits > 0).length}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Past year
+                </p>
+              </div>
+            </div>
+
+            {/* Charts */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Contribution Chart */}
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                  Contribution Activity (Last 30 Days)
+                </h3>
+                <div className="h-64">
+                  <Line data={contributionChartData} options={chartOptions} />
+                </div>
+              </div>
+
+              {/* Language Distribution */}
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                  Language Distribution
+                </h3>
+                <div className="h-64">
+                  {Object.keys(user.languages || {}).length > 0 ? (
+                    <Doughnut
+                      data={languageChartData}
+                      options={doughnutOptions}
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+                      No language data available
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Technologies */}
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                Technologies You're Working With
+              </h3>
+              {user.technologies && user.technologies.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {user.technologies.map((tech: string) => (
+                    <span
+                      key={tech}
+                      className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-100 rounded-full text-sm font-medium"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-500 dark:text-gray-400">
+                  No technologies selected yet.
+                </p>
               )}
             </div>
           </div>
-        </div>
-
-        {/* Technologies */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <h3 className="text-xl font-semibold text-gray-900 mb-4">
-            Technologies You're Working With
-          </h3>
-          {user.technologies && user.technologies.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {user.technologies.map((tech: string) => (
-                <span
-                  key={tech}
-                  className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium"
-                >
-                  {tech}
-                </span>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500">No technologies selected yet.</p>
-          )}
-        </div>
-      </div>
+        )}
+      </main>
     </div>
-    </React.Fragment>
   );
 }

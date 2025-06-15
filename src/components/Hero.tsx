@@ -1,6 +1,5 @@
-import React from 'react';
-import { Github } from 'lucide-react';
-import { authService } from '../lib/auth';
+import { Github } from "lucide-react";
+import { authService } from "../lib/auth";
 
 export default function Hero() {
   const handleSignIn = () => {
@@ -12,11 +11,7 @@ export default function Hero() {
       {/* Navbar */}
       <nav className="h-[100px] flex items-center px-6 relative z-20">
         <div className="flex items-center">
-          <img 
-            src="/pubhub.png" 
-            alt="PubHub Logo" 
-            className="h-12 w-auto"
-          />
+          <img src="/pubhub.png" alt="PubHub Logo" className="h-12 w-auto" />
         </div>
       </nav>
 
@@ -37,11 +32,11 @@ export default function Hero() {
               <br />
               share, and grow in public.
             </h1>
-            
+
             <p className="text-xl md:text-2xl text-green-100 mx-auto leading-relaxed font-medium">
               From your first commit to your next big launch—share it all.
             </p>
-            
+
             <div className="pt-8">
               <button
                 onClick={handleSignIn}

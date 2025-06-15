@@ -1,10 +1,10 @@
-import express from 'express';
-import session from 'express-session';
-import passport from 'passport';
-import { Strategy as GitHubStrategy } from 'passport-github2';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import { createClient } from '@supabase/supabase-js';
+import express from "express";
+import session from "express-session";
+import passport from "passport";
+import { Strategy as GitHubStrategy } from "passport-github2";
+import cors from "cors";
+import dotenv from "dotenv";
+import { createClient } from "@supabase/supabase-js";
 
 dotenv.config();
 
@@ -17,88 +17,96 @@ const supabase = createClient(
   process.env.VITE_SUPABASE_ANON_KEY
 );
 
-
 // Middleware
-app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Session configuration
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key-change-this',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: false, // Set to true in production with HTTPS
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
-}));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "your-secret-key-change-this",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // Set to true in production with HTTPS
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
+  })
+);
 
 // Initialize Passport
 app.use(passport.initialize());
 app.use(passport.session());
 
 // Passport GitHub Strategy
-passport.use(new GitHubStrategy({
-  clientID: process.env.VITE_GITHUB_CLIENT_ID,
-  clientSecret: process.env.GITHUB_CLIENT_SECRET,
-  callbackURL: "http://localhost:3001/auth/github/callback"
-}, async (accessToken, refreshToken, profile, done) => {
-  try {
-    // Fetch additional GitHub data
-    const userRepos = await fetchUserRepos(accessToken, profile.username);
-    const languageStats = await fetchLanguageStats(accessToken, userRepos);
-    
-    // Check if user exists in database
-    const { data: existingUser } = await supabase
-      .from('users')
-      .select('*')
-      .eq('github_id', profile.id)
-      .single();
+passport.use(
+  new GitHubStrategy(
+    {
+      clientID: process.env.VITE_GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+      callbackURL: "http://localhost:3001/auth/github/callback",
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        // Fetch additional GitHub data
+        const userRepos = await fetchUserRepos(accessToken, profile.username);
+        const languageStats = await fetchLanguageStats(accessToken, userRepos);
 
-    const userData = {
-      github_id: parseInt(profile.id),
-      github_username: profile.username,
-      avatar_url: profile.photos?.[0]?.value,
-      email: profile.emails?.[0]?.value,
-      name: profile.displayName,
-      total_public_repos: userRepos.length,
-      languages: languageStats,
-      github_data: profile._json,
-      access_token: accessToken,
-    };
+        // Check if user exists in database
+        const { data: existingUser } = await supabase
+          .from("users")
+          .select("*")
+          .eq("github_id", profile.id)
+          .single();
 
-    if (existingUser) {
-      // Update existing user
-      const { data: updatedUser, error } = await supabase
-        .from('users')
-        .update(userData)
-        .eq('github_id', profile.id)
-        .select()
-        .single();
+        const userData = {
+          github_id: parseInt(profile.id),
+          github_username: profile.username,
+          avatar_url: profile.photos?.[0]?.value,
+          email: profile.emails?.[0]?.value,
+          name: profile.displayName,
+          total_public_repos: userRepos.length,
+          languages: languageStats,
+          github_data: profile._json,
+          access_token: accessToken,
+        };
 
-      if (error) throw error;
-      return done(null, updatedUser);
-    } else {
-      // Create new user
-      const { data: newUser, error } = await supabase
-        .from('users')
-        .insert([userData])
-        .select()
-        .single();
+        if (existingUser) {
+          // Update existing user
+          const { data: updatedUser, error } = await supabase
+            .from("users")
+            .update(userData)
+            .eq("github_id", profile.id)
+            .select()
+            .single();
 
-      if (error) throw error;
-      return done(null, newUser);
+          if (error) throw error;
+          return done(null, updatedUser);
+        } else {
+          // Create new user
+          const { data: newUser, error } = await supabase
+            .from("users")
+            .insert([userData])
+            .select()
+            .single();
+
+          if (error) throw error;
+          return done(null, newUser);
+        }
+      } catch (error) {
+        console.error("GitHub authentication error:", error);
+        return done(error, null);
+      }
     }
-  } catch (error) {
-    console.error('GitHub authentication error:', error);
-    return done(error, null);
-  }
-}));
+  )
+);
 
 // Serialize/Deserialize user for session
 passport.serializeUser((user, done) => {
@@ -108,9 +116,9 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser(async (id, done) => {
   try {
     const { data: user, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', id)
+      .from("users")
+      .select("*")
+      .eq("id", id)
       .single();
 
     if (error) throw error;
@@ -123,36 +131,40 @@ passport.deserializeUser(async (id, done) => {
 // Helper functions for GitHub API
 async function fetchUserRepos(token, username) {
   try {
-    const response = await fetch(`https://api.github.com/users/${username}/repos?per_page=100&sort=updated`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/vnd.github.v3+json',
-      },
-    });
+    const response = await fetch(
+      `https://api.github.com/users/${username}/repos?per_page=100&sort=updated`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/vnd.github.v3+json",
+        },
+      }
+    );
 
     if (!response.ok) {
-      throw new Error('Failed to fetch repositories');
+      throw new Error("Failed to fetch repositories");
     }
 
     return await response.json();
   } catch (error) {
-    console.error('Error fetching repos:', error);
+    console.error("Error fetching repos:", error);
     return [];
   }
 }
 
 async function fetchLanguageStats(token, repos) {
   const languageStats = {};
-  
-  for (const repo of repos.slice(0, 10)) { // Limit to avoid rate limits
+
+  for (const repo of repos.slice(0, 10)) {
+    // Limit to avoid rate limits
     try {
       const response = await fetch(repo.languages_url, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/vnd.github.v3+json',
+          Authorization: `Bearer ${token}`,
+          Accept: "application/vnd.github.v3+json",
         },
       });
-      
+
       if (response.ok) {
         const languages = await response.json();
         for (const [lang, bytes] of Object.entries(languages)) {
@@ -163,66 +175,77 @@ async function fetchLanguageStats(token, repos) {
       console.warn(`Failed to fetch languages for ${repo.name}:`, error);
     }
   }
-  
+
   // Convert to percentages
-  const totalBytes = Object.values(languageStats).reduce((sum, bytes) => sum + bytes, 0);
+  const totalBytes = Object.values(languageStats).reduce(
+    (sum, bytes) => sum + bytes,
+    0
+  );
   const languagePercentages = {};
-  
+
   for (const [lang, bytes] of Object.entries(languageStats)) {
-    languagePercentages[lang] = Math.round((bytes / totalBytes) * 100 * 100) / 100;
+    languagePercentages[lang] =
+      Math.round((bytes / totalBytes) * 100 * 100) / 100;
   }
-  
+
   return languagePercentages;
 }
 
 // Routes
-app.get('/auth/github/callback', passport.authenticate('github', { 
-  scope: ['user:email', 'repo'] 
-}));
+app.get(
+  "/auth/github",
+  passport.authenticate("github", {
+    scope: ["user:email", "repo"],
+  })
+);
 
-app.get('/auth/github/callback', 
-  passport.authenticate('github', { failureRedirect: 'http://localhost:5173/?error=auth_failed' }),
+app.get(
+  "/auth/github/callback",
+  passport.authenticate("github", {
+    failureRedirect: "http://localhost:5173/?error=auth_failed",
+  }),
   (req, res) => {
     // Check if user has completed onboarding
-    const hasCompletedOnboarding = req.user.technologies && req.user.technologies.length > 0;
-    
+    const hasCompletedOnboarding =
+      req.user.technologies && req.user.technologies.length > 0;
+
     if (hasCompletedOnboarding) {
-      res.redirect('http://localhost:5173/dashboard');
+      res.redirect("http://localhost:5173/dashboard");
     } else {
-      res.redirect('http://localhost:5173/onboarding');
+      res.redirect("http://localhost:5173/onboarding");
     }
   }
 );
 
-app.get('/auth/logout', (req, res) => {
+app.get("/auth/logout", (req, res) => {
   req.logout((err) => {
     if (err) {
-      return res.status(500).json({ error: 'Logout failed' });
+      return res.status(500).json({ error: "Logout failed" });
     }
-    res.redirect('http://localhost:5173/');
+    res.redirect("http://localhost:5173/");
   });
 });
 
-app.get('/api/user', (req, res) => {
+app.get("/api/user", (req, res) => {
   if (req.isAuthenticated()) {
     res.json(req.user);
   } else {
-    res.status(401).json({ error: 'Not authenticated' });
+    res.status(401).json({ error: "Not authenticated" });
   }
 });
 
-app.put('/api/user/technologies', async (req, res) => {
+app.put("/api/user/technologies", async (req, res) => {
   if (!req.isAuthenticated()) {
-    return res.status(401).json({ error: 'Not authenticated' });
+    return res.status(401).json({ error: "Not authenticated" });
   }
 
   try {
     const { technologies } = req.body;
-    
+
     const { data: updatedUser, error } = await supabase
-      .from('users')
+      .from("users")
       .update({ technologies })
-      .eq('id', req.user.id)
+      .eq("id", req.user.id)
       .select()
       .single();
 
@@ -230,8 +253,8 @@ app.put('/api/user/technologies', async (req, res) => {
 
     res.json(updatedUser);
   } catch (error) {
-    console.error('Error updating technologies:', error);
-    res.status(500).json({ error: 'Failed to update technologies' });
+    console.error("Error updating technologies:", error);
+    res.status(500).json({ error: "Failed to update technologies" });
   }
 });
 

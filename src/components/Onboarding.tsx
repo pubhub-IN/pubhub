@@ -1,73 +1,94 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Check, ChevronRight } from 'lucide-react';
-import { authService } from '../lib/auth';
+import { useState, KeyboardEvent } from "react";
+import { useNavigate } from "react-router-dom";
+import { ThemeToggle } from "./ThemeToggle";
+import { User } from "../lib/supabase";
+import { authService } from "../lib/auth";
 
 const TECHNOLOGIES = [
-  'JavaScript',
-  'TypeScript',
-  'Python',
-  'Java',
-  'C++',
-  'C#',
-  'Go',
-  'Rust',
-  'PHP',
-  'Ruby',
-  'Swift',
-  'Kotlin',
-  'React',
-  'Vue.js',
-  'Angular',
-  'Node.js',
-  'Express',
-  'Django',
-  'Flask',
-  'Spring Boot',
-  'Laravel',
-  'Rails',
-  'Next.js',
-  'Nuxt.js',
-  'Svelte',
-  'Flutter',
-  'React Native',
-  'Docker',
-  'Kubernetes',
-  'AWS',
-  'Azure',
-  'Google Cloud',
-  'PostgreSQL',
-  'MySQL',
-  'MongoDB',
-  'Redis',
-  'GraphQL',
-  'REST APIs',
-  'Microservices',
-  'DevOps',
-  'CI/CD',
-  'Git',
-  'Machine Learning',
-  'AI',
-  'Blockchain',
-  'Web3'
+  "JavaScript",
+  "TypeScript",
+  "Python",
+  "Java",
+  "C++",
+  "C#",
+  "Go",
+  "Rust",
+  "PHP",
+  "Ruby",
+  "Swift",
+  "Kotlin",
+  "React",
+  "Vue.js",
+  "Angular",
+  "Node.js",
+  "Express",
+  "Django",
+  "Flask",
+  "Spring Boot",
+  "Laravel",
+  "Rails",
+  "Next.js",
+  "Nuxt.js",
+  "Svelte",
+  "Flutter",
+  "React Native",
+  "Docker",
+  "Kubernetes",
+  "AWS",
+  "Azure",
+  "Google Cloud",
+  "PostgreSQL",
+  "MySQL",
+  "MongoDB",
+  "Redis",
+  "GraphQL",
+  "REST APIs",
+  "Microservices",
+  "DevOps",
+  "CI/CD",
+  "Git",
+  "Machine Learning",
+  "AI",
+  "Web3",
+  "Blockchain",
 ];
 
 interface OnboardingProps {
-  user: any;
-  onComplete: (user: any) => void;
+  user: User;
+  onComplete: (user: User) => void;
 }
 
 export default function Onboarding({ user, onComplete }: OnboardingProps) {
-  const [selectedTechnologies, setSelectedTechnologies] = useState<string[]>([]);
+  const [selectedTechnologies, setSelectedTechnologies] = useState<string[]>(
+    []
+  );
+  const [customTech, setCustomTech] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const toggleTechnology = (tech: string) => {
-    setSelectedTechnologies(prev =>
-      prev.includes(tech)
-        ? prev.filter(t => t !== tech)
-        : [...prev, tech]
+    setSelectedTechnologies((prev) =>
+      prev.includes(tech) ? prev.filter((t) => t !== tech) : [...prev, tech]
     );
+  };
+
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && customTech.trim()) {
+      e.preventDefault();
+      const newTech = customTech.trim();
+
+      // Check if technology already exists
+      if (selectedTechnologies.includes(newTech)) {
+        setError("This technology is already selected");
+        return;
+      }
+
+      // Add the new technology
+      setSelectedTechnologies((prev) => [...prev, newTech]);
+      setCustomTech(""); // Clear the input
+      setError(""); // Clear any existing error
+    }
   };
 
   const handleComplete = async () => {
@@ -75,82 +96,95 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
 
     setIsLoading(true);
     try {
-      const updatedUser = await authService.updateTechnologies(selectedTechnologies);
+      const updatedUser = await authService.updateTechnologies(
+        selectedTechnologies
+      );
       onComplete(updatedUser);
-      navigate('/dashboard');
+      navigate("/dashboard");
     } catch (error) {
-      console.error('Error updating technologies:', error);
+      console.error("Error updating technologies:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100">
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500 rounded-2xl shadow-lg mb-6">
-            <img
-              src={user.avatar_url}
-              alt={user.github_username}
-              className="w-12 h-12 rounded-xl"
-            />
-          </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 dark:from-gray-900 dark:to-green-900">
+      <nav className="h-[100px] flex items-center justify-between px-6">
+        <div className="flex items-center">
+          <img src="/pubhub.png" alt="PubHub Logo" className="h-12 w-auto" />
+        </div>
+        <ThemeToggle />
+      </nav>
+
+      <main className="max-w-4xl mx-auto px-6 py-12">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             Welcome to PubHub, {user.name || user.github_username}!
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Which technologies are you currently learning or working with?
-            This helps us personalize your experience.
+          <p className="text-gray-600 dark:text-gray-300 mb-8">
+            Select the technologies you're interested in or currently working
+            with. This will help us personalize your experience.
           </p>
-        </div>
 
-        {/* Technology Selection */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6">
-            Select Your Technologies
-          </h2>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-8">
-            {TECHNOLOGIES.map((tech) => (
+          <div className="mb-6">
+            <div className="relative">
+              <input
+                type="text"
+                value={customTech}
+                onChange={(e) => setCustomTech(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Add a custom technology (press Enter)"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 
+                          bg-white dark:bg-gray-700 text-gray-900 dark:text-white
+                          placeholder-gray-500 dark:placeholder-gray-400
+                          focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400
+                          transition-colors"
+              />
+              {error && (
+                <p className="absolute -bottom-6 left-0 text-sm text-red-500 dark:text-red-400">
+                  {error}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {[
+              ...selectedTechnologies,
+              ...TECHNOLOGIES.filter(
+                (tech) => !selectedTechnologies.includes(tech)
+              ),
+            ].map((tech) => (
               <button
                 key={tech}
                 onClick={() => toggleTechnology(tech)}
-                className={`flex items-center justify-between p-3 rounded-lg border-2 transition-all duration-200 ${
+                className={`p-3 rounded-lg text-sm font-medium transition-colors ${
                   selectedTechnologies.includes(tech)
-                    ? 'border-green-500 bg-green-50 text-green-700'
-                    : 'border-gray-200 hover:border-green-300 hover:bg-green-50'
+                    ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-100"
+                    : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
                 }`}
               >
-                <span className="font-medium text-sm">{tech}</span>
-                {selectedTechnologies.includes(tech) && (
-                  <Check className="w-4 h-4 text-green-600" />
-                )}
+                {tech}
               </button>
             ))}
           </div>
 
-          {/* Selected count */}
-          <div className="text-center mb-8">
-            <p className="text-gray-600">
-              {selectedTechnologies.length} technologies selected
-            </p>
-          </div>
-
-          {/* Continue button */}
-          <div className="text-center">
+          <div className="mt-8 flex justify-end">
             <button
               onClick={handleComplete}
               disabled={selectedTechnologies.length === 0 || isLoading}
-              className="inline-flex items-center gap-2 bg-green-600 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:scale-105"
+              className={`px-6 py-3 rounded-lg text-white font-medium transition-colors ${
+                selectedTechnologies.length > 0 && !isLoading
+                  ? "bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600"
+                  : "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
+              }`}
             >
-              {isLoading ? 'Saving...' : 'Continue to Dashboard'}
-              <ChevronRight className="w-5 h-5" />
+              {isLoading ? "Saving..." : "Continue to Dashboard"}
             </button>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

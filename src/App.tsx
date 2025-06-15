@@ -1,10 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { authService } from './lib/auth';
-import { type User } from './lib/supabase';
-import Hero from './components/Hero';
-import Onboarding from './components/Onboarding';
-import Dashboard from './components/Dashboard';
+import { useEffect, useState } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { authService } from "./lib/auth";
+import { type User } from "./lib/supabase";
+import Hero from "./components/Hero";
+import Onboarding from "./components/Onboarding";
+import Dashboard from "./components/Dashboard";
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -14,9 +19,9 @@ function App() {
     const checkAuth = async () => {
       try {
         const currentUser = await authService.getCurrentUser();
-        setUser(currentUser);
+        if (currentUser) setUser(currentUser);
       } catch (error) {
-        console.error('Auth check error:', error);
+        console.error("Auth check error:", error);
       } finally {
         setIsLoading(false);
       }
@@ -39,18 +44,23 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Hero />} />
-        <Route 
-          path="/onboarding" 
-          element={
-            user ? <Onboarding user={user} onComplete={setUser} /> : <Navigate to="/" />
-          } 
+        <Route
+          path="/"
+          element={user ? <Navigate to="/dashboard" /> : <Hero />}
         />
-        <Route 
-          path="/dashboard" 
+        <Route
+          path="/onboarding"
           element={
-            user ? <Dashboard user={user} /> : <Navigate to="/" />
-          } 
+            user ? (
+              <Onboarding user={user} onComplete={setUser} />
+            ) : (
+              <Navigate to="/" />
+            )
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={user ? <Dashboard user={user} /> : <Navigate to="/" />}
         />
       </Routes>
     </Router>
