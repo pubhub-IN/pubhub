@@ -14,14 +14,33 @@ import Dashboard from "./components/Dashboard";
 function App() {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        // Check URL parameters for auth errors
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get("error");
+
+        if (error === "auth_failed") {
+          setAuthError("Authentication failed. Please try again.");
+          // Clean up the URL
+          window.history.replaceState({}, "", window.location.pathname);
+          setIsLoading(false);
+          return;
+        }
+
         const currentUser = await authService.getCurrentUser();
-        if (currentUser) setUser(currentUser);
+        if (currentUser) {
+          setUser(currentUser);
+          setAuthError(null);
+        }
       } catch (error) {
         console.error("Auth check error:", error);
+        setAuthError(
+          "Failed to verify authentication status. Please try again."
+        );
       } finally {
         setIsLoading(false);
       }
@@ -29,13 +48,27 @@ function App() {
 
     checkAuth();
   }, []);
-
-  if (isLoading) {
+  if (isLoading || authError) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 bg-green-500 rounded-xl mb-4 animate-pulse"></div>
-          <p className="text-gray-600">Loading...</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center flex flex-col items-center">
+          {isLoading ? (
+            <>
+              <div className="w-12 h-12 bg-green-500 rounded-xl mb-4 animate-pulse"></div>
+              <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+            </>
+          ) : authError ? (
+            <>
+              <div className="w-12 h-12 bg-red-500 rounded-xl mb-4"></div>
+              <p className="text-red-600 dark:text-red-400 mb-4">{authError}</p>
+              <a
+                href="/"
+                className="text-green-600 dark:text-green-400 hover:underline"
+              >
+                Return to Home
+              </a>
+            </>
+          ) : null}
         </div>
       </div>
     );
