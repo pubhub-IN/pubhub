@@ -6,12 +6,26 @@ export const authService = {
     try {
       const response = await fetch(`${API_BASE_URL}/api/user`, {
         credentials: "include",
+        headers: {
+          Accept: "application/json",
+        },
       });
 
+      console.log("Auth response status:", response.status);
+
       if (response.ok) {
-        return await response.json();
+        const data = await response.json();
+        console.log("Auth response data:", data);
+        return data;
       }
 
+      if (response.status === 401) {
+        console.log("User not authenticated");
+        return null;
+      }
+
+      const error = await response.text();
+      console.error("Auth error response:", error);
       return null;
     } catch (error) {
       console.error("Error fetching current user:", error);
