@@ -20,7 +20,7 @@ const supabase = createClient(
 // Middleware
 app.use(
   cors({
-    origin: "https://pubhub.vercel.app",
+    origin: "https://pubhubtest.vercel.app",
     credentials: true,
   })
 );
@@ -211,7 +211,7 @@ app.get(
 app.get(
   "/auth/github/callback",
   passport.authenticate("github", {
-    failureRedirect: "http://pubhub.vercel.app/?error=auth_failed",
+    failureRedirect: "http://pubhubtest.vercel.app/?error=auth_failed",
   }),
   (req, res) => {
     // Check if user has completed onboarding
@@ -219,9 +219,9 @@ app.get(
       req.user.technologies && req.user.technologies.length > 0;
 
     if (hasCompletedOnboarding) {
-      res.redirect("http://pubhub.vercel.app/dashboard");
+      res.redirect("http://pubhubtest.vercel.app/dashboard");
     } else {
-      res.redirect("http://pubhub.vercel.app/onboarding");
+      res.redirect("http://pubhubtest.vercel.app/onboarding");
     }
   }
 );
@@ -231,7 +231,7 @@ app.get("/auth/logout", (req, res) => {
     if (err) {
       return res.status(500).json({ error: "Logout failed" });
     }
-    res.redirect("http://pubhub.vercel.app/");
+    res.redirect("http://pubhubtest.vercel.app/");
   });
 });
 
