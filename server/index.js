@@ -20,13 +20,19 @@ const supabase = createClient(
 // Middleware
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://pubhub.vercel.app",
     credentials: true,
   })
 );
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Session secret validation
+if (!process.env.SESSION_SECRET) {
+  console.error("WARNING: SESSION_SECRET is not set in environment variables");
+  console.error("Please set a secure SESSION_SECRET for production use");
+}
 
 // Session configuration
 app.use(
@@ -35,9 +41,12 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false, // Set to true in production with HTTPS
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     },
+    name: "pubhub.sid",
   })
 );
 
@@ -202,7 +211,7 @@ app.get(
 app.get(
   "/auth/github/callback",
   passport.authenticate("github", {
-    failureRedirect: "http://localhost:5173/?error=auth_failed",
+    failureRedirect: "http://pubhub.vercel.app/?error=auth_failed",
   }),
   (req, res) => {
     // Check if user has completed onboarding
@@ -210,9 +219,9 @@ app.get(
       req.user.technologies && req.user.technologies.length > 0;
 
     if (hasCompletedOnboarding) {
-      res.redirect("http://localhost:5173/dashboard");
+      res.redirect("http://pubhub.vercel.app/dashboard");
     } else {
-      res.redirect("http://localhost:5173/onboarding");
+      res.redirect("http://pubhub.vercel.app/onboarding");
     }
   }
 );
@@ -222,7 +231,7 @@ app.get("/auth/logout", (req, res) => {
     if (err) {
       return res.status(500).json({ error: "Logout failed" });
     }
-    res.redirect("http://localhost:5173/");
+    res.redirect("http://pubhub.vercel.app/");
   });
 });
 
@@ -260,4 +269,8 @@ app.put("/api/user/technologies", async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
+});
+
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
 });
