@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:3001";
+const API_BASE_URL = "https://pubhub-server.onrender.com";
 
 export const authService = {
   // Get current user
