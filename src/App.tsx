@@ -4,12 +4,28 @@ import {
   Routes,
   Route,
   Navigate,
+  Outlet,
 } from "react-router-dom";
 import { authService } from "./lib/auth";
 import { type User } from "./lib/supabase";
 import Hero from "./components/Hero";
 import Onboarding from "./components/Onboarding";
 import Dashboard from "./components/Dashboard";
+import Sidebar from "./components/Sidebar";
+import HackathonsPage from "./pages/HackathonsPage";
+import OpenSourceReposPage from "./pages/OpenSourceReposPage";
+import AccountPage from "./pages/AccountPage";
+
+function Layout() {
+  return (
+    <div className="flex">
+      <Sidebar />
+      <div className="flex-1 ml-16 md:ml-16 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+        <Outlet />
+      </div>
+    </div>
+  );
+}
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -91,10 +107,29 @@ function App() {
             )
           }
         />
-        <Route
-          path="/dashboard"
-          element={user ? <Dashboard user={user} /> : <Navigate to="/" />}
-        />
+        {/* Dashboard and sidebar-wrapped routes */}
+        {user && (
+          <Route element={<Layout />}>
+            <Route path="dashboard" element={<Dashboard user={user} />} />
+            <Route path="hackathons" element={<HackathonsPage user={user} />} />
+            <Route
+              path="open-source"
+              element={<OpenSourceReposPage user={user} />}
+            />
+            <Route
+              path="account"
+              element={
+                <AccountPage
+                  user={user}
+                  onLogout={() => {
+                    setUser(null);
+                    authService.logout();
+                  }}
+                />
+              }
+            />
+          </Route>
+        )}
       </Routes>
     </Router>
   );

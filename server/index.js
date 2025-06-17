@@ -20,14 +20,8 @@ const supabase = createClient(
 // Middleware
 app.use(
   cors({
-    origin:
-      process.env.NODE_ENV === "production"
-        ? "https://pubhubtest.vercel.app"
-        : ["http://pubhubtest.vercel.app", "http://localhost:5173"],
+    origin: "http://localhost:5173",
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Set-Cookie"],
-    exposedHeaders: ["Set-Cookie"],
   })
 );
 
@@ -46,15 +40,10 @@ app.use(
     secret: process.env.SESSION_SECRET || "your-secret-key-change-this",
     resave: false,
     saveUninitialized: false,
-    proxy: process.env.NODE_ENV === "production", // Trust proxy in production
     cookie: {
-      secure: process.env.NODE_ENV === "production",
-      httpOnly: true,
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      path: "/",
+      secure: false,
+      maxAge: 24 * 60 * 60 * 1000,
     },
-    name: "pubhub.sid",
   })
 );
 
@@ -68,7 +57,7 @@ passport.use(
     {
       clientID: process.env.VITE_GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: "https://pubhub-server.onrender.com/auth/github/callback",
+      callbackURL: "http://localhost:3000/auth/github/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -219,23 +208,17 @@ app.get(
 app.get(
   "/auth/github/callback",
   passport.authenticate("github", {
-    failureRedirect: "http://pubhubtest.vercel.app/?error=auth_failed",
+    failureRedirect: "http://localhost:5173/?error=auth_failed",
   }),
   (req, res) => {
     // Check if user has completed onboarding
     const hasCompletedOnboarding =
       req.user.technologies && req.user.technologies.length > 0;
 
-    // Use HTTPS in production
-    const frontendUrl =
-      process.env.NODE_ENV === "production"
-        ? "https://pubhubtest.vercel.app"
-        : "http://pubhubtest.vercel.app";
-
     if (hasCompletedOnboarding) {
-      res.redirect(`${frontendUrl}/dashboard`);
+      res.redirect(`http://localhost:5173/dashboard`);
     } else {
-      res.redirect(`${frontendUrl}/onboarding`);
+      res.redirect(`http://localhost:5173/onboarding`);
     }
   }
 );
@@ -245,7 +228,7 @@ app.get("/auth/logout", (req, res) => {
     if (err) {
       return res.status(500).json({ error: "Logout failed" });
     }
-    res.redirect("http://pubhubtest.vercel.app/");
+    res.redirect("http://localhost:5173/");
   });
 });
 

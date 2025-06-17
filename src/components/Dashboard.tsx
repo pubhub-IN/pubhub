@@ -1,5 +1,14 @@
 import { useEffect, useState } from "react";
-import { LogOut, GitCommit, Code, TrendingUp, Calendar } from "lucide-react";
+import {
+  LogOut,
+  GitCommit,
+  Code,
+  TrendingUp,
+  Calendar,
+  Flame,
+  Info,
+  Book,
+} from "lucide-react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -42,6 +51,8 @@ interface DashboardProps {
 export default function Dashboard({ user }: DashboardProps) {
   const [commitData, setCommitData] = useState<CommitData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [streak, setStreak] = useState(0);
+  const [hackathons, setHackathons] = useState(0);
 
   // Check if we're in dark mode
   const isDarkMode = document.documentElement.classList.contains("dark");
@@ -63,6 +74,11 @@ export default function Dashboard({ user }: DashboardProps) {
       setCommitData(generateCommitData());
       setIsLoading(false);
     }, 1000);
+  }, []);
+
+  useEffect(() => {
+    setStreak(Math.floor(Math.random() * 26) + 1); // 1-26
+    setHackathons(Math.floor(Math.random() * 6)); // 0-5
   }, []);
 
   const handleLogout = () => {
@@ -171,6 +187,31 @@ export default function Dashboard({ user }: DashboardProps) {
             <div className="flex items-center space-x-4">
               <img src="/pubhub.png" alt="PubHub Logo" className="h-8 w-auto" />
               <h1 className="text-xl font-semibold">Dashboard</h1>
+            </div>
+            <div className="flex items-center gap-8">
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-4">
+                  <div className="flex items-center bg-orange-50 dark:bg-orange-900 px-4 py-2 rounded-lg border border-orange-100 dark:border-orange-800">
+                    <span className="text-xs font-medium text-gray-700 dark:text-gray-200 mr-1">
+                      Day Learning Streak:
+                    </span>
+                    <Flame className="w-5 h-5 text-orange-500 mx-1" />
+                    <span className="font-bold text-orange-600 dark:text-orange-300 mx-1">
+                      {streak}
+                    </span>
+                    <Info className="w-4 h-4 text-yellow-400 ml-2" />
+                  </div>
+                  <div className="flex items-center bg-blue-50 dark:bg-blue-900 px-4 py-2 rounded-lg border border-blue-100 dark:border-blue-800">
+                    <span className="text-xs font-medium text-gray-700 dark:text-gray-200 mr-1">
+                      Active Hackathons:
+                    </span>
+                    <Book className="w-5 h-5 text-blue-500 mx-1" />
+                    <span className="font-bold text-blue-600 dark:text-blue-300 mx-1">
+                      {hackathons}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
             <div className="flex items-center space-x-4">
               <ThemeToggle />
