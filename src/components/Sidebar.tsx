@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, BookOpen, Layers, User, Menu } from "lucide-react";
+import { Home, BookOpen, Layers, User, Menu, Brain } from "lucide-react";
 import pubhubLogo from "/pubhub.png";
 
 const navItems = [
   { to: "/dashboard", icon: <Home />, label: "Home" },
   { to: "/hackathons", icon: <Layers />, label: "Hackathons" },
   { to: "/open-source", icon: <BookOpen />, label: "Open Source" },
+  { to: "/start-learning", icon: <Brain/>, label: "Start Learning"},
   { to: "/account", icon: <User />, label: "Account" },
 ];
 

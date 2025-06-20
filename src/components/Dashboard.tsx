@@ -9,23 +9,14 @@ import {
     Info,
     Book,
 } from "lucide-react";
-import {
-    Chart as ChartJS,
-    ArcElement,
-    Tooltip,
-    Legend,
-} from "chart.js";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 import GitHubCalendar from "react-github-calendar";
 import { authService } from "../lib/auth";
 import { ThemeToggle } from "./ThemeToggle";
 import type { User } from "../lib/supabase";
 
-ChartJS.register(
-    ArcElement,
-    Tooltip,
-    Legend
-);
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface DashboardProps {
     user: User & {
@@ -37,30 +28,33 @@ export default function Dashboard({ user }: DashboardProps) {
     const [isLoading, setIsLoading] = useState(true);
     const [streak, setStreak] = useState(0);
     const [hackathons, setHackathons] = useState(0);
-    const [activeDays, setActiveDays] = useState(0)
+    const [activeDays, setActiveDays] = useState(0);
 
     // Check if we're in dark mode
     const isDarkMode = document.documentElement.classList.contains("dark");
 
-    useEffect(()=>{
+    useEffect(() => {
         const fetchActiveDays = async () => {
             try {
-                const response = await fetch('http://localhost:3001/api/user/active-days', {
-                    credentials: 'include'
-                });
-                if(!response.ok)throw new Error(`${response.status}`)
+                const response = await fetch(
+                    "http://localhost:3001/api/user/active-days",
+                    {
+                        credentials: "include",
+                    }
+                );
+                if (!response.ok) throw new Error(`${response.status}`);
                 const data = await response.json();
-                setActiveDays(data.activeDays)
+                setActiveDays(data.activeDays);
             } catch (error) {
-                console.log(error)
+                console.log(error);
             }
-        }
+        };
 
-        if(user){
+        if (user) {
             fetchActiveDays();
             setIsLoading(false);
         }
-    }, [user])
+    }, [user]);
 
     useEffect(() => {
         setStreak(Math.floor(Math.random() * 26) + 1); // 1-26
@@ -71,59 +65,6 @@ export default function Dashboard({ user }: DashboardProps) {
         authService.logout();
     };
 
-  const languageChartData = {
-    labels: Object.keys(user.languages || {}),
-    datasets: [
-      {
-        data: Object.values(user.languages || {}),
-        backgroundColor: [
-          "#3B82F6",
-          "#84CC16",
-          "#582C4D",
-          "#C60F7B",
-          "#D97706",
-          "#EC4899",
-          "#EF4444",
-          "#F59E0B",
-          "#10B981",
-          "#8B5CF6",
-          "#F97316",
-          "#06B6D4",
-        ],
-        borderWidth: 0,
-      },
-    ],
-  };
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false,
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        grid: {
-          color: isDarkMode
-            ? "rgba(255, 255, 255, 0.1)"
-            : "rgba(0, 0, 0, 0.05)",
-        },
-        ticks: {
-          color: isDarkMode ? "#e5e7eb" : "#374151",
-        },
-      },
-      x: {
-        grid: {
-          display: false,
-        },
-        ticks: {
-          color: isDarkMode ? "#e5e7eb" : "#374151",
-        },
-      },
-    },
-  };
     const languageChartData = {
         labels: Object.keys(user.languages || {}),
         datasets: [
@@ -131,18 +72,71 @@ export default function Dashboard({ user }: DashboardProps) {
                 data: Object.values(user.languages || {}),
                 backgroundColor: [
                     "#3B82F6",
+                    "#84CC16",
+                    "#582C4D",
+                    "#C60F7B",
+                    "#D97706",
+                    "#EC4899",
                     "#EF4444",
                     "#F59E0B",
                     "#10B981",
                     "#8B5CF6",
                     "#F97316",
                     "#06B6D4",
-                    "#84CC16",
                 ],
                 borderWidth: 0,
             },
         ],
     };
+    //   const chartOptions = {
+    //     responsive: true,
+    //     maintainAspectRatio: false,
+    //     plugins: {
+    //       legend: {
+    //         display: false,
+    //       },
+    //     },
+    //     scales: {
+    //       y: {
+    //         beginAtZero: true,
+    //         grid: {
+    //           color: isDarkMode
+    //             ? "rgba(255, 255, 255, 0.1)"
+    //             : "rgba(0, 0, 0, 0.05)",
+    //         },
+    //         ticks: {
+    //           color: isDarkMode ? "#e5e7eb" : "#374151",
+    //         },
+    //       },
+    //       x: {
+    //         grid: {
+    //           display: false,
+    //         },
+    //         ticks: {
+    //           color: isDarkMode ? "#e5e7eb" : "#374151",
+    //         },
+    //       },
+    //     },
+    //   };
+    // const languageChartData = {
+    //     labels: Object.keys(user.languages || {}),
+    //     datasets: [
+    //         {
+    //             data: Object.values(user.languages || {}),
+    //             backgroundColor: [
+    //                 "#3B82F6",
+    //                 "#EF4444",
+    //                 "#F59E0B",
+    //                 "#10B981",
+    //                 "#8B5CF6",
+    //                 "#F97316",
+    //                 "#06B6D4",
+    //                 "#84CC16",
+    //             ],
+    //             borderWidth: 0,
+    //         },
+    //     ],
+    // };
 
     const doughnutOptions = {
         responsive: true,
@@ -312,7 +306,9 @@ export default function Dashboard({ user }: DashboardProps) {
                                 <div className="overflow-x-auto">
                                     <GitHubCalendar
                                         username={user.github_username}
-                                        colorScheme={isDarkMode ? "dark" : "light"}
+                                        colorScheme={
+                                            isDarkMode ? "dark" : "light"
+                                        }
                                         blockRadius={2}
                                         blockSize={12}
                                         blockMargin={4}
