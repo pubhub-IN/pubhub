@@ -94,55 +94,55 @@ export default function Dashboard({ user }: DashboardProps) {
       },
     ],
   };
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false,
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        grid: {
-          color: isDarkMode
-            ? "rgba(255, 255, 255, 0.1)"
-            : "rgba(0, 0, 0, 0.05)",
-        },
-        ticks: {
-          color: isDarkMode ? "#e5e7eb" : "#374151",
-        },
-      },
-      x: {
-        grid: {
-          display: false,
-        },
-        ticks: {
-          color: isDarkMode ? "#e5e7eb" : "#374151",
-        },
-      },
-    },
-  };
-    const languageChartData = {
-        labels: Object.keys(user.languages || {}),
-        datasets: [
-            {
-                data: Object.values(user.languages || {}),
-                backgroundColor: [
-                    "#3B82F6",
-                    "#EF4444",
-                    "#F59E0B",
-                    "#10B981",
-                    "#8B5CF6",
-                    "#F97316",
-                    "#06B6D4",
-                    "#84CC16",
-                ],
-                borderWidth: 0,
-            },
-        ],
-    };
+//   const chartOptions = {
+//     responsive: true,
+//     maintainAspectRatio: false,
+//     plugins: {
+//       legend: {
+//         display: false,
+//       },
+//     },
+//     scales: {
+//       y: {
+//         beginAtZero: true,
+//         grid: {
+//           color: isDarkMode
+//             ? "rgba(255, 255, 255, 0.1)"
+//             : "rgba(0, 0, 0, 0.05)",
+//         },
+//         ticks: {
+//           color: isDarkMode ? "#e5e7eb" : "#374151",
+//         },
+//       },
+//       x: {
+//         grid: {
+//           display: false,
+//         },
+//         ticks: {
+//           color: isDarkMode ? "#e5e7eb" : "#374151",
+//         },
+//       },
+//     },
+//   };
+//     const languageChartData = {
+//         labels: Object.keys(user.languages || {}),
+//         datasets: [
+//             {
+//                 data: Object.values(user.languages || {}),
+//                 backgroundColor: [
+//                     "#3B82F6",
+//                     "#EF4444",
+//                     "#F59E0B",
+//                     "#10B981",
+//                     "#8B5CF6",
+//                     "#F97316",
+//                     "#06B6D4",
+//                     "#84CC16",
+//                 ],
+//                 borderWidth: 0,
+//             },
+//         ],
+//     };
 
     const doughnutOptions = {
         responsive: true,
