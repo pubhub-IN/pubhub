@@ -37,7 +37,7 @@ export default function Dashboard({ user }: DashboardProps) {
         const fetchActiveDays = async () => {
             try {
                 const response = await fetch(
-                    "http://localhost:3001/api/user/active-days",
+                    "http://localhost:3000/api/user/active-days",
                     {
                         credentials: "include",
                     }
