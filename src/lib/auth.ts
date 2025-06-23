@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:3000";
+const API_BASE_URL = "http://localhost:3001";
 
 // Session refresh interval (25 minutes)
 const SESSION_REFRESH_INTERVAL = 25 * 60 * 1000;
@@ -110,13 +110,13 @@ export const authService = {
       stopSessionRefresh();
       
       if (error instanceof DOMException && error.name === 'AbortError') {
-        console.error("Request timeout - server may not be running on port 3000");
+        console.error("Request timeout - server may not be running on port 3001");
         throw new Error("Connection timeout: Please ensure the server is running");
       }
       
       if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
         console.error("Network error - server may not be running or CORS issue");
-        throw new Error("Unable to connect to server: Please ensure the backend server is running on port 3000");
+        throw new Error("Unable to connect to server: Please ensure the backend server is running on port 3001");
       }
       
       console.error("Error fetching current user:", error);
