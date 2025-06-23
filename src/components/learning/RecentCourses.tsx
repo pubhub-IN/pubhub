@@ -1,9 +1,8 @@
 import { Link } from 'react-router-dom';
 import { Clock, BookOpen } from 'lucide-react';
 import { User } from '../../lib/supabase';
-import { getRecentCourses } from '../../lib/courseProgress';
+import { getRecentCourses, getTotalLessonCount, getNextLessonPath } from '../../lib/courseProgress';
 import { getCourseById } from '../../courses/courseData';
-import type { Course } from '../../types/course';
 
 interface RecentCoursesProps {
   user: User;
@@ -61,7 +60,7 @@ export default function RecentCourses({ user, limit = 3 }: RecentCoursesProps) {
               <div className="flex items-center gap-4 mt-1 text-sm">
                 <div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
                   <BookOpen className="w-3 h-3" />
-                  <span>{getCourseModuleCount(course)} modules</span>
+                  <span>{course.modules.length} modules</span>
                 </div>
                 <div className="text-gray-500 dark:text-gray-400">
                   {progress.isCompleted ? (
@@ -94,34 +93,4 @@ export default function RecentCourses({ user, limit = 3 }: RecentCoursesProps) {
   );
 }
 
-// Helper functions
-function getCourseModuleCount(course: Course): number {
-  return course.modules.length;
-}
-
-function getTotalLessonCount(course: Course): number {
-  return course.modules.reduce((total, module) => {
-    return total + module.lessons.length;
-  }, 0);
-}
-
-function getNextLessonPath(course: Course, completedLessons: string[]): string {
-  // If course is completed, return to the course page
-  if (completedLessons.length >= getTotalLessonCount(course)) {
-    return `/courses/${course.id}`;
-  }
-  
-  // Find the first non-completed lesson
-  for (const module of course.modules) {
-    for (const lesson of module.lessons) {
-      if (!completedLessons.includes(lesson.id)) {
-        return `/courses/${course.id}/${module.id}/${lesson.id}`;
-      }
-    }
-  }
-  
-  // Default to the first lesson if no non-completed lesson is found
-  const firstModule = course.modules[0];
-  const firstLesson = firstModule?.lessons[0];
-  return `/courses/${course.id}/${firstModule?.id}/${firstLesson?.id}`;
-}
+// Helper functions are now in /lib/courseProgress.ts

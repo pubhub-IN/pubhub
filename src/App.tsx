@@ -19,7 +19,7 @@ import StartLearning from "./pages/StartLearning";
 import CourseDetailPage from "./pages/learning/CourseDetailPage";
 import LessonPage from "./pages/learning/LessonPage";
 import CourseCompletionPage from "./pages/learning/CourseCompletionPage";
-
+import Youtube from "./pages/Youtube";
 function Layout() {
     return (
         <div className="flex">
@@ -190,6 +190,10 @@ function App() {
                     <Route 
                         path="start-learning"
                         element={ <StartLearning user={user!}/> }
+                    />
+                    <Route
+                        path="youtube"
+                        element={ <Youtube/> }
                     />
                     <Route 
                         path="courses/:courseId"

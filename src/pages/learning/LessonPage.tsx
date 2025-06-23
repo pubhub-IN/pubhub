@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, Clock, BookOpen, Award, Check, AlertTriangle
 import { getCourseById } from '../../courses/courseData';
 import CourseNavigation from '../../components/learning/CourseNavigation';
 import LessonContentRenderer from '../../components/learning/LessonContentRenderer';
-import { markLessonAsCompleted, isLessonCompleted, canCompleteCourse, getCourseCompletionPercentage } from '../../lib/courseProgress';
+import { markLessonAsCompleted, isLessonCompleted, canCompleteCourse, getCourseCompletionPercentage, getCourseProgress, getNextLessonPath } from '../../lib/courseProgress';
 import { User } from '../../lib/supabase';
 import { useLocation } from 'react-router-dom';
 // import CourseCompletionPage from './CourseCompletionPage';
@@ -24,6 +24,9 @@ export default function LessonPage({ user }: LessonPageProps) {
   
   // Fetch course data
   const course = getCourseById(courseId || '');
+  const courseProgress = getCourseProgress(user, courseId || '');
+  const nextLessonPath = course && courseProgress ? getNextLessonPath(course, courseProgress.completedLessons) : `/courses/${courseId}`;
+
   
   // Calculate total lessons in the course
   const totalLessons = course?.modules.reduce((total, module) => {
@@ -76,6 +79,27 @@ export default function LessonPage({ user }: LessonPageProps) {
           className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
         >
           Back to Courses
+        </Link>
+      </div>
+    );
+  }
+  
+  // Check if the course is available - if not, redirect to the course detail page
+  if (course.isAvailable === false) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen p-4">
+        <div className="flex items-center text-amber-600 mb-4">
+          <AlertTriangle className="w-6 h-6 mr-2" />
+          <h1 className="text-2xl font-bold">Coming Soon</h1>
+        </div>
+        <p className="text-gray-600 dark:text-gray-400 mb-6 text-center max-w-lg">
+          This course is not yet available. Check back later when it's released.
+        </p>
+        <Link 
+          to={`/courses/${course.id}`} 
+          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+        >
+          Back to Course Details
         </Link>
       </div>
     );
@@ -280,7 +304,7 @@ export default function LessonPage({ user }: LessonPageProps) {
                       </button>
                     ) : (
                       <Link
-                        to={`/courses/${courseId}`}
+                        to={nextLessonPath}
                         className="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-md"
                       >
                         <BookOpen size={16} />
