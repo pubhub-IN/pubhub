@@ -48,7 +48,7 @@ A platform for developers to showcase their GitHub activity, participate in hack
 
 This will start:
 - Frontend (Vite + React) on `http://localhost:5173`
-- Backend (Express) on `http://localhost:3001`
+- Backend (Express) on `http://localhost:3000`
 
 ### Individual Commands
 
@@ -64,13 +64,13 @@ This will start:
 If you see a "Failed to fetch" error when refreshing the application:
 
 1. Ensure both the frontend and backend servers are running
-2. Check that the backend is accessible at `http://localhost:3001`
+2. Check that the backend is accessible at `http://localhost:3000`
 3. Verify your environment variables are properly set
 4. The app will automatically retry connecting to the server
 
 ### Server Connection Issues
 
-- Make sure port 3001 is not being used by another application
+- Make sure port 3000 is not being used by another application
 - Check that your firewall isn't blocking the connection
 - Verify your environment variables match your GitHub OAuth app settings
 

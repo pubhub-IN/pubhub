@@ -9,7 +9,7 @@ import { createClient } from "@supabase/supabase-js";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
 // Rate limiting helper
@@ -101,7 +101,7 @@ passport.use(
         {
             clientID: process.env.VITE_GITHUB_CLIENT_ID,
             clientSecret: process.env.GITHUB_CLIENT_SECRET,
-            callbackURL: "http://localhost:3001/auth/github/callback",
+            callbackURL: "http://localhost:3000/auth/github/callback",
         },
         async (accessToken, refreshToken, profile, done) => {
             try {
@@ -547,8 +547,37 @@ app.get("/api/user/session-status", (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
+// Graceful shutdown handling
+process.on('SIGTERM', () => {
+    console.log('SIGTERM received, shutting down gracefully');
+    server.close(() => {
+        console.log('Server closed');
+        process.exit(0);
+    });
+});
+
+process.on('SIGINT', () => {
+    console.log('SIGINT received, shutting down gracefully');
+    server.close(() => {
+        console.log('Server closed');
+        process.exit(0);
+    });
+});
+
+// Handle port already in use error
+const server = app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
+}).on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+        console.error(`Port ${PORT} is already in use. Please try one of the following:`);
+        console.error(`1. Kill the process using port ${PORT}: lsof -ti:${PORT} | xargs kill -9`);
+        console.error(`2. Use a different port by setting PORT environment variable`);
+        console.error(`3. Wait a moment and try again`);
+        process.exit(1);
+    } else {
+        console.error('Server error:', err);
+        process.exit(1);
+    }
 });
 
 app.get("/health", (req, res) => {
