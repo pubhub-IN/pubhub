@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:3001";
+const API_BASE_URL = "http://localhost:3000";
 
 // Session refresh interval (25 minutes)
 const SESSION_REFRESH_INTERVAL = 25 * 60 * 1000;
@@ -8,8 +8,8 @@ let refreshTimer: NodeJS.Timeout | null = null;
 export const checkServerHealth = async (): Promise<boolean> => {
   try {
     const response = await fetch(`${API_BASE_URL}/health`, {
-      method: 'GET',
-      cache: 'no-cache',
+      method: "GET",
+      cache: "no-cache",
     });
     return response.ok;
   } catch (error) {
@@ -21,16 +21,16 @@ export const checkServerHealth = async (): Promise<boolean> => {
 const refreshSession = async (): Promise<boolean> => {
   try {
     const response = await fetch(`${API_BASE_URL}/api/user/refresh-session`, {
-      method: 'POST',
+      method: "POST",
       credentials: "include",
       headers: {
         Accept: "application/json",
-        'Cache-Control': 'no-cache',
+        "Cache-Control": "no-cache",
       },
     });
     return response.ok;
   } catch (error) {
-    console.error('Session refresh failed:', error);
+    console.error("Session refresh failed:", error);
     return false;
   }
 };
@@ -40,11 +40,11 @@ const startSessionRefresh = () => {
   if (refreshTimer) {
     clearInterval(refreshTimer);
   }
-  
+
   refreshTimer = setInterval(async () => {
     const refreshed = await refreshSession();
     if (!refreshed) {
-      console.warn('Session refresh failed - user may need to re-authenticate');
+      console.warn("Session refresh failed - user may need to re-authenticate");
       stopSessionRefresh();
     }
   }, SESSION_REFRESH_INTERVAL);
@@ -70,10 +70,10 @@ export const authService = {
         credentials: "include",
         headers: {
           Accept: "application/json",
-          'Cache-Control': 'no-cache', // Prevent caching of auth state
+          "Cache-Control": "no-cache", // Prevent caching of auth state
         },
         signal: controller.signal,
-        cache: 'no-store', // Force fresh request
+        cache: "no-store", // Force fresh request
       });
 
       clearTimeout(timeoutId);
@@ -82,10 +82,10 @@ export const authService = {
       if (response.ok) {
         const data = await response.json();
         console.log("Auth response data:", data);
-        
+
         // Start session refresh when user is authenticated
         startSessionRefresh();
-        
+
         return data;
       }
 
@@ -108,17 +108,28 @@ export const authService = {
       return null;
     } catch (error) {
       stopSessionRefresh();
-      
-      if (error instanceof DOMException && error.name === 'AbortError') {
-        console.error("Request timeout - server may not be running on port 3001");
-        throw new Error("Connection timeout: Please ensure the server is running");
+
+      if (error instanceof DOMException && error.name === "AbortError") {
+        console.error(
+          "Request timeout - server may not be running on port 3000"
+        );
+        throw new Error(
+          "Connection timeout: Please ensure the server is running"
+        );
       }
-      
-      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-        console.error("Network error - server may not be running or CORS issue");
-        throw new Error("Unable to connect to server: Please ensure the backend server is running on port 3001");
+
+      if (
+        error instanceof TypeError &&
+        error.message.includes("Failed to fetch")
+      ) {
+        console.error(
+          "Network error - server may not be running or CORS issue"
+        );
+        throw new Error(
+          "Unable to connect to server: Please ensure the backend server is running on port 3001"
+        );
       }
-      
+
       console.error("Error fetching current user:", error);
       throw error;
     }
@@ -176,5 +187,5 @@ export const authService = {
     } catch (error) {
       return false;
     }
-  }
+  },
 };
