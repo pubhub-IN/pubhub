@@ -1,4 +1,4 @@
-import { User } from "../lib/supabase";
+import { AuthUser } from "../lib/auth-jwt";
 import { LogOut } from "lucide-react";
 import GitHubCalendar from "react-github-calendar";
 
@@ -6,7 +6,7 @@ export default function AccountPage({
   user,
   onLogout,
 }: {
-  user: User;
+  user: AuthUser;
   onLogout: () => void;
 }) {
   return (

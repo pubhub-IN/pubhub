@@ -12,7 +12,7 @@ import {
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 import GitHubCalendar from "react-github-calendar";
-import { authService } from "../lib/auth";
+import { authService } from "../lib/auth-jwt";
 import { ThemeToggle } from "./ThemeToggle";
 import type { User } from "../lib/supabase";
 
@@ -36,17 +36,38 @@ export default function Dashboard({ user }: DashboardProps) {
     useEffect(() => {
         const fetchActiveDays = async () => {
             try {
-                const response = await fetch(
-                    "http://localhost:3000/api/user/active-days",
-                    {
-                        credentials: "include",
-                    }
+                // Debug: Check if we have a token
+                const token = authService.getToken();
+                console.log('JWT Token exists:', !!token);
+                console.log('Is authenticated:', authService.isAuthenticated());
+                
+                if (!token) {
+                    console.error('No JWT token found in localStorage');
+                    return;
+                }
+                
+                // Debug: Log token expiration
+                const expiration = authService.getTokenExpiration();
+                console.log('Token expiration:', expiration);
+                console.log('Token expired:', expiration ? expiration < new Date() : 'Unknown');
+                
+                const response = await authService.fetchWithAuth(
+                    "http://localhost:3000/api/user/active-days"
                 );
-                if (!response.ok) throw new Error(`${response.status}`);
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Response error:', errorText);
+                    throw new Error(`${response.status}: ${errorText}`);
+                }
+                
                 const data = await response.json();
                 setActiveDays(data.activeDays);
             } catch (error) {
-                console.log(error);
+                console.error('fetchActiveDays error:', error);
             }
         };
 
@@ -153,6 +174,21 @@ export default function Dashboard({ user }: DashboardProps) {
         },
     };
 
+    // Debug function to test authentication
+    const testAuthentication = async () => {
+        try {
+            console.log('Testing authentication...');
+            const response = await authService.fetchWithAuth(
+                "http://localhost:3000/api/test-auth"
+            );
+            console.log('Test auth response status:', response.status);
+            const data = await response.json();
+            console.log('Test auth response data:', data);
+        } catch (error) {
+            console.error('Test auth error:', error);
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -204,6 +240,12 @@ export default function Dashboard({ user }: DashboardProps) {
                             </div>
                         </div>
                         <div className="flex items-center space-x-4">
+                            <button
+                                onClick={testAuthentication}
+                                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                            >
+                                Test Auth
+                            </button>
                             <ThemeToggle />
                             <button
                                 onClick={handleLogout}

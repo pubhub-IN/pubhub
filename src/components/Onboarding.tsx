@@ -2,7 +2,7 @@ import { useState, KeyboardEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "./ThemeToggle";
 import { User } from "../lib/supabase";
-import { authService } from "../lib/auth";
+import { authService, AuthUser } from "../lib/auth-jwt";
 
 const TECHNOLOGIES = [
   "JavaScript",
@@ -99,10 +99,16 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
       const updatedUser = await authService.updateTechnologies(
         selectedTechnologies
       );
-      onComplete(updatedUser);
-      navigate("/dashboard");
+      
+      if (updatedUser) {
+        onComplete(updatedUser as User);
+        navigate("/dashboard");
+      } else {
+        setError("Failed to update technologies. Please try again.");
+      }
     } catch (error) {
       console.error("Error updating technologies:", error);
+      setError("Failed to update technologies. Please try again.");
     } finally {
       setIsLoading(false);
     }

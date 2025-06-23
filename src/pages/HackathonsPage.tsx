@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import hackathons from "../Hackathon-data/hackathonData.json";
-import { User } from "../lib/supabase";
+import { AuthUser } from "../lib/auth-jwt";
 import { Calendar, Globe, Info, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Hackathon {
@@ -14,16 +14,26 @@ interface Hackathon {
 }
 
 const motivations = [
-  "Keep pushing forward!",
-  "You're doing great!",
-  "Every day is a new opportunity!",
-  "Stay curious and keep building!",
-  "Your hard work will pay off!",
-  "Dream big, build bigger!",
-  "Innovation starts with you!",
-  "Make today count!",
-  "Success is a journey!",
-  "Keep learning, keep growing!",
+  "Code for change, contribute today!",
+  "Your PR can power the world.",
+  "Open source needs your spark.",
+  "Start small, impact big!",
+  "Build. Share. Inspire.",
+  "Every commit counts!",
+  "Change the world, one repo at a time.",
+  "Contribute. Collaborate. Create.",
+  "Your code matters.",
+  "Give back through Git.",
+  "Hack for good, code for all.",
+  "Real heroes commit.",
+  "Share code, shape futures.",
+  "Empower others, open your code.",
+  "Fork it. Fix it. PR it.",
+  "Be proud, contribute loud!",
+  "You + Open Source = 🔥",
+  "Push kindness with code.",
+  "Code freely, help globally.",
+  "Make GitHub proud today!",
 ];
 
 function getWish() {
@@ -45,7 +55,7 @@ function daysLeft(dateStr: string) {
   return diff > 0 ? diff : null;
 }
 
-export default function HackathonsPage({ user }: { user: User }) {
+export default function HackathonsPage({ user }: { user: AuthUser }) {
   const [motivation, setMotivation] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;

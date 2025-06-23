@@ -5,6 +5,8 @@ import { Strategy as GitHubStrategy } from "passport-github2";
 import cors from "cors";
 import dotenv from "dotenv";
 import { createClient } from "@supabase/supabase-js";
+import jwt from "jsonwebtoken";
+import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 
 dotenv.config();
 
@@ -94,6 +96,40 @@ app.use(
 // Initialize Passport
 app.use(passport.initialize());
 app.use(passport.session());
+
+const opts = {
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: process.env.SESSION_SECRET,
+};
+
+passport.use(
+    new JwtStrategy(opts, async (jwt_payload, done) => {
+        try {
+            console.log('JWT Strategy - Payload:', jwt_payload);
+            const { data: user, error } = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', jwt_payload.id)
+                .single();
+
+            if (error) {
+                console.error('JWT Strategy - Database error:', error);
+                return done(error, false);
+            }
+
+            if (user) {
+                console.log('JWT Strategy - User found:', user.github_username);
+                return done(null, user);
+            } else {
+                console.log('JWT Strategy - User not found for ID:', jwt_payload.id);
+                return done(null, false);
+            }
+        } catch (error) {
+            console.error('JWT Strategy - Unexpected error:', error);
+            return done(error, false);
+        }
+    })
+);
 
 // Passport GitHub Strategy
 passport.use(
@@ -385,15 +421,11 @@ app.get(
         failureRedirect: "http://localhost:5173/?error=auth_failed",
     }),
     (req, res) => {
-        // Check if user has completed onboarding
-        const hasCompletedOnboarding =
-            req.user.technologies && req.user.technologies.length > 0;
-
-        if (hasCompletedOnboarding) {
-            res.redirect(`http://localhost:5173/dashboard`);
-        } else {
-            res.redirect(`http://localhost:5173/onboarding`);
-        }
+        // Successful authentication, redirect home.
+        // res.redirect("http://localhost:5173/");
+        const user = req.user;
+        const token = jwt.sign({ id: user.id, username: user.github_username }, process.env.SESSION_SECRET, { expiresIn: '1d' });
+        res.redirect(`http://localhost:5173/?token=${token}`);
     }
 );
 
@@ -406,33 +438,31 @@ app.get("/auth/logout", (req, res) => {
     });
 });
 
-app.get("/api/user", (req, res) => {
-    console.log("Session ID:", req.sessionID);
-    console.log("Session data:", req.session);
-    console.log("Is authenticated:", req.isAuthenticated());
-    console.log("User in session:", req.user);
-    console.log("Session cookie maxAge:", req.session.cookie.maxAge);
-    console.log("Session expires at:", new Date(Date.now() + req.session.cookie.maxAge));
-    
-    if (req.isAuthenticated()) {
+app.get("/api/user", passport.authenticate('jwt', { session: false }), (req, res) => {
+    if (req.user) {
         res.json(req.user);
     } else {
-        res.status(401).json({ error: "Not authenticated" });
+        res.status(401).json({ message: "Not authenticated" });
     }
 });
 
-app.put("/api/user/technologies", async (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.status(401).json({ error: "Not authenticated" });
+app.put("/api/user/technologies", passport.authenticate('jwt', { session: false }), async (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({ message: "Not authenticated" });
+    }
+
+    const userId = req.user.id;
+    const { technologies } = req.body;
+
+    if (!Array.isArray(technologies)) {
+        return res.status(400).json({ message: "Technologies must be an array" });
     }
 
     try {
-        const { technologies } = req.body;
-
         const { data: updatedUser, error } = await supabase
             .from("users")
             .update({ technologies })
-            .eq("id", req.user.id)
+            .eq("id", userId)
             .select()
             .single();
 
@@ -445,15 +475,21 @@ app.put("/api/user/technologies", async (req, res) => {
     }
 });
 
-app.get("/api/user/active-days", async (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.status(401).json({ error: "Not authenticated" });
+app.get("/api/user/active-days", passport.authenticate('jwt', { session: false }), async (req, res) => {
+    console.log('Active days endpoint - req.user:', req.user ? 'User exists' : 'User missing');
+    console.log('Active days endpoint - Authorization header:', req.headers.authorization ? 'Present' : 'Missing');
+    
+    if (!req.user) {
+        console.log('Active days endpoint - Returning 401: Not authenticated');
+        return res.status(401).json({ message: "Not authenticated" });
     }
+    const username = req.user.github_username;
+    console.log('Active days endpoint - Fetching for username:', username);
 
     try {
-        console.log(`Fetching active days for user: ${req.user.github_username}`);
-        const days = await activeDays(req.user.github_username);
-        res.json({ activeDays: days.size });
+        const activeDaysData = await activeDays(username);
+        console.log('Active days endpoint - Success, returning data');
+        res.json({ activeDays: activeDaysData.size });
     } catch (error) {
         console.error("Error fetching active days:", error);
         res.status(500).json({ 
@@ -463,16 +499,13 @@ app.get("/api/user/active-days", async (req, res) => {
     }
 });
 
-app.get("/api/user/commit-history", async (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.status(401).json({ error: "Not authenticated" });
+app.get("/api/user/commit-history", passport.authenticate('jwt', { session: false }), async (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({ message: "Not authenticated" });
     }
-
+    const username = req.user.github_username;
     try {
-        console.log(`Fetching commit history for user: ${req.user.github_username}`);
-        const commitHistory = await getCommitHistoryWithDates(
-            req.user.github_username
-        );
+        const commitHistory = await getCommitHistoryWithDates(username);
         res.json({ commitHistory });
     } catch (error) {
         console.error("Error fetching commit history:", error);
@@ -483,44 +516,112 @@ app.get("/api/user/commit-history", async (req, res) => {
     }
 });
 
+app.get('/api/user/repositories', passport.authenticate('jwt', { session: false }), async (req, res) => {
+    if (!req.user) {
+        return res.status(401).json({ success: false, message: 'Not authenticated' });
+    }
+
+    const { id: userId, github_token } = req.user;
+
+    try {
+        const { data: user, error } = await supabase
+            .from('users')
+            .select('technologies')
+            .eq('id', userId)
+            .single();
+
+        if (error || !user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        const technologies = user.technologies || [];
+        const techRepoPromises = technologies.map(async (tech) => {
+            const url = `https://api.github.com/search/repositories?q=${encodeURIComponent(tech)}&sort=stars&order=desc`;
+            const headers = {
+                Accept: 'application/vnd.github.v3+json',
+                Authorization: `token ${github_token}`,
+            };
+            const response = await makeGitHubAPICall(url, headers);
+            if (!response.ok) {
+                return { technology: tech, repositories: [], error: `GitHub API error: ${response.statusText}` };
+            }
+            const data = await response.json();
+            return { technology: tech, repositories: data.items.slice(0, 10) };
+        });
+
+        const techSections = await Promise.all(techRepoPromises);
+        res.json({ success: true, technologies: techSections });
+    } catch (err) {
+        console.error('Error fetching repositories:', err);
+        res.status(500).json({ success: false, message: 'Failed to load repositories' });
+    }
+});
+
+
 // Test endpoint to verify GitHub API authentication
 app.get('/api/test-github', async (req, res) => {
-  try {
-    console.log('Testing GitHub API authentication...');
-    
-    // Test basic API access
-    const response = await makeGitHubAPICall('https://api.github.com/user', {
-      Accept: "application/vnd.github.v3+json",
-      "User-Agent": "PubHub-App"
-    });
-    
-    if (response && response.login) {
-      res.json({ 
-        success: true, 
-        message: 'GitHub API authentication successful',
-        user: response.login,
-        rateLimit: {
-          limit: response.headers?.get('x-ratelimit-limit'),
-          remaining: response.headers?.get('x-ratelimit-remaining'),
-          reset: response.headers?.get('x-ratelimit-reset')
-        }
-      });
-    } else {
-      res.status(401).json({ 
-        success: false, 
-        message: 'GitHub API authentication failed',
-        error: 'No user data returned',
-        response: response
-      });
+    if (!req.user || !req.user.github_token) {
+        return res.status(401).json({ 
+            success: false, 
+            message: 'GitHub API authentication failed: No user or token' 
+        });
     }
-  } catch (error) {
-    console.error('GitHub API test failed:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'GitHub API test failed',
-      error: error.message 
+
+    try {
+        console.log('Testing GitHub API authentication...');
+        
+        // Test basic API access
+        const response = await makeGitHubAPICall('https://api.github.com/user', {
+          Accept: "application/vnd.github.v3+json",
+          "User-Agent": "PubHub-App"
+        });
+        
+        if (response && response.login) {
+          res.json({ 
+            success: true, 
+            message: 'GitHub API authentication successful',
+            user: response.login,
+            rateLimit: {
+              limit: response.headers?.get('x-ratelimit-limit'),
+              remaining: response.headers?.get('x-ratelimit-remaining'),
+              reset: response.headers?.get('x-ratelimit-reset')
+            }
+          });
+        } else {
+          res.status(401).json({ 
+            success: false, 
+            message: 'GitHub API authentication failed',
+            error: 'No user data returned',
+            response: response
+          });
+        }
+    } catch (error) {
+        console.error('GitHub API test failed:', error);
+        res.status(500).json({ 
+          success: false, 
+          message: 'GitHub API test failed',
+          error: error.message 
+        });
+    }
+});
+
+// Test JWT authentication endpoint
+app.get("/api/test-auth", passport.authenticate('jwt', { session: false }), async (req, res) => {
+    console.log('Test auth endpoint - req.user:', req.user ? req.user.github_username : 'No user');
+    console.log('Test auth endpoint - Authorization header:', req.headers.authorization);
+    
+    if (!req.user) {
+        return res.status(401).json({ message: "Not authenticated", user: null });
+    }
+    
+    res.json({ 
+        message: "Authentication successful", 
+        user: {
+            id: req.user.id,
+            username: req.user.github_username,
+            name: req.user.name
+        }
     });
-  }
 });
 
 // Session refresh endpoint

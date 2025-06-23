@@ -46,9 +46,9 @@ export const youtubers: YouTuber[] = [
   },
   {
     name: "Don Jones",
-    channelUrl: "https://www.youtube.com/c/DonJonesConTech",
-    avatarUrl: "https://yt3.ggpht.com/a/AATXAJwVjl968ProbjWSmYNghqYxAG_EI0-3ZK6QNIHM=s88-c-k-c0x00ffffff-no-rj",
-    description: "PowerShell",
+    channelUrl: "https://www.youtube.com/@DonJones",
+    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJXsT8qW7rM9oH6pL3jG9kN5hF2sX_Q8vN=s176-c-k-c0x00ffffff-no-rj",
+    description: "PowerShell and Windows administration tutorials",
     playlists: ["Learn Windows PowerShell in a Month of Lunches", "SAPIEN PowerShell Training", "PowerShell Tips, Tricks, and Snippets"],
     category: "Programming in general"
   },
@@ -136,65 +136,65 @@ export const youtubers: YouTuber[] = [
   // Web Development
   {
     name: "The Net Ninja",
-    channelUrl: "https://www.youtube.com/c/TheNetNinja",
-    avatarUrl: "https://yt3.ggpht.com/a/AATXAJwEYMLm54q5CX7NwBsUrETHMZvMca9tp-3vxrorBA=s100-c-k-c0xffffffff-no-rj-mo",
-    description: "Frontend, Frameworks",
+    channelUrl: "https://www.youtube.com/@NetNinja",
+    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJWzJ5Q8rG2kT7oV3pM9sL6hF4jX_Q8sN=s176-c-k-c0x00ffffff-no-rj",
+    description: "Frontend web development tutorials by Shaun Pelling. React, Vue, JavaScript, CSS, and more.",
     playlists: ["Flutter Tutorial for Beginners", "React.js and React Native playlists", "JavaScript playlists", "GraphQL Tutorial"],
     category: "Web Development"
   },
   {
     name: "Kevin Powell",
-    channelUrl: "https://www.youtube.com/kepowob",
-    avatarUrl: "https://yt3.ggpht.com/a/AATXAJwEYMLm54q5CX7NwBsUrETHMZvMca9tp-3vxrorBA=s100-c-k-c0xffffffff-no-rj-mo",
-    description: "CSS",
+    channelUrl: "https://www.youtube.com/@KevinPowell",
+    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJXjJV7PfDLiGM1R2rK2cGV3zHX9sGqKBnxQSzJGFw=s176-c-k-c0x00ffffff-no-rj",
+    description: "CSS evangelist helping people fall in love with CSS",
     playlists: ["CSS Grid videos", "Flexbox basics", "Responsive CSS tutorials", "CSS animation"],
     category: "Web Development"
   },
   {
     name: "Hussein Nasser",
-    channelUrl: "https://www.youtube.com/c/HusseinNasser-software-engineering",
-    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJWZhcYZ5Mr0HuK-Zyd2v1cJ27OvlwSDlZ0aNLOE=s176-c-k-c0x00ffffff-no-rj",
-    description: "Databases, Networking, Backend Development, Security, Protocols",
+    channelUrl: "https://www.youtube.com/@hnasr",
+    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJXHaFr8dVqm3uHgwjdwGzH3zOTcKq3v4SkgJh8=s176-c-k-c0x00ffffff-no-rj",
+    description: "Software engineer specializing in backend engineering. Databases, Networking, Backend Development, Security, Protocols",
     playlists: ["High Availability", "Python by Example", "HTTP/2", "Message Queues & PubSub Systems", "Proxies"],
     category: "Web Development"
   },
   {
     name: "ThePrimeagen",
     channelUrl: "https://www.youtube.com/@ThePrimeagen",
-    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJWZhcYZ5Mr0HuK-Zyd2v1cJ27OvlwSDlZ0aNLOE=s176-c-k-c0x00ffffff-no-rj",
-    description: "Backend Development, Concepts, Optimization techniques, Tools, Languages",
+    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJXxcJ-9_VrFhJw_qGOtN8q1R6ZRJnZ-VlGpQH6VKg=s176-c-k-c0x00ffffff-no-rj",
+    description: "Software engineer, Vim enthusiast, former Netflix engineer. Backend Development, Concepts, Optimization techniques, Tools, Languages",
     playlists: ["Backend Development", "Programming Concepts", "Tech Reviews"],
     category: "Web Development"
   },
   {
     name: "Fireship",
-    channelUrl: "https://www.youtube.com/c/Fireship",
-    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJUEZ3y2RU_MSwA2-w_4-G2v1l_9-c41_8-i7A=s176-c-k-c0x00ffffff-no-rj",
-    description: "Short, fast-paced coding tutorials on modern tech.",
+    channelUrl: "https://www.youtube.com/@Fireship",
+    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJVJSWtMGjb7_8Jq7qWOGdx1qgT8l6Y-VGjQsJ4=s176-c-k-c0x00ffffff-no-rj",
+    description: "High-intensity ⚡ code tutorials and tech news by Jeff Delaney. Short, fast-paced coding tutorials on modern tech.",
     playlists: ["100 Seconds of Code", "Angular Basics", "Firebase", "Flutter"],
     category: "Web Development"
   },
   {
     name: "Traversy Media",
-    channelUrl: "https://www.youtube.com/c/TraversyMedia",
-    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJVgh9CKC2g_3p_G_V-f_D_gCEk8a_g_g_g_g=s176-c-k-c0x00ffffff-no-rj",
-    description: "Web development and programming tutorials.",
+    channelUrl: "https://www.youtube.com/@TraversyMedia",
+    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJWVjl968ProbjWSmYNghqYxAG_EI0-3ZK6QNIHM=s176-c-k-c0x00ffffff-no-rj",
+    description: "Web development and programming tutorials by Brad Traversy.",
     playlists: ["HTML/CSS", "JavaScript", "React", "Node.js/Express"],
     category: "Web Development"
   },
   {
     name: "Coding Tech",
-    channelUrl: "https://www.youtube.com/c/CodingTech",
-    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJUE_t_F-A_B_A_A_A_A_A_A_A_A_A=s176-c-k-c0x00ffffff-no-rj",
-    description: "IT technologies, CSS, JS, Python, Django, blockchain, microservices.",
+    channelUrl: "https://www.youtube.com/@CodingTech",
+    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJUqT8rW7mM9oH6pL3jG9kN5hF2sX_Q8vN=s176-c-k-c0x00ffffff-no-rj",
+    description: "Programming conference talks and tech presentations. IT technologies, CSS, JS, Python, Django, blockchain, microservices.",
     playlists: ["CSS", "JavaScript", "Python", "Django"],
     category: "Web Development"
   },
   {
     name: "Harkirat Singh",
-    channelUrl: "https://www.youtube.com/c/HarkiratSingh",
-    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJUE_t_F-A_B_A_A_A_A_A_A_A_A_A=s176-c-k-c0x00ffffff-no-rj",
-    description: "Hands-on coding & system design tutorials.",
+    channelUrl: "https://www.youtube.com/@harkirat1",
+    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJWsT8qW7rM9oH6pL3jG9kN5hF2sX_Q8vN=s176-c-k-c0x00ffffff-no-rj",
+    description: "Full-stack development, system design, and hands-on coding tutorials",
     playlists: ["System Design", "Live-Coding", "Career Guidance"],
     category: "Web Development"
   },
@@ -634,9 +634,9 @@ export const youtubers: YouTuber[] = [
   },
   {
     name: "CS50",
-    channelUrl: "https://www.youtube.com/channel/UCcabW7890RKJzL968QWEykA",
-    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJVuqw-KjKiq9ROk9hq9hq9hq9hq9hq9hq9hq=s176-c-k-c0x00ffffff-no-rj",
-    description: "Harvard's Introduction to Computer Science",
+    channelUrl: "https://www.youtube.com/@cs50",
+    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJXHuUWiQbRlTuFw-QJrJOJpqkSQqCIqR4A8Uw=s176-c-k-c0x00ffffff-no-rj",
+    description: "Harvard University's introduction to computer science and programming",
     playlists: ["CS50x 2023", "CS50 Web Programming", "CS50 AI"],
     category: "Computer Science"
   },
@@ -674,9 +674,9 @@ export const youtubers: YouTuber[] = [
   },
   {
     name: "Hitesh Choudhary",
-    channelUrl: "https://www.youtube.com/user/hiteshitube",
-    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJVuqw-KjKiq9ROk9hq9hq9hq9hq9hq9hq9hq=s176-c-k-c0x00ffffff-no-rj",
-    description: "React, Flutter, and mobile development",
+    channelUrl: "https://www.youtube.com/@HiteshChoudharydotcom",
+    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJWrT8qM7oH6pL3jG9kN5hF2sX_Q8vN=s176-c-k-c0x00ffffff-no-rj",
+    description: "React, Flutter, and mobile development tutorials",
     playlists: ["React Native", "Flutter", "JavaScript"],
     category: "Mobile Development"
   },
@@ -690,17 +690,17 @@ export const youtubers: YouTuber[] = [
   },
   {
     name: "Ben Awad",
-    channelUrl: "https://www.youtube.com/user/99baddawg",
-    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJVuqw-KjKiq9ROk9hq9hq9hq9hq9hq9hq9hq=s176-c-k-c0x00ffffff-no-rj",
-    description: "React, GraphQL, and full-stack development",
+    channelUrl: "https://www.youtube.com/@BenAwad97",
+    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJXCzG4WsN7qzX-QJ8_2R9Fv4ZpG8lMmT8o4=s176-c-k-c0x00ffffff-no-rj",
+    description: "Software developer making videos about React, GraphQL, TypeScript, and full-stack development",
     playlists: ["React", "GraphQL", "TypeScript", "Full-stack"],
     category: "Web Development"
   },
   {
     name: "Tech With Tim",
-    channelUrl: "https://www.youtube.com/channel/UC4JX40jDee_tINbkjycV4Sg",
-    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJVuqw-KjKiq9ROk9hq9hq9hq9hq9hq9hq9hq=s176-c-k-c0x00ffffff-no-rj",
-    description: "Python programming and machine learning",
+    channelUrl: "https://www.youtube.com/@TechWithTim",
+    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJWvT2r7lq9X4sOlwT9qJ8v3hG5rZ-k1X4O_Mw=s176-c-k-c0x00ffffff-no-rj",
+    description: "Software engineer, educator, and entrepreneur. Python programming and machine learning",
     playlists: ["Python", "Machine Learning", "Django", "Flask"],
     category: "Programming in general"
   },
@@ -714,41 +714,41 @@ export const youtubers: YouTuber[] = [
   },
   {
     name: "Coding Addict",
-    channelUrl: "https://www.youtube.com/channel/UCMZFwxv5l-XtKi693qMJptA",
-    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJVuqw-KjKiq9ROk9hq9hq9hq9hq9hq9hq9hq=s176-c-k-c0x00ffffff-no-rj",
-    description: "JavaScript and React tutorials",
+    channelUrl: "https://www.youtube.com/@CodingAddict",
+    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJUqV7wT5rE9M-Q2xL4hR8pG7jH2kN_Q9sX=s176-c-k-c0x00ffffff-no-rj",
+    description: "JavaScript and React tutorials by John Smilga",
     playlists: ["JavaScript", "React", "Node.js"],
     category: "Web Development"
   },
   {
     name: "Codecourse",
-    channelUrl: "https://www.youtube.com/user/phpacademy",
-    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJVuqw-KjKiq9ROk9hq9hq9hq9hq9hq9hq9hq=s176-c-k-c0x00ffffff-no-rj",
-    description: "PHP, Laravel, and web development",
+    channelUrl: "https://www.youtube.com/@codecourse",
+    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJVsT8qW7rM9oH6pL3jG9kN5hF2sX_Q8vN=s176-c-k-c0x00ffffff-no-rj",
+    description: "PHP, Laravel, and web development tutorials",
     playlists: ["Laravel", "PHP", "Vue.js"],
     category: "Web Development"
   },
   {
     name: "Steve Griffith",
-    channelUrl: "https://www.youtube.com/channel/UCTBGXCJHORQjivtgtMsmkAQ",
-    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJVuqw-KjKiq9ROk9hq9hq9hq9hq9hq9hq9hq=s176-c-k-c0x00ffffff-no-rj",
-    description: "JavaScript and web development fundamentals",
+    channelUrl: "https://www.youtube.com/@SteveGriffith-Prof3ssorSt3v3",
+    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJVBsT4W8rM7qH6pL3jG9kN5hF2sX_Q8vN=s176-c-k-c0x00ffffff-no-rj",
+    description: "JavaScript and web development fundamentals by Prof3ssorSt3v3",
     playlists: ["JavaScript", "Web APIs", "CSS"],
     category: "Web Development"
   },
   {
     name: "Chris Courses",
-    channelUrl: "https://www.youtube.com/channel/UC9Yp2yz6-pwhQuPlIDV_mjA",
-    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJVuqw-KjKiq9ROk9hq9hq9hq9hq9hq9hq9hq=s176-c-k-c0x00ffffff-no-rj",
-    description: "HTML5 Canvas and JavaScript games",
+    channelUrl: "https://www.youtube.com/@ChrisCourses",
+    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJUqW8rT6mH7pL3jG9kN5hF2sX_Q8sV=s176-c-k-c0x00ffffff-no-rj",
+    description: "HTML5 Canvas and JavaScript games development",
     playlists: ["HTML5 Canvas", "JavaScript Games", "Web Development"],
     category: "Game Development"
   },
   {
     name: "Flutter (Official)",
-    channelUrl: "https://www.youtube.com/channel/UCwXdFgeE9KYzlDdR7TG9cMw",
-    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJVuqw-KjKiq9ROk9hq9hq9hq9hq9hq9hq9hq=s176-c-k-c0x00ffffff-no-rj",
-    description: "Official Flutter development channel",
+    channelUrl: "https://www.youtube.com/@flutterdev",
+    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJVKsN4W6rT8oH3pQ9mG7jL5hF2kX_Q8sV=s176-c-k-c0x00ffffff-no-rj",
+    description: "Official Flutter development channel by Google",
     playlists: ["Flutter Widget of the Week", "Flutter in Focus", "Flutter Engage"],
     category: "Mobile Development"
   },
@@ -762,17 +762,17 @@ export const youtubers: YouTuber[] = [
   },
   {
     name: "Dennis Ivy",
-    channelUrl: "https://www.youtube.com/channel/UCTZRcDjjkVajGL6wd76UnGg",
-    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJVuqw-KjKiq9ROk9hq9hq9hq9hq9hq9hq9hq=s176-c-k-c0x00ffffff-no-rj",
-    description: "Django and Python web development",
+    channelUrl: "https://www.youtube.com/@DennisIvy",
+    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJXwH8K5P2yT7oV4jR9qG3m6hL8sQ2_M7xF=s176-c-k-c0x00ffffff-no-rj",
+    description: "Django and Python web development tutorials",
     playlists: ["Django", "Python", "React"],
     category: "Web Development"
   },
   {
     name: "Codevolution",
-    channelUrl: "https://www.youtube.com/channel/UC80PWRj_ZU8Zu0HSMNVwKWw",
-    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJVuqw-KjKiq9ROk9hq9hq9hq9hq9hq9hq9hq=s176-c-k-c0x00ffffff-no-rj",
-    description: "React, Angular, and modern web development",
+    channelUrl: "https://www.youtube.com/@Codevolution",
+    avatarUrl: "https://yt3.ggpht.com/ytc/AL5GRJVGsQ8R4mH7oT6xL9pJ2kN8sF5qW3_P4Ax=s176-c-k-c0x00ffffff-no-rj",
+    description: "React, Angular, and modern web development by Vishwas Gopinath",
     playlists: ["React", "Angular", "JavaScript", "TypeScript"],
     category: "Web Development"
   },

@@ -1,9 +1,8 @@
 import { Github } from "lucide-react";
-import { authService } from "../lib/auth";
 
 export default function Hero() {
   const handleSignIn = () => {
-    window.location.href = authService.getGitHubAuthUrl();
+    window.location.href = "http://localhost:3000/auth/github";
   };
 
   return (
@@ -43,7 +42,7 @@ export default function Hero() {
                 className="inline-flex items-center gap-3 bg-white text-gray-900 px-6 py-3 rounded-lg text-base font-medium shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 hover:bg-gray-50"
               >
                 <Github className="w-5 h-5" />
-                Sign In With GitHub
+                Connect GitHub
               </button>
             </div>
           </div>
