@@ -2,7 +2,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Award, ArrowLeft, Download, BarChart, CheckCircle, Share2, AlertCircle } from 'lucide-react';
 import { getCourseById } from '../../courses/courseData';
 import { User } from '../../lib/supabase';
-import { getCourseCompletionPercentage, markCourseAsCompleted, canCompleteCourse } from '../../lib/courseProgress';
+import { getCourseCompletionPercentage, markCourseAsCompleted, canCompleteCourse, getCourseProgress, getNextLessonPath, getTotalLessonCount } from '../../lib/courseProgress';
 import { useEffect, useState } from 'react';
 
 interface CourseCompletionPageProps {
@@ -15,10 +15,10 @@ export default function CourseCompletionPage({ user }: CourseCompletionPageProps
   const [canComplete, setCanComplete] = useState(false);
   const course = getCourseById(courseId || '');
   
-  // Calculate total lessons
-  const totalLessons = course?.modules.reduce((total, module) => {
-    return total + module.lessons.length;
-  }, 0) || 0;
+  const courseProgress = getCourseProgress(user, courseId || '');
+  const nextLessonPath = course && courseProgress ? getNextLessonPath(course, courseProgress.completedLessons) : `/courses/${courseId}`;
+
+  const totalLessons = course ? getTotalLessonCount(course) : 0;
   
   // Get completion percentage
   const completionPercentage = courseId ? 
@@ -149,7 +149,7 @@ export default function CourseCompletionPage({ user }: CourseCompletionPageProps
                   Keep going! You're making great progress.
                 </p>
                 <Link
-                  to={`/start-learning/course/${courseId}`}
+                  to={nextLessonPath}
                   className="inline-block px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-md transition-colors"
                 >
                   Continue Learning

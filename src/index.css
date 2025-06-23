@@ -6,3 +6,166 @@
 body {
   font-family: 'Poppins', sans-serif;
 }
+
+@layer utilities {
+  /* Custom horizontal scrollbar for category navigation */
+  .custom-scrollbar::-webkit-scrollbar {
+    height: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgb(243 244 246 / 0.5);
+    border-radius: 10px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgb(16 185 129 / 0.4);
+    border-radius: 10px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgb(16 185 129 / 0.6);
+  }
+  
+  /* Custom vertical scrollbar for filter lists */
+  .custom-scrollbar-y::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .custom-scrollbar-y::-webkit-scrollbar-track {
+    background: rgb(243 244 246 / 0.5);
+    border-radius: 10px;
+  }
+  
+  .custom-scrollbar-y::-webkit-scrollbar-thumb {
+    background: rgb(16 185 129 / 0.4);
+    border-radius: 10px;
+  }
+  
+  .custom-scrollbar-y::-webkit-scrollbar-thumb:hover {
+    background: rgb(16 185 129 / 0.6);
+  }
+  
+  /* Dark mode scrollbar */
+  .dark .custom-scrollbar::-webkit-scrollbar-track,
+  .dark .custom-scrollbar-y::-webkit-scrollbar-track {
+    background: rgb(31 41 55 / 0.5);
+  }
+  
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb,
+  .dark .custom-scrollbar-y::-webkit-scrollbar-thumb {
+    background: rgb(16 185 129 / 0.5);
+  }
+  
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover,
+  .dark .custom-scrollbar-y::-webkit-scrollbar-thumb:hover {
+    background: rgb(16 185 129 / 0.7);
+  }
+  
+  /* Custom vertical scrollbar for filter lists */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: theme('colors.gray.100');
+  }
+  
+  .dark .scrollbar-thin::-webkit-scrollbar-track {
+    background: theme('colors.gray.800');
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: theme('colors.gray.300');
+    border-radius: 10px;
+  }
+  
+  .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: theme('colors.gray.600');
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: theme('colors.gray.400');
+  }
+  
+  .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: theme('colors.gray.500');
+  }
+  
+  /* Custom scrollbar for course lists */
+  .scrollbar-thin::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 3px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
+  
+  .dark .scrollbar-thin::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  /* Animation for modal popup */
+  .animate-scale-up {
+    animation: scaleUp 0.3s ease-out forwards;
+  }
+  
+  @keyframes scaleUp {
+    from {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  /* Animation for modal scale up */
+  @keyframes scale-up {
+    from {
+      transform: scale(0.95);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  /* Course card hover animation */
+  .course-card-hover {
+    transition: all 0.3s ease;
+  }
+  
+  .course-card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  
+  .dark .course-card-hover:hover {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Course carousel styles */
+  .course-carousel {
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+  }
+  
+  .course-carousel > div {
+    scroll-snap-align: start;
+  }
+}
