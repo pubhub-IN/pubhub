@@ -12,7 +12,7 @@ export const checkServerHealth = async (): Promise<boolean> => {
       cache: "no-cache",
     });
     return response.ok;
-  } catch (error) {
+  } catch {
     return false;
   }
 };
@@ -126,7 +126,7 @@ export const authService = {
           "Network error - server may not be running or CORS issue"
         );
         throw new Error(
-          "Unable to connect to server: Please ensure the backend server is running on port 3001"
+          "Unable to connect to server: Please ensure the backend server is running on port 3000"
         );
       }
 
@@ -184,7 +184,7 @@ export const authService = {
         },
       });
       return response.ok;
-    } catch (error) {
+    } catch {
       return false;
     }
   },

@@ -10,7 +10,7 @@ import jwt from "jsonwebtoken";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRATION = process.env.JWT_EXPIRATION || "7d";
@@ -844,27 +844,47 @@ app.post("/api/user/logout", (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-  console.log(`JWT authentication enabled with ${JWT_EXPIRATION} expiration`);
+// Graceful shutdown handling
+process.on("SIGTERM", () => {
+  console.log("SIGTERM received, shutting down gracefully");
+  server.close(() => {
+    console.log("Server closed");
+    process.exit(0);
+  });
 });
+
+process.on("SIGINT", () => {
+  console.log("SIGINT received, shutting down gracefully");
+  server.close(() => {
+    console.log("Server closed");
+    process.exit(0);
+  });
+});
+
+// Handle port already in use error
+const server = app
+  .listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  })
+  .on("error", (err) => {
+    if (err.code === "EADDRINUSE") {
+      console.error(
+        `Port ${PORT} is already in use. Please try one of the following:`
+      );
+      console.error(
+        `1. Kill the process using port ${PORT}: lsof -ti:${PORT} | xargs kill -9`
+      );
+      console.error(
+        `2. Use a different port by setting PORT environment variable`
+      );
+      console.error(`3. Wait a moment and try again`);
+      process.exit(1);
+    } else {
+      console.error("Server error:", err);
+      process.exit(1);
+    }
+  });
 
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
 });
-
-// Cache cleanup function
-function cleanupCache() {
-  const now = Date.now();
-  for (const [key, value] of repositoryCache.entries()) {
-    if (now - value.timestamp > CACHE_DURATION) {
-      repositoryCache.delete(key);
-    }
-  }
-  console.log(
-    `Cache cleanup completed. Current cache size: ${repositoryCache.size}`
-  );
-}
-
-// Clean up cache every 15 minutes
-setInterval(cleanupCache, 15 * 60 * 1000);
