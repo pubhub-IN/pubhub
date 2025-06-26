@@ -75,7 +75,7 @@ function AuthenticatedRoutes() {
           path="/open-source"
           element={<OpenSourceReposPage user={user} />}
         />
-        <Route path="/start-learning" element={<StartLearning />} />
+        <Route path="/start-learning" element={<StartLearning user={user} />} />
         <Route path="/courses/:courseId" element={<CourseDetailPage />} />
         <Route
           path="/courses/:courseId/:moduleId/:lessonId"
