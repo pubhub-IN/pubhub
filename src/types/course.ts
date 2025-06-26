@@ -9,6 +9,8 @@ export interface Course {
   creator: string;
   createdAt: string;
   updatedAt: string;
+  tags?: string[];
+  isAvailable?: boolean;
 }
 
 export interface Module {

@@ -1,4 +1,5 @@
 import { User } from "./supabase";
+import type { Course } from "../types/course";
 
 // Types for course progress tracking
 export interface CourseProgress {
@@ -22,6 +23,29 @@ export function getUserCourseProgress(user: User): CourseProgress[] {
 export function getCourseProgress(user: User, courseId: string): CourseProgress | undefined {
   const userProgress = userCourseProgressMap[user.id] || [];
   return userProgress.find(progress => progress.courseId === courseId);
+}
+
+// Start or resume a course, updating the last accessed time
+export function startOrResumeCourse(user: User, courseId: string): CourseProgress {
+  let courseProgress = getCourseProgress(user, courseId);
+
+  if (!courseProgress) {
+    courseProgress = {
+      userId: user.id,
+      courseId,
+      completedLessons: [],
+      lastAccessedAt: new Date().toISOString(),
+      isCompleted: false
+    };
+
+    if (!userCourseProgressMap[user.id]) {
+      userCourseProgressMap[user.id] = [];
+    }
+    userCourseProgressMap[user.id].push(courseProgress);
+  }
+
+  courseProgress.lastAccessedAt = new Date().toISOString();
+  return courseProgress;
 }
 
 // Check if a lesson is completed
@@ -103,4 +127,33 @@ export function getRecentCourses(user: User, limit: number = 3): CourseProgress[
   return [...userProgress]
     .sort((a, b) => new Date(b.lastAccessedAt).getTime() - new Date(a.lastAccessedAt).getTime())
     .slice(0, limit);
+}
+
+export function getTotalLessonCount(course: Course): number {
+  return course.modules.reduce((total, module) => {
+    return total + module.lessons.length;
+  }, 0);
+}
+
+export function getNextLessonPath(course: Course, completedLessons: string[]): string {
+  const totalLessons = getTotalLessonCount(course);
+  if (completedLessons.length >= totalLessons) {
+    return `/courses/${course.id}`;
+  }
+
+  for (const module of course.modules) {
+    for (const lesson of module.lessons) {
+      if (!completedLessons.includes(lesson.id)) {
+        return `/courses/${course.id}/${module.id}/${lesson.id}`;
+      }
+    }
+  }
+
+  const firstModule = course.modules[0];
+  const firstLesson = firstModule?.lessons[0];
+  if (firstModule && firstLesson) {
+    return `/courses/${course.id}/${firstModule.id}/${firstLesson.id}`;
+  }
+
+  return `/courses/${course.id}`;
 }
