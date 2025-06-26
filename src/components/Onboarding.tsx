@@ -1,6 +1,6 @@
-import { useState, KeyboardEvent } from "react";
+import { useState, KeyboardEvent, useEffect } from "react";
 import { CornerDownLeft, ArrowRight, ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ThemeToggle } from "./ThemeToggle";
 import { AuthUser } from "../lib/auth-jwt";
 import { authService } from "../lib/auth-jwt";
@@ -379,13 +379,21 @@ interface OnboardingProps {
 }
 
 export default function Onboarding({ user, onComplete }: OnboardingProps) {
+  const location = useLocation();
+  const isEditMode = location.state?.editMode === true;
+
+  // Get profession and technologies from state or user object
+  const initialProfession = location.state?.profession || user.profession || "";
+  const initialTechnologies =
+    location.state?.technologies || user.technologies || [];
+
   const [currentStep, setCurrentStep] = useState<"profession" | "technologies">(
-    "profession"
+    isEditMode && initialProfession ? "technologies" : "profession"
   );
-  const [selectedProfession, setSelectedProfession] = useState<string>("");
-  const [selectedTechnologies, setSelectedTechnologies] = useState<string[]>(
-    []
-  );
+  const [selectedProfession, setSelectedProfession] =
+    useState<string>(initialProfession);
+  const [selectedTechnologies, setSelectedTechnologies] =
+    useState<string[]>(initialTechnologies);
   const [customTech, setCustomTech] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -445,8 +453,11 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
         selectedTechnologies
       );
       if (updatedUser) {
+        // Update the user object in memory before navigating
         onComplete(updatedUser);
-        navigate("/dashboard");
+
+        // Don't reload the page, directly navigate to dashboard
+        navigate("/dashboard", { replace: true, state: { refreshUser: true } });
       }
     } catch (error) {
       console.error("Error updating technologies:", error);
@@ -468,7 +479,9 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
           {currentStep === "profession" ? (
             <>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                Welcome to PubHub, {user.name || user.github_username}!
+                {isEditMode
+                  ? `Edit Your Profile, ${user.name || user.github_username}`
+                  : `Welcome to PubHub, ${user.name || user.github_username}!`}
               </h1>
               <p className="text-gray-600 dark:text-gray-300 mb-8">
                 Let's start by knowing what you do. Select your profession to
@@ -489,11 +502,13 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
                     key={profession}
                     onClick={() => handleProfessionSelect(profession)}
                     disabled={isLoading}
-                    className="p-4 rounded-lg text-left border-2 border-gray-200 dark:border-gray-600 
-                              bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                              hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900
-                              transition-colors disabled:opacity-50 disabled:cursor-not-allowed
-                              focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400"
+                    className={`p-4 rounded-lg text-left border-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed
+                              focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400
+                              ${
+                                profession === selectedProfession
+                                  ? "border-green-500 dark:border-green-400 bg-green-50 dark:bg-green-900 text-green-800 dark:text-green-200"
+                                  : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900"
+                              }`}
                   >
                     <span className="font-medium">{profession}</span>
                   </button>
@@ -619,7 +634,11 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
                       : "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
                   }`}
                 >
-                  {isLoading ? "Saving..." : "Continue to Dashboard"}
+                  {isLoading
+                    ? "Saving..."
+                    : isEditMode
+                    ? "Save Changes"
+                    : "Continue to Dashboard"}
                   {!isLoading && <ArrowRight size={16} />}
                 </button>
               </div>

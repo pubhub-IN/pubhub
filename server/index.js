@@ -762,6 +762,88 @@ app.get("/api/user/repositories", authenticateJWT, async (req, res) => {
   }
 });
 
+// New endpoint to fetch user's own GitHub repositories
+app.get("/api/user/own-repositories", authenticateJWT, async (req, res) => {
+  try {
+    const user = req.user;
+    const username = user.github_username;
+
+    // Check if we have cached data for this user's own repos
+    const cacheKey = `user_own_repos_${username}`;
+    const cachedData = repositoryCache.get(cacheKey);
+
+    if (cachedData && Date.now() - cachedData.timestamp < CACHE_DURATION) {
+      console.log(`Returning cached own repository data for user ${username}`);
+      return res.json({
+        success: true,
+        repositories: cachedData.data,
+        cached: true,
+      });
+    }
+
+    const headers = {
+      Accept: "application/vnd.github.v3+json",
+      "User-Agent": "PubHub-App",
+      Authorization: `Bearer ${GITHUB_TOKEN}`,
+    };
+
+    console.log(`Fetching own repositories for user: ${username}`);
+
+    // Fetch user's own repos sorted by updated date (most recent first)
+    const response = await makeGitHubAPICall(
+      `https://api.github.com/users/${username}/repos?sort=updated&direction=desc&per_page=5`,
+      headers
+    );
+
+    if (!response.ok) {
+      console.warn(
+        `Failed to fetch repositories for ${username}: ${response.status} ${response.statusText}`
+      );
+      return res.status(response.status).json({
+        success: false,
+        message:
+          response.status === 403
+            ? "Rate limit exceeded"
+            : `Failed to fetch repositories: ${response.status}`,
+      });
+    }
+
+    const repositories = await response.json();
+
+    // Process the repos to get only the needed information
+    const processedRepos = repositories.map((repo) => ({
+      id: repo.id,
+      name: repo.name,
+      full_name: repo.full_name,
+      description: repo.description,
+      html_url: repo.html_url,
+      updated_at: repo.updated_at,
+      language: repo.language,
+      stargazers_count: repo.stargazers_count,
+      fork: repo.fork,
+      visibility: repo.visibility,
+    }));
+
+    // Cache the result
+    repositoryCache.set(cacheKey, {
+      data: processedRepos,
+      timestamp: Date.now(),
+    });
+
+    res.json({
+      success: true,
+      repositories: processedRepos,
+    });
+  } catch (error) {
+    console.error("Error fetching user repositories:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+});
+
 // Test endpoint to verify GitHub API authentication
 app.get("/api/test-github", async (req, res) => {
   try {

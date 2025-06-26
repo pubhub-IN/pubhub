@@ -17,12 +17,13 @@ import StartLearning from "./pages/StartLearning";
 import CourseDetailPage from "./pages/learning/CourseDetailPage";
 import LessonPage from "./pages/learning/LessonPage";
 import CourseCompletionPage from "./pages/learning/CourseCompletionPage";
+import Youtube from "./pages/Youtube";
 
 function Layout() {
   return (
-    <div className="flex">
+    <div className="flex min-h-screen">
       <Sidebar />
-      <div className="flex-1 ml-16 md:ml-16 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+      <div className="flex-1 ml-16 md:ml-16 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 overflow-x-hidden">
         <Outlet />
       </div>
     </div>
@@ -56,14 +57,15 @@ function AuthenticatedRoutes() {
       <Route
         path="/onboarding"
         element={
-          user.technologies && user.technologies.length > 0 ? (
-            <Navigate to="/dashboard" replace />
-          ) : (
-            <Onboarding
-              user={user}
-              onComplete={() => window.location.reload()}
-            />
-          )
+          <Onboarding
+            user={user}
+            onComplete={(updatedUser) => {
+              // Update the user data without full page reload
+              window.dispatchEvent(
+                new CustomEvent("user-updated", { detail: updatedUser })
+              );
+            }}
+          />
         }
       />
       <Route element={<Layout />}>
@@ -83,6 +85,7 @@ function AuthenticatedRoutes() {
           path="/courses/:courseId/complete"
           element={<CourseCompletionPage user={user} />}
         />
+        <Route path="/youtube" element={<Youtube />} />
         <Route
           path="/account"
           element={

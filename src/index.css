@@ -1,8 +1,382 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Animation delay utilities */
+.animation-delay-0 {
+  animation-delay: 0ms;
+}
+.animation-delay-1 {
+  animation-delay: 100ms;
+}
+.animation-delay-2 {
+  animation-delay: 200ms;
+}
+.animation-delay-3 {
+  animation-delay: 300ms;
+}
+.animation-delay-4 {
+  animation-delay: 400ms;
+}
+.animation-delay-5 {
+  animation-delay: 500ms;
+}
+.animation-delay-6 {
+  animation-delay: 600ms;
+}
+.animation-delay-7 {
+  animation-delay: 700ms;
+}
+.animation-delay-8 {
+  animation-delay: 800ms;
+}
+.animation-delay-9 {
+  animation-delay: 900ms;
+}
+.animation-delay-500 {
+  animation-delay: 500ms;
+}
+.animation-delay-1000 {
+  animation-delay: 1000ms;
+}
+
+/* More granular animation delays */
+.delay-0 {
+  animation-delay: 0ms;
+}
+.delay-50 {
+  animation-delay: 50ms;
+}
+.delay-100 {
+  animation-delay: 100ms;
+}
+.delay-150 {
+  animation-delay: 150ms;
+}
+.delay-200 {
+  animation-delay: 200ms;
+}
+.delay-250 {
+  animation-delay: 250ms;
+}
+.delay-300 {
+  animation-delay: 300ms;
+}
+.delay-350 {
+  animation-delay: 350ms;
+}
+.delay-400 {
+  animation-delay: 400ms;
+}
+.delay-450 {
+  animation-delay: 450ms;
+}
+.delay-500 {
+  animation-delay: 500ms;
+}
+.delay-550 {
+  animation-delay: 550ms;
+}
+.delay-600 {
+  animation-delay: 600ms;
+}
+.delay-650 {
+  animation-delay: 650ms;
+}
+.delay-700 {
+  animation-delay: 700ms;
+}
+.delay-750 {
+  animation-delay: 750ms;
+}
+.delay-800 {
+  animation-delay: 800ms;
+}
+.delay-850 {
+  animation-delay: 850ms;
+}
+.delay-900 {
+  animation-delay: 900ms;
+}
+.delay-950 {
+  animation-delay: 950ms;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+/* Language progress bar styles */
+.language-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.language-name {
+  display: flex;
+  align-items: center;
+  width: 5.5rem;
+}
+
+.language-progress-container {
+  flex: 1;
+  background-color: rgba(229, 231, 235, 0.5);
+  height: 0.5rem;
+  border-radius: 9999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.dark .language-progress-container {
+  background-color: rgba(75, 85, 99, 0.3);
+}
+
+.language-progress-bar {
+  height: 100%;
+  border-radius: 9999px;
+  position: relative;
+  transition: width 0.5s ease-out;
+  overflow: hidden;
+}
+
+/* Shimmer effect for progress bars */
+@keyframes shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+/* Language colors */
+.language-color-0 {
+  background-color: #3b82f6;
+}
+.language-color-1 {
+  background-color: #84cc16;
+}
+.language-color-2 {
+  background-color: #582c4d;
+}
+.language-color-3 {
+  background-color: #c60f7b;
+}
+.language-color-4 {
+  background-color: #d97706;
+}
+.language-color-5 {
+  background-color: #ec4899;
+}
+.language-color-6 {
+  background-color: #ef4444;
+}
+.language-color-7 {
+  background-color: #f59e0b;
+}
+.language-color-8 {
+  background-color: #10b981;
+}
+.language-color-9 {
+  background-color: #8b5cf6;
+}
+.language-color-10 {
+  background-color: #f97316;
+}
+.language-color-11 {
+  background-color: #06b6d4;
+}
+
+/* Card shadow effects */
+.card-shadow-blue {
+  box-shadow: 0 4px 15px -3px rgba(59, 130, 246, 0.1);
+}
+
+.dark .card-shadow-blue {
+  box-shadow: 0 4px 15px -3px rgba(59, 130, 246, 0.05);
+}
+
+.card-shadow-purple {
+  box-shadow: 0 4px 15px -3px rgba(139, 92, 246, 0.1);
+}
+
+.dark .card-shadow-purple {
+  box-shadow: 0 4px 15px -3px rgba(139, 92, 246, 0.05);
+}
+
+.card-shadow-green {
+  box-shadow: 0 4px 15px -3px rgba(16, 185, 129, 0.1);
+}
+
+.dark .card-shadow-green {
+  box-shadow: 0 4px 15px -3px rgba(16, 185, 129, 0.05);
+}
+
+.card-shadow-orange {
+  box-shadow: 0 4px 15px -3px rgba(249, 115, 22, 0.1);
+}
+
+.dark .card-shadow-orange {
+  box-shadow: 0 4px 15px -3px rgba(249, 115, 22, 0.05);
+}
+
+/* Card height utilities */
+.card-full-height {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Important for Firefox */
+}
+
+.language-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  min-height: 0; /* Important for Firefox */
+}
+
+/* For WebKit browsers like Chrome, Safari */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.3);
+  border-radius: 20px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background-color: rgba(107, 114, 128, 0.3);
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+}
+
+.dark * {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(107, 114, 128, 0.3) transparent;
+}
+
+/* Make sure scrollbar styles are applied to all overflow elements */
+.overflow-auto,
+.overflow-y-auto,
+.overflow-x-auto,
+.overflow-scroll,
+.overflow-y-scroll,
+.overflow-x-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.3) transparent;
+}
+
+.dark .overflow-auto,
+.dark .overflow-y-auto,
+.dark .overflow-x-auto,
+.dark .overflow-scroll,
+.dark .overflow-y-scroll,
+.dark .overflow-x-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(107, 114, 128, 0.3) transparent;
 }

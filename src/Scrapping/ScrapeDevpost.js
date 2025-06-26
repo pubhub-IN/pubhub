@@ -1,5 +1,5 @@
-const puppeteer = require("puppeteer");
-const fs = require("fs");
+import puppeteer from "puppeteer";
+import fs from "fs";
 
 (async () => {
   const browser = await puppeteer.launch({ headless: true });

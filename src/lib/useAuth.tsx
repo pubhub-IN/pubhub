@@ -50,6 +50,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
     initAuth();
   }, []);
 
+  // Listen for user-updated events to update the user state without full page reload
+  useEffect(() => {
+    const handleUserUpdated = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      if (customEvent.detail) {
+        setUser(customEvent.detail);
+      }
+    };
+
+    window.addEventListener("user-updated", handleUserUpdated as EventListener);
+
+    return () => {
+      window.removeEventListener(
+        "user-updated",
+        handleUserUpdated as EventListener
+      );
+    };
+  }, []);
+
   const login = () => {
     window.location.href = "http://localhost:3000/auth/github";
   };
