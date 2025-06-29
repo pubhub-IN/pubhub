@@ -185,7 +185,7 @@ export default function Hero() {
             </div>
 
             {/* Feature 10 */}
-            <div className="p-6 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 md:col-span-2 lg:col-span-1">
+            <div className="p-6 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 ">
               <h3 className="text-lg font-semibold text-white mb-3">
                 Personal Dashboard
               </h3>
