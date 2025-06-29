@@ -22,6 +22,7 @@ import Youtube from "./pages/Youtube";
 import ShareOnSocials from "./pages/ShareOnSocials";
 import PeoplePage from "./pages/PeoplePage";
 import ProfilePage from "./pages/ProfilePage";
+import JobHunting from "./pages/JobHunting";
 
 function Layout() {
   const { user } = useAuth();
@@ -95,6 +96,7 @@ function AuthenticatedRoutes() {
         />
         <Route path="/youtube" element={<Youtube />} />
         <Route path="/share-socials" element={<ShareOnSocials user={user} />} />
+        <Route path="/job-hunting" element={<JobHunting />} />
         <Route
           path="/account"
           element={

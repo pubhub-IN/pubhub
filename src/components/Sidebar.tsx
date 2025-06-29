@@ -10,6 +10,7 @@ import {
   Youtube,
   Share2,
   Users as UsersIcon,
+  Briefcase,
 } from "lucide-react";
 import pubhubLogo from "/pubhub.png";
 
@@ -21,6 +22,7 @@ const navItems = [
   { to: "/youtube", icon: <Youtube />, label: "Recorded Lectures" },
   { to: "/share-socials", icon: <Share2 />, label: "Share on Socials" },
   { to: "/people", icon: <UsersIcon />, label: "People" },
+  { to: "/job-hunting", icon: <Briefcase />, label: "Job Hunting" },
   { to: "/account", icon: <User />, label: "Account" },
 ];
 
