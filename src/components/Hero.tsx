@@ -14,11 +14,28 @@ export default function Hero() {
           <div className="flex items-center">
             <img src="/pubhub.png" alt="PubHub Logo" className="h-12 w-auto" />
           </div>
+          
+          {/* Navigation Links */}
+          <div className="hidden md:flex items-center space-x-8">
+            <a href="#features" className="text-white hover:text-green-200 transition-colors font-medium">
+              Features
+            </a>
+            <a href="#about" className="text-white hover:text-green-200 transition-colors font-medium">
+              About
+            </a>
+            <a href="#pricing" className="text-white hover:text-green-200 transition-colors font-medium">
+              Pricing
+            </a>
+            <a href="#contact" className="text-white hover:text-green-200 transition-colors font-medium">
+              Contact
+            </a>
+          </div>
+
           <div className="flex items-center">
             <img 
               src="https://res.cloudinary.com/dafqq1jvc/image/upload/v1749891645/black_circle_360x360_dpzcvm.png" 
               alt="Profile" 
-              className="h-10 w-10 rounded-full"
+              className="w-[100px] h-[100px] rounded-full object-cover"
             />
           </div>
         </div>
