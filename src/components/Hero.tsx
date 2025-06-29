@@ -56,37 +56,14 @@ export default function Hero() {
                   <Github className="w-6 h-6" />
                   Connect GitHub
                 </button>
-                <button className="inline-flex items-center justify-center gap-2 border-2 border-green-600 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300">
-                  Learn More
-                </button>
               </div>
 
-              {/* Stats */}
-              <div className="flex items-center gap-8 pt-8">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-900 dark:text-white">10K+</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Developers</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-900 dark:text-white">50K+</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Projects Shared</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-900 dark:text-white">100+</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Courses</div>
-                </div>
-              </div>
+              
             </div>
 
             {/* Right Image */}
             <div className="relative">
-              <div className="relative z-10">
-                <img 
-                  src="/GuZjW7HWAAAfuck.jpeg" 
-                  alt="Developer working on laptop" 
-                  className="w-full h-auto rounded-2xl shadow-2xl"
-                />
-              </div>
+             
               {/* Decorative elements */}
               <div className="absolute -top-4 -right-4 w-72 h-72 bg-green-200 dark:bg-green-800 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
               <div className="absolute -bottom-8 -left-4 w-72 h-72 bg-emerald-200 dark:bg-emerald-800 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
