@@ -130,11 +130,7 @@ export default function HackathonsPage({ user }: { user: AuthUser }) {
                   </div>
                 </div>
                 <div className="flex flex-col gap-2 min-w-[220px] md:border-l md:pl-8 border-gray-200 dark:border-gray-800">
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    <span className="inline-block bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-200 px-3 py-1 rounded-full text-xs font-semibold border border-blue-200 dark:border-blue-800">
-                      StackBlitz / Bolt
-                    </span>
-                  </div>
+                  
                   <div className="flex items-center gap-2 text-gray-700 dark:text-gray-200 text-sm mb-1">
                     <Calendar className="w-4 h-4" /> {h.date}
                   </div>
@@ -145,7 +141,7 @@ export default function HackathonsPage({ user }: { user: AuthUser }) {
                     {h.tags.map((tag: string) => (
                       <span
                         key={tag}
-                        className="bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-200 px-2 py-1 rounded text-xs font-medium"
+                        className="bg-green-100 dark:bg-green-800 text-green-700 dark:text-green-200 px-2 py-1 rounded text-xs font-medium"
                       >
                         {tag}
                       </span>
@@ -164,7 +160,7 @@ export default function HackathonsPage({ user }: { user: AuthUser }) {
         <button
           onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
           disabled={currentPage === 1}
-          className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 rounded-full hover:bg-green-100 dark:hover:bg-green-800 disabled:opacity-50 disabled:cursor-not-allowed"
           title="Previous page"
           aria-label="Go to previous page"
         >
@@ -178,7 +174,7 @@ export default function HackathonsPage({ user }: { user: AuthUser }) {
             setCurrentPage((prev) => Math.min(prev + 1, totalPages))
           }
           disabled={currentPage === totalPages}
-          className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 rounded-full hover:bg-green-100 dark:hover:bg-green-800 disabled:opacity-50 disabled:cursor-not-allowed"
           title="Next page"
           aria-label="Go to next page"
         >

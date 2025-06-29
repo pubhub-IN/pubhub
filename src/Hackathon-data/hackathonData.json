@@ -1,233 +1,231 @@
 [
   {
-    "title": "World’s Largest Hackathon presented by Bolt",
-    "link": "https://worldslargesthackathon.devpost.com/?ref_feature=challenge&ref_medium=discover",
-    "date": "May 30 - Jun 30, 2025",
-    "prize": "$1,037,500",
-    "participants": "103639",
-    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/368/251/datas/medium_square.png",
-    "tags": [
-      "Beginner Friendly",
-      "Low/No Code",
-      "Machine Learning/AI"
-    ]
-  },
-  {
-    "title": "Agent Development Kit Hackathon with Google Cloud",
-    "link": "https://googlecloudmultiagents.devpost.com/?ref_feature=challenge&ref_medium=discover",
-    "date": "May 12 - Jun 23, 2025",
-    "prize": "$50,000",
-    "participants": "9700",
-    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/388/217/datas/medium_square.png",
-    "tags": [
-      "Machine Learning/AI",
-      "Low/No Code",
-      "Open Ended"
-    ]
-  },
-  {
-    "title": "AI in Action",
-    "link": "https://ai-in-action.devpost.com/?ref_feature=challenge&ref_medium=discover",
-    "date": "May 06 - Jun 17, 2025",
-    "prize": "$50,000",
-    "participants": "6778",
-    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/355/304/datas/medium_square.jpg",
-    "tags": [
-      "Databases",
-      "Machine Learning/AI",
-      "Open Ended"
-    ]
-  },
-  {
-    "title": "AWS Lambda Hackathon",
-    "link": "https://awslambdahackathon.devpost.com/?ref_feature=challenge&ref_medium=discover",
-    "date": "Jun 03 - 30, 2025",
-    "prize": "$15,000",
-    "participants": "2457",
-    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/422/337/datas/medium_square.png",
-    "tags": [
-      "Web",
-      "Serverless",
-      "Machine Learning/AI"
-    ]
-  },
-  {
-    "title": "AWS Presents: Breaking Barriers Virtual Challenge",
-    "link": "https://aws-breaking-barriers.devpost.com/?ref_feature=challenge&ref_medium=discover",
-    "date": "Apr 21 - Jun 23, 2025",
-    "prize": "$16,000",
-    "participants": "2242",
-    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/265/330/datas/medium_square.png",
-    "tags": [
-      "Machine Learning/AI",
-      "Social Good",
-      "Communication"
-    ]
-  },
-  {
-    "title": "Forge Quest: Bonus Level",
-    "link": "https://forgequest.devpost.com/?ref_feature=challenge&ref_medium=discover",
-    "date": "May 20 - Jun 30, 2025",
+    "title": "Testing hackathon",
+    "link": "https://testing-hackathon-25666.devpost.com/?ref_feature=challenge&ref_medium=discover",
+    "date": "Jun 29 - 30, 2025",
     "prize": "1",
-    "participants": "1944",
-    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/417/832/datas/medium_square.jpg",
+    "participants": "3",
+    "image": "https://d2dmyh35ffsxbl.cloudfront.net/assets/defaults/thumbnail-placeholder-8c916ef4da99a222ce6ece077c71c7e282f071f830747b2abb5718018cbfa699.gif",
+    "tags": [
+      "IoT"
+    ]
+  },
+  {
+    "title": "Batch 09 International Hackathon (Students Only; Open-Ended)",
+    "link": "https://northof0-open-ended.devpost.com/?ref_feature=challenge&ref_medium=discover",
+    "date": "Jun 28 - Jul 04, 2025",
+    "prize": "1",
+    "participants": "17",
+    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/524/474/datas/medium_square.png",
     "tags": [
       "Beginner Friendly",
-      "DevOps"
+      "Open Ended",
+      "Social Good"
     ]
   },
   {
-    "title": "GenAI Hackathon by Impetus & AWS",
-    "link": "https://impetusawsgenaihackathon.devpost.com/?ref_feature=challenge&ref_medium=discover",
-    "date": "May 26 - Jul 10, 2025",
-    "prize": "$13,000",
-    "participants": "1617",
-    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/365/675/datas/medium_square.jpg",
+    "title": "AstroHack 2025",
+    "link": "https://astrohack2025.devpost.com/?ref_feature=challenge&ref_medium=discover",
+    "date": "Jun 27 - Jul 03, 2025",
+    "prize": "7",
+    "participants": "33",
+    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/521/203/datas/medium_square.png",
     "tags": [
-      "Enterprise",
-      "DevOps",
-      "Machine Learning/AI"
-    ]
-  },
-  {
-    "title": "Google Maps Platform Awards",
-    "link": "https://googlemapsplatformawards.devpost.com/?ref_feature=challenge&ref_medium=discover",
-    "date": "May 20 - Jul 31, 2025",
-    "prize": "3",
-    "participants": "1471",
-    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/410/620/datas/medium_square.png",
-    "tags": [
-      "Web",
-      "Low/No Code",
-      "Mobile"
-    ]
-  },
-  {
-    "title": "Adobe Express Add-ons Hackathon",
-    "link": "https://adobeexpress.devpost.com/?ref_feature=challenge&ref_medium=discover",
-    "date": "May 19 - Jul 15, 2025",
-    "prize": "$30,000",
-    "participants": "1300",
-    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/412/158/datas/medium_square.png",
-    "tags": [
-      "Design",
-      "Machine Learning/AI",
-      "Web"
-    ]
-  },
-  {
-    "title": "PearAI Hackathon",
-    "link": "https://pearai-hackathon.devpost.com/?ref_feature=challenge&ref_medium=discover",
-    "date": "Jun 14 - Dec 24, 2025",
-    "prize": "$10,000",
-    "participants": "1594",
-    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/158/234/datas/medium_square.png",
-    "tags": [
-      "Machine Learning/AI",
       "Beginner Friendly",
+      "Education",
       "Low/No Code"
     ]
   },
   {
-    "title": "AlgoArena",
-    "link": "https://algoarena.devpost.com/?ref_feature=challenge&ref_medium=discover",
-    "date": "Apr 01 - Jun 30, 2025",
-    "prize": "$24,000",
-    "participants": "1183",
-    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/344/249/datas/medium_square.jpeg",
+    "title": "PromptForge 1.0",
+    "link": "https://promptforge.devpost.com/?ref_feature=challenge&ref_medium=discover",
+    "date": "Jun 27 - Jul 09, 2025",
+    "prize": "$10,000",
+    "participants": "27",
+    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/522/236/datas/medium_square.png",
     "tags": [
-      "Beginner Friendly",
-      "Social Good",
-      "Health"
-    ]
-  },
-  {
-    "title": "Africa Deep Tech Challenge 2025",
-    "link": "https://adtc-2025.devpost.com/?ref_feature=challenge&ref_medium=discover",
-    "date": "May 14 - Jul 31, 2025",
-    "prize": "$20,000",
-    "participants": "1057",
-    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/419/749/datas/medium_square.png",
-    "tags": [
-      "Blockchain",
-      "IoT",
-      "Machine Learning/AI"
-    ]
-  },
-  {
-    "title": "Hackonomics 2025",
-    "link": "https://hackonomics25.devpost.com/?ref_feature=challenge&ref_medium=discover",
-    "date": "Feb 01 - Jun 30, 2025",
-    "prize": "$1,500",
-    "participants": "1121",
-    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/205/686/datas/medium_square.png",
-    "tags": [
-      "Beginner Friendly",
-      "Education",
+      "Low/No Code",
+      "Machine Learning/AI",
       "Open Ended"
     ]
   },
   {
-    "title": "RevenueCat's World Paywall Speed Building Championships 2025",
-    "link": "https://revenuecatpaywallsworldchamps.devpost.com/?ref_feature=challenge&ref_medium=discover",
-    "date": "Jun 08 - Jul 22, 2025",
-    "prize": "$5,000",
-    "participants": "172",
-    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/463/154/datas/medium_square.png",
+    "title": "BNB.Build 2025",
+    "link": "https://bnb-build-2025.devpost.com/?ref_feature=challenge&ref_medium=discover",
+    "date": "Jun 29 - Jul 01, 2025",
+    "prize": "3",
+    "participants": "21",
+    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/509/984/datas/medium_square.png",
     "tags": [
-      "Design",
-      "Low/No Code",
-      "Mobile"
+      "Beginner Friendly",
+      "Fintech",
+      "Open Ended"
     ]
   },
   {
-    "title": "Civic Tech chatbot for public safety solutions",
-    "link": "https://chatbot-for-public-safety.devpost.com/?ref_feature=challenge&ref_medium=discover",
-    "date": "May 12 - Jun 30, 2025",
-    "prize": "$1,000",
-    "participants": "435",
-    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/416/369/datas/medium_square.jpg",
+    "title": "HackCafé",
+    "link": "https://hackcafe.devpost.com/?ref_feature=challenge&ref_medium=discover",
+    "date": "Jun 27 - Aug 10, 2025",
+    "prize": "$150",
+    "participants": "14",
+    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/517/144/datas/medium_square.png",
     "tags": [
+      "IoT",
+      "Robotic Process Automation"
+    ]
+  },
+  {
+    "title": "Community Shaper 2025 Alpha",
+    "link": "https://community-shaper-2025.devpost.com/?ref_feature=challenge&ref_medium=discover",
+    "date": "Jun 25 - Aug 12, 2025",
+    "prize": "1",
+    "participants": "4",
+    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/512/124/datas/medium_square.png",
+    "tags": [
+      "Fintech",
+      "Health",
       "Machine Learning/AI"
     ]
   },
   {
-    "title": "HackHub",
-    "link": "https://hackhub-01.devpost.com/?ref_feature=challenge&ref_medium=discover",
-    "date": "May 22 - Jun 23, 2025",
+    "title": "HackFinity",
+    "link": "https://hackfinityx.devpost.com/?ref_feature=challenge&ref_medium=discover",
+    "date": "Jun 26 - Oct 17, 2025",
     "prize": "4",
-    "participants": "430",
-    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/426/025/datas/medium_square.png",
+    "participants": "44",
+    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/513/893/datas/medium_square.png",
     "tags": [
+      "Blockchain",
       "Machine Learning/AI",
-      "Social Good",
       "Web"
     ]
   },
   {
-    "title": "SpaceHack 2025: Space Data Challenge",
-    "link": "https://spacehack2025.devpost.com/?ref_feature=challenge&ref_medium=discover",
-    "date": "Dec 15, 2024 - Jul 01, 2025",
-    "prize": "$500",
-    "participants": "404",
-    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/180/857/datas/medium_square.jpg",
+    "title": "IEEE OC Computer Society AI Dev Hack 2025",
+    "link": "https://ieee-ai-dev-hack-2025.devpost.com/?ref_feature=challenge&ref_medium=discover",
+    "date": "Jun 24 - Sep 07, 2025",
+    "prize": "$1,750",
+    "participants": "33",
+    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/463/749/datas/medium_square.png",
     "tags": [
-      "Machine Learning/AI",
-      "Robotic Process Automation",
+      "Beginner Friendly",
+      "Blockchain",
+      "Machine Learning/AI"
+    ]
+  },
+  {
+    "title": "Opportunity Hack Summer 2025 - Volunteer Internship Hackathon",
+    "link": "https://opportunity-hack-summer-2025.devpost.com/?ref_feature=challenge&ref_medium=discover",
+    "date": "Jun 23 - Aug 02, 2025",
+    "prize": "3",
+    "participants": "19",
+    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/506/083/datas/medium_square.jpeg",
+    "tags": [
       "Social Good"
     ]
   },
   {
-    "title": "CS Base Hack4Health",
-    "link": "https://cs-base-2025-hack4health.devpost.com/?ref_feature=challenge&ref_medium=discover",
-    "date": "Jun 01 - Jul 01, 2025",
-    "prize": "$6,405",
-    "participants": "400",
-    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/380/936/datas/medium_square.png",
+    "title": "Hack4BT",
+    "link": "https://hack4bt.devpost.com/?ref_feature=challenge&ref_medium=discover",
+    "date": "Jun 25 - 30, 2025",
+    "prize": "4",
+    "participants": "40",
+    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/476/878/datas/medium_square.jpg",
     "tags": [
       "Beginner Friendly",
-      "Health",
+      "Open Ended",
       "Social Good"
+    ]
+  },
+  {
+    "title": "AITHON: 14 Days of AI for Social Good",
+    "link": "https://aithon-socialgood.devpost.com/?ref_feature=challenge&ref_medium=discover",
+    "date": "Jun 23 - 30, 2025",
+    "prize": "$50",
+    "participants": "131",
+    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/481/681/datas/medium_square.png",
+    "tags": [
+      "Beginner Friendly",
+      "Machine Learning/AI",
+      "Social Good"
+    ]
+  },
+  {
+    "title": "Meta Horizon Creator Competition: Elevate Your Mobile World",
+    "link": "https://mhcp-mobile-update-competition.devpost.com/?ref_feature=challenge&ref_medium=discover",
+    "date": "Jun 20 - Jul 22, 2025",
+    "prize": "$1,000,000",
+    "participants": "863",
+    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/490/202/datas/medium_square.jpg",
+    "tags": [
+      "AR/VR",
+      "Gaming",
+      "Mobile"
+    ]
+  },
+  {
+    "title": "PayHack 2025",
+    "link": "https://payhack-2025.devpost.com/?ref_feature=challenge&ref_medium=discover",
+    "date": "Jun 16 - Jul 01, 2025",
+    "prize": "$53,000",
+    "participants": "59",
+    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/481/787/datas/medium_square.png",
+    "tags": [
+      "Fintech",
+      "Machine Learning/AI",
+      "Cybersecurity"
+    ]
+  },
+  {
+    "title": "ICUC",
+    "link": "https://icuc.devpost.com/?ref_feature=challenge&ref_medium=discover",
+    "date": "Jun 16 - 30, 2025",
+    "prize": "1",
+    "participants": "35",
+    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/480/279/datas/medium_square.jpg",
+    "tags": [
+      "Databases",
+      "Education",
+      "Web"
+    ]
+  },
+  {
+    "title": "FusionHacks 2",
+    "link": "https://fusionhacks-2.devpost.com/?ref_feature=challenge&ref_medium=discover",
+    "date": "Jun 15 - Aug 02, 2025",
+    "prize": "$300",
+    "participants": "199",
+    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/471/407/datas/medium_square.png",
+    "tags": [
+      "Beginner Friendly",
+      "Machine Learning/AI",
+      "Open Ended"
+    ]
+  },
+  {
+    "title": "SMU .Hack Enrichment Application Programme 2025",
+    "link": "https://dothack-heap-2025.devpost.com/?ref_feature=challenge&ref_medium=discover",
+    "date": "Jun 12 - Jul 18, 2025",
+    "prize": "3",
+    "participants": "35",
+    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/390/904/datas/medium_square.png",
+    "tags": [
+      "Open Ended",
+      "Web",
+      "Beginner Friendly"
+    ]
+  },
+  {
+    "title": "win_Defi_forge",
+    "link": "https://windefiforge.devpost.com/?ref_feature=challenge&ref_medium=discover",
+    "date": "Jun 12 - Jul 10, 2025",
+    "prize": "1",
+    "participants": "77",
+    "image": "https://d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/003/466/832/datas/medium_square.png",
+    "tags": [
+      "Blockchain",
+      "Cybersecurity",
+      "Machine Learning/AI"
     ]
   }
 ]

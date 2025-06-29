@@ -58,7 +58,7 @@ export default function AccountPage({
               href={`https://github.com/${user.github_username}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600"
+              className="p-2 rounded-full bg-green-200 dark:bg-green-700 text-green-700 dark:text-green-200 hover:bg-green-300 dark:hover:bg-green-600"
               title="GitHub Profile"
             >
               <Github size={20} />
@@ -69,7 +69,7 @@ export default function AccountPage({
                 href={`https://linkedin.com/in/${user.linkedin_username}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-800"
+                className="p-2 rounded-full bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800"
                 title="LinkedIn Profile"
               >
                 <Linkedin size={20} />
@@ -81,7 +81,7 @@ export default function AccountPage({
                 href={`https://x.com/${user.x_username}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 rounded-full bg-gray-900 dark:bg-gray-700 text-white hover:bg-gray-800 dark:hover:bg-gray-600"
+                className="p-2 rounded-full bg-green-900 dark:bg-green-700 text-white hover:bg-green-800 dark:hover:bg-green-600"
                 title="X (Twitter) Profile"
               >
                 <Twitter size={20} />
@@ -166,7 +166,7 @@ export default function AccountPage({
               <button
                 onClick={handleSaveSocialLinks}
                 disabled={isSaving}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
               >
                 {isSaving ? "Saving..." : "Save"}
               </button>
@@ -198,11 +198,11 @@ export default function AccountPage({
       <div className="mt-auto flex flex-col gap-3">
         <button
           onClick={onLogout}
-          className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-100 hover:bg-red-200 dark:hover:bg-red-800 font-semibold"
+          className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-100 hover:bg-green-200 dark:hover:bg-green-800 font-semibold"
         >
           <LogOut className="w-5 h-5" /> Logout
         </button>
-        <button className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold">
+        <button className="px-4 py-2 rounded-lg bg-green-200 dark:bg-green-700 text-green-700 dark:text-green-200 font-semibold">
           Delete Account
         </button>
       </div>

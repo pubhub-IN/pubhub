@@ -22,6 +22,7 @@ import Youtube from "./pages/Youtube";
 import ShareOnSocials from "./pages/ShareOnSocials";
 import PeoplePage from "./pages/PeoplePage";
 import ProfilePage from "./pages/ProfilePage";
+import ConnectionsPage from "./pages/ConnectionsPage";
 
 function Layout() {
   const { user } = useAuth();
@@ -106,6 +107,7 @@ function AuthenticatedRoutes() {
         />
         <Route path="/people" element={<PeoplePage />} />
         <Route path="/profile/:username" element={<ProfilePage />} />
+        <Route path="/connections" element={<ConnectionsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>

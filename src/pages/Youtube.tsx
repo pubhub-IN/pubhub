@@ -44,18 +44,15 @@ export default function Youtube() {
   }, [searchTerm, filteredYoutubers, fuse, selectedCategory]);
 
   const YouTuberCard = ({ youtuber }: { youtuber: YouTuber }) => (
-    <div className="group bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-200 dark:border-gray-700 overflow-hidden">
-      <div className="relative">
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 to-purple-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-        <div className="p-6 relative z-10">
-          <div className="flex items-start space-x-4">
-            <div className="relative">
+    <div className="group bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden h-full flex flex-col">
+      <div className="relative flex-1 flex flex-col ">
+        <div className="p-6 relative z-10 flex-1 flex flex-col">
+          <div className="flex items-start space-x-4 flex-1">
+            <div className="relative flex-shrink-0">
               <img
                 src={youtuber.avatarUrl}
                 alt="thumbnail"
-                className="w-20 h-20 rounded-2xl flex-shrink-0 border-4 border-white dark:border-gray-700 shadow-lg group-hover:scale-105 transition-transform duration-300"
+                className="w-20 h-20 rounded-2xl flex-shrink-0 border-4 border-white dark:border-gray-700 shadow-lg"
                 onError={(e) => {
                   // Use correct public path for default avatar
                   e.currentTarget.src = "/pubhub.png";
@@ -67,21 +64,21 @@ export default function Youtube() {
               </div>
             </div>
 
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 flex flex-col">
               <div className="flex items-start justify-between mb-3">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white truncate group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white truncate">
                   {youtuber.name}
                 </h3>
-                <span className="text-xs bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1 rounded-full font-medium shadow-sm">
+                <span className="text-xs bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1 rounded-full font-medium shadow-sm flex-shrink-0">
                   {youtuber.category.split(" ")[0]}
                 </span>
               </div>
 
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed line-clamp-3">
                 {youtuber.description}
               </p>
 
-              <div className="mb-5">
+              <div className="mb-5 flex-1">
                 <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center">
                   <svg
                     className="w-4 h-4 mr-2 text-red-500"
@@ -114,21 +111,23 @@ export default function Youtube() {
                 </div>
               </div>
 
-              <a
-                href={youtuber.channelUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-sm font-semibold rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl group"
-              >
-                <svg
-                  className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
+              <div className="mt-auto">
+                <a
+                  href={youtuber.channelUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white text-sm font-semibold rounded-lg shadow-lg"
                 >
-                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                </svg>
-                Visit Channel
-              </a>
+                  <svg
+                    className="w-5 h-5 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                  </svg>
+                  Visit Channel
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -408,13 +407,13 @@ export default function Youtube() {
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <button
                   onClick={() => setSearchTerm("")}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
+                  className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
                 >
                   Clear Search
                 </button>
                 <button
                   onClick={() => setSelectedCategory(null)}
-                  className="px-6 py-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold rounded-lg transition-colors"
+                  className="px-6 py-3 bg-green-200 dark:bg-green-700 hover:bg-green-300 dark:hover:bg-green-600 text-green-900 dark:text-green-100 font-semibold rounded-lg transition-colors"
                 >
                   Reset Filter
                 </button>

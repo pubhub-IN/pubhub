@@ -162,11 +162,11 @@ export default function CourseCompletionPage({
               </div>
 
               <div className="flex justify-center mt-6">
-                <button className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md transition-colors">
+                <button className="flex items-center gap-2 px-4 py-2 bg-green-200 dark:bg-green-700 hover:bg-green-300 dark:hover:bg-green-600 text-green-800 dark:text-green-200 rounded-md transition-colors">
                   <Download className="w-4 h-4" />
                   <span>Download Certificate</span>
                 </button>
-                <button className="flex items-center gap-2 px-4 py-2 ml-4 bg-blue-100 dark:bg-blue-900/40 hover:bg-blue-200 dark:hover:bg-blue-900 text-blue-700 dark:text-blue-400 rounded-md transition-colors">
+                <button className="flex items-center gap-2 px-4 py-2 ml-4 bg-green-100 dark:bg-green-900/40 hover:bg-green-200 dark:hover:bg-green-900 text-green-700 dark:text-green-400 rounded-md transition-colors">
                   <Share2 className="w-4 h-4" />
                   <span>Share Achievement</span>
                 </button>
@@ -199,7 +199,7 @@ export default function CourseCompletionPage({
                 </p>
                 <Link
                   to={`/start-learning/course/${courseId}`}
-                  className="inline-block px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-md transition-colors"
+                  className="inline-block px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors"
                 >
                   Continue Learning
                 </Link>

@@ -281,8 +281,8 @@ export default function LessonPage({ user }: LessonPageProps) {
                 className={`flex items-center gap-2 px-4 py-2 rounded-md
                   ${
                     previousLesson
-                      ? "bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200"
-                      : "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600 cursor-not-allowed"
+                      ? "bg-green-100 hover:bg-green-200 dark:bg-green-800 dark:hover:bg-green-700 text-green-800 dark:text-green-200"
+                      : "bg-green-100 dark:bg-green-800 text-green-400 dark:text-green-600 cursor-not-allowed"
                   }`}
               >
                 <ChevronLeft size={16} />
@@ -293,7 +293,7 @@ export default function LessonPage({ user }: LessonPageProps) {
                 {!isCompleted && (
                   <button
                     onClick={handleMarkComplete}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
+                    className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
                   >
                     <Check size={16} />
                     <span>Mark Complete</span>
@@ -323,7 +323,7 @@ export default function LessonPage({ user }: LessonPageProps) {
                     ) : (
                       <Link
                         to={`/courses/${courseId}`}
-                        className="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-md"
+                        className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
                       >
                         <BookOpen size={16} />
                         <span>Continue Learning</span>

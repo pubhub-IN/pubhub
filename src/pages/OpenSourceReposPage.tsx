@@ -151,7 +151,7 @@ export default function OpenSourceReposPage({ user }: { user: AuthUser }) {
               </p>
               <button
                 onClick={handleRefresh}
-                className="ml-4 px-3 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded-md hover:bg-blue-200 dark:bg-blue-800 dark:text-blue-200 dark:hover:bg-blue-700 transition-colors"
+                className="ml-4 px-3 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-md hover:bg-green-200 dark:bg-green-800 dark:text-green-200 dark:hover:bg-green-700 transition-colors"
               >
                 Refresh Now
               </button>
@@ -281,7 +281,7 @@ export default function OpenSourceReposPage({ user }: { user: AuthUser }) {
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300 transition-colors"
+                    className="px-4 py-2 text-sm font-medium text-green-500 bg-white border border-green-300 rounded-md hover:bg-green-50 hover:text-green-700 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-green-600 dark:text-green-400 dark:hover:bg-green-700 dark:hover:text-green-300 transition-colors"
                   >
                     ← Previous
                   </button>
@@ -306,7 +306,7 @@ export default function OpenSourceReposPage({ user }: { user: AuthUser }) {
                           className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                             currentPage === page
                               ? "bg-green-600 text-white shadow-sm"
-                              : "text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+                              : "text-green-500 bg-white border border-green-300 hover:bg-green-50 hover:text-green-700 dark:bg-gray-800 dark:border-green-600 dark:text-green-400 dark:hover:bg-green-700 dark:hover:text-green-300"
                           }`}
                         >
                           {page}
@@ -324,7 +324,7 @@ export default function OpenSourceReposPage({ user }: { user: AuthUser }) {
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
-                    className="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300 transition-colors"
+                    className="px-4 py-2 text-sm font-medium text-green-500 bg-white border border-green-300 rounded-md hover:bg-green-50 hover:text-green-700 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-green-600 dark:text-green-400 dark:hover:bg-green-700 dark:hover:text-green-300 transition-colors"
                   >
                     Next →
                   </button>

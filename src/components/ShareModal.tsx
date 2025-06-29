@@ -96,20 +96,20 @@ export function ShareModal({
             <div className="flex gap-3">
               <button
                 onClick={handleLinkedInShare}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
               >
                 <Linkedin className="w-4 h-4" />
                 LinkedIn
               </button>
               <button
                 onClick={handleTwitterShare}
-                className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-900 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 transition-colors"
               >
                 <Twitter className="w-4 h-4" />X (Twitter)
               </button>
               <button
                 onClick={handleCopy}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors ml-auto"
+                className="flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-700 text-green-800 dark:text-green-200 rounded-lg hover:bg-green-200 dark:hover:bg-green-600 transition-colors ml-auto"
               >
                 {copied ? (
                   <>
@@ -130,7 +130,7 @@ export function ShareModal({
         <div className="bg-gray-50 dark:bg-gray-900/30 px-6 py-3 flex justify-end border-t border-gray-200 dark:border-gray-700">
           <button
             onClick={onClose}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="px-4 py-2 border border-green-300 dark:border-green-600 rounded-md text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-700 transition-colors"
           >
             Close
           </button>

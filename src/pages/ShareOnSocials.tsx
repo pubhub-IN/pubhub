@@ -170,7 +170,7 @@ export default function ShareOnSocials({ user }: ShareOnSocialsProps) {
           <div className="flex items-center">
             <button
               onClick={() => navigate("/dashboard")}
-              className="flex items-center mr-4 p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
+              className="flex items-center mr-4 p-2 rounded-lg hover:bg-green-200 dark:hover:bg-green-800 transition-colors"
               aria-label="Back to dashboard"
               title="Back to dashboard"
             >
@@ -185,7 +185,7 @@ export default function ShareOnSocials({ user }: ShareOnSocialsProps) {
           </div>
           <button
             onClick={handleRefresh}
-            className="flex items-center gap-2 px-4 py-2 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-800/50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors"
           >
             <RefreshCcw className="w-4 h-4" />
             <span>Refresh</span>
@@ -225,11 +225,11 @@ export default function ShareOnSocials({ user }: ShareOnSocialsProps) {
                   </div>
                 </div>
               ) : reposError ? (
-                <div className="bg-red-100 dark:bg-red-900/20 p-6 rounded-lg text-center my-4">
-                  <p className="text-red-700 dark:text-red-400">{reposError}</p>
+                <div className="bg-green-100 dark:bg-green-900/20 p-6 rounded-lg text-center my-4">
+                  <p className="text-green-700 dark:text-green-400">{reposError}</p>
                   <button
                     onClick={handleRefresh}
-                    className="mt-4 px-4 py-2 bg-red-200 dark:bg-red-800 rounded-md text-red-700 dark:text-red-200 hover:bg-red-300 dark:hover:bg-red-700 transition-colors"
+                    className="mt-4 px-4 py-2 bg-green-200 dark:bg-green-800 rounded-md text-green-700 dark:text-green-200 hover:bg-green-300 dark:hover:bg-green-700 transition-colors"
                   >
                     Try again
                   </button>
@@ -271,7 +271,7 @@ export default function ShareOnSocials({ user }: ShareOnSocialsProps) {
 
                       {generatedContent[repo.id] ? (
                         <div
-                          className="mt-3 mb-4 bg-purple-50/50 dark:bg-purple-900/20 p-4 rounded-md text-sm text-gray-700 dark:text-gray-300 border border-purple-100/50 dark:border-purple-800/30 cursor-pointer hover:bg-purple-100/50 dark:hover:bg-purple-900/30"
+                          className="mt-3 mb-4 bg-green-50/50 dark:bg-green-900/20 p-4 rounded-md text-sm text-gray-700 dark:text-gray-300 border border-green-100/50 dark:border-green-800/30 cursor-pointer hover:bg-green-100/50 dark:hover:bg-green-900/30"
                           onClick={() =>
                             handleOpenShareModal(repo.id, repo.name)
                           }
@@ -280,7 +280,7 @@ export default function ShareOnSocials({ user }: ShareOnSocialsProps) {
                             <div className="line-clamp-3">
                               {generatedContent[repo.id]}
                             </div>
-                            <Share2 className="w-4 h-4 text-purple-500 dark:text-purple-400 ml-3 flex-shrink-0" />
+                            <Share2 className="w-4 h-4 text-green-500 dark:text-green-400 ml-3 flex-shrink-0" />
                           </div>
                         </div>
                       ) : (
@@ -298,7 +298,7 @@ export default function ShareOnSocials({ user }: ShareOnSocialsProps) {
                               handleGeneratePost(repo.id, repo.name)
                             }
                             disabled={generatingPost !== null}
-                            className="w-full px-4 py-2 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-md font-medium hover:bg-purple-200 dark:hover:bg-purple-800/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            className="w-full px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-md font-medium hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                           >
                             {generatedContent[repo.id] ? (
                               <>
@@ -315,7 +315,7 @@ export default function ShareOnSocials({ user }: ShareOnSocialsProps) {
                         ) : (
                           <button
                             disabled
-                            className="w-full px-4 py-2 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-md font-medium opacity-70 cursor-not-allowed flex items-center justify-center gap-2"
+                            className="w-full px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-md font-medium opacity-70 cursor-not-allowed flex items-center justify-center gap-2"
                           >
                             <Loader2 className="w-4 h-4 animate-spin" />
                             Generating...
@@ -328,7 +328,7 @@ export default function ShareOnSocials({ user }: ShareOnSocialsProps) {
                           onClick={() =>
                             handleOpenShareModal(repo.id, repo.name)
                           }
-                          className="w-full mt-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-md font-medium hover:bg-blue-200 dark:hover:bg-blue-800/50 transition-colors flex items-center justify-center gap-2"
+                          className="w-full mt-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-md font-medium hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors flex items-center justify-center gap-2"
                         >
                           <Share2 className="w-4 h-4" />
                           Share Now

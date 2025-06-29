@@ -99,7 +99,7 @@ export default function CourseDetailPage() {
                   {course.difficulty.charAt(0).toUpperCase() +
                     course.difficulty.slice(1)}
                 </span>
-                <span className="text-xs font-medium px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                <span className="text-xs font-medium px-2 py-1 rounded-full bg-green-100 dark:bg-green-700 text-green-800 dark:text-green-200">
                   {course.category.toUpperCase()}
                 </span>
               </div>

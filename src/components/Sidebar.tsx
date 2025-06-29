@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Home,
@@ -10,8 +10,10 @@ import {
   Youtube,
   Share2,
   Users as UsersIcon,
+  UserCheck,
 } from "lucide-react";
 import pubhubLogo from "/pubhub.png";
+import { authService } from "../lib/auth-jwt";
 
 const navItems = [
   { to: "/dashboard", icon: <Home />, label: "Home" },
@@ -21,12 +23,36 @@ const navItems = [
   { to: "/youtube", icon: <Youtube />, label: "Recorded Lectures" },
   { to: "/share-socials", icon: <Share2 />, label: "Share on Socials" },
   { to: "/people", icon: <UsersIcon />, label: "People" },
+  {
+    to: "/connections",
+    icon: <UserCheck />,
+    label: "Connections",
+    hasNotifications: true,
+  },
   { to: "/account", icon: <User />, label: "Account" },
 ];
 
 export default function Sidebar() {
   const [open, setOpen] = useState(false);
+  const [pendingRequests, setPendingRequests] = useState(0);
   const location = useLocation();
+
+  useEffect(() => {
+    loadPendingRequests();
+  }, []);
+
+  const loadPendingRequests = async () => {
+    try {
+      const response = await authService.getConnectionRequests();
+      const pendingCount =
+        response.requests?.filter(
+          (req: any) => req.status === "pending" && req.recipient
+        )?.length || 0;
+      setPendingRequests(pendingCount);
+    } catch (error) {
+      console.error("Error loading pending requests:", error);
+    }
+  };
 
   return (
     <>
@@ -46,8 +72,15 @@ export default function Sidebar() {
         onMouseEnter={() => window.innerWidth >= 768 && setOpen(true)}
         onMouseLeave={() => window.innerWidth >= 768 && setOpen(false)}
       >
-        <div className="flex justify-center py-6">
-          <img src={pubhubLogo} alt="PubHub Logo" className="w-10 h-10" />
+        <div className="flex justify-left py-6 items-center gap-4">
+          <img src={pubhubLogo} alt="PubHub Logo" className="w-10 h-10 ml-2" />
+          <span
+            className={`whitespace-nowrap overflow-hidden text-lg font-bold transition-all duration-200 ${
+              open ? "opacity-100 w-auto" : "opacity-0 w-0"
+            }`}
+          >
+            PubHub
+          </span>
         </div>
         <nav className="flex flex-col gap-2 px-2 w-full">
           {navItems.map((item) => (
@@ -62,7 +95,14 @@ export default function Sidebar() {
                 }`}
               title={item.label}
             >
-              <span className="w-5 h-5 flex-shrink-0">{item.icon}</span>
+              <span className="w-5 h-5 flex-shrink-0 relative">
+                {item.icon}
+                {item.hasNotifications && pendingRequests > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                    {pendingRequests > 9 ? "9+" : pendingRequests}
+                  </span>
+                )}
+              </span>
               <span
                 className={`whitespace-nowrap overflow-hidden text-sm font-medium transition-all duration-200 ${
                   open ? "opacity-100 w-auto" : "opacity-0 w-0"
@@ -76,6 +116,11 @@ export default function Sidebar() {
                 <div className="absolute left-full ml-2 pl-1 hidden group-hover:md:block z-50">
                   <div className="bg-gray-800 text-white text-xs px-3 py-2 rounded-md whitespace-nowrap shadow-lg">
                     {item.label}
+                    {item.hasNotifications && pendingRequests > 0 && (
+                      <span className="ml-2 bg-red-500 text-white text-xs rounded-full px-1">
+                        {pendingRequests}
+                      </span>
+                    )}
                   </div>
                 </div>
               )}

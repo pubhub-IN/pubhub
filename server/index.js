@@ -1205,6 +1205,364 @@ app.get("/api/user/:username/repo-count", async (req, res) => {
   }
 });
 
+// --- CONNECTION SYSTEM ENDPOINTS ---
+
+// Send connection request
+app.post("/api/connections/request", authenticateJWT, async (req, res) => {
+  try {
+    const { recipient_username, message } = req.body;
+    const requester_id = req.user.id;
+
+    if (!recipient_username) {
+      return res.status(400).json({ error: "Recipient username is required" });
+    }
+
+    // Get recipient user
+    const { data: recipient, error: recipientError } = await supabase
+      .from("users")
+      .select("id")
+      .eq("github_username", recipient_username)
+      .single();
+
+    if (recipientError || !recipient) {
+      return res.status(404).json({ error: "Recipient user not found" });
+    }
+
+    if (requester_id === recipient.id) {
+      return res.status(400).json({ error: "Cannot send request to yourself" });
+    }
+
+    // Check if connection already exists
+    const { data: existingConnection } = await supabase
+      .from("connections")
+      .select("id")
+      .or(`user_id.eq.${requester_id},connected_user_id.eq.${requester_id}`)
+      .or(`user_id.eq.${recipient.id},connected_user_id.eq.${recipient.id}`)
+      .single();
+
+    if (existingConnection) {
+      return res.status(400).json({ error: "Connection already exists" });
+    }
+
+    // Check if request already exists
+    const { data: existingRequest } = await supabase
+      .from("connection_requests")
+      .select("id, status")
+      .or(`requester_id.eq.${requester_id},recipient_id.eq.${requester_id}`)
+      .or(`requester_id.eq.${recipient.id},recipient_id.eq.${recipient.id}`)
+      .single();
+
+    if (existingRequest) {
+      return res.status(400).json({
+        error: "Connection request already exists",
+        status: existingRequest.status,
+      });
+    }
+
+    // Create connection request
+    const { data: request, error } = await supabase
+      .from("connection_requests")
+      .insert({
+        requester_id,
+        recipient_id: recipient.id,
+        message: message || null,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.status(201).json({
+      success: true,
+      request,
+      message: "Connection request sent successfully",
+    });
+  } catch (error) {
+    console.error("Error sending connection request:", error);
+    res.status(500).json({ error: "Failed to send connection request" });
+  }
+});
+
+// Accept connection request
+app.put(
+  "/api/connections/accept/:requestId",
+  authenticateJWT,
+  async (req, res) => {
+    try {
+      const { requestId } = req.params;
+      const user_id = req.user.id;
+
+      // Get the request
+      const { data: request, error: requestError } = await supabase
+        .from("connection_requests")
+        .select("*")
+        .eq("id", requestId)
+        .eq("recipient_id", user_id)
+        .eq("status", "pending")
+        .single();
+
+      if (requestError || !request) {
+        return res
+          .status(404)
+          .json({ error: "Request not found or already processed" });
+      }
+
+      // Update request status
+      const { error: updateError } = await supabase
+        .from("connection_requests")
+        .update({ status: "accepted", updated_at: new Date().toISOString() })
+        .eq("id", requestId);
+
+      if (updateError) throw updateError;
+
+      // Create mutual connection
+      const { error: connectionError } = await supabase
+        .from("connections")
+        .insert([
+          {
+            user_id: request.requester_id,
+            connected_user_id: request.recipient_id,
+          },
+          {
+            user_id: request.recipient_id,
+            connected_user_id: request.requester_id,
+          },
+        ]);
+
+      if (connectionError) throw connectionError;
+
+      res.json({
+        success: true,
+        message: "Connection request accepted",
+      });
+    } catch (error) {
+      console.error("Error accepting connection request:", error);
+      res.status(500).json({ error: "Failed to accept connection request" });
+    }
+  }
+);
+
+// Reject connection request
+app.put(
+  "/api/connections/reject/:requestId",
+  authenticateJWT,
+  async (req, res) => {
+    try {
+      const { requestId } = req.params;
+      const user_id = req.user.id;
+
+      const { error } = await supabase
+        .from("connection_requests")
+        .update({ status: "rejected", updated_at: new Date().toISOString() })
+        .eq("id", requestId)
+        .eq("recipient_id", user_id)
+        .eq("status", "pending");
+
+      if (error) throw error;
+
+      res.json({
+        success: true,
+        message: "Connection request rejected",
+      });
+    } catch (error) {
+      console.error("Error rejecting connection request:", error);
+      res.status(500).json({ error: "Failed to reject connection request" });
+    }
+  }
+);
+
+// Get user's connection requests (sent and received)
+app.get("/api/connections/requests", authenticateJWT, async (req, res) => {
+  try {
+    const user_id = req.user.id;
+
+    const { data: requests, error } = await supabase
+      .from("connection_requests")
+      .select(
+        `
+        *,
+        requester:requester_id(id, github_username, name, avatar_url),
+        recipient:recipient_id(id, github_username, name, avatar_url)
+      `
+      )
+      .or(`requester_id.eq.${user_id},recipient_id.eq.${user_id}`)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      requests: requests || [],
+    });
+  } catch (error) {
+    console.error("Error fetching connection requests:", error);
+    res.status(500).json({ error: "Failed to fetch connection requests" });
+  }
+});
+
+// Get user's connections
+app.get("/api/connections", authenticateJWT, async (req, res) => {
+  try {
+    const user_id = req.user.id;
+
+    const { data: connections, error } = await supabase
+      .from("connections")
+      .select(
+        `
+        *,
+        connected_user:connected_user_id(id, github_username, name, avatar_url, profession)
+      `
+      )
+      .eq("user_id", user_id)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      connections: connections || [],
+    });
+  } catch (error) {
+    console.error("Error fetching connections:", error);
+    res.status(500).json({ error: "Failed to fetch connections" });
+  }
+});
+
+// Remove connection
+app.delete(
+  "/api/connections/:connectionId",
+  authenticateJWT,
+  async (req, res) => {
+    try {
+      const { connectionId } = req.params;
+      const user_id = req.user.id;
+
+      // Get the connection to find the other user
+      const { data: connection, error: connectionError } = await supabase
+        .from("connections")
+        .select("*")
+        .eq("id", connectionId)
+        .or(`user_id.eq.${user_id},connected_user_id.eq.${user_id}`)
+        .single();
+
+      if (connectionError || !connection) {
+        return res.status(404).json({ error: "Connection not found" });
+      }
+
+      // Delete both connection records (mutual connection)
+      const { error } = await supabase
+        .from("connections")
+        .delete()
+        .or(
+          `user_id.eq.${connection.user_id},connected_user_id.eq.${connection.user_id}`
+        )
+        .or(
+          `user_id.eq.${connection.connected_user_id},connected_user_id.eq.${connection.connected_user_id}`
+        );
+
+      if (error) throw error;
+
+      res.json({
+        success: true,
+        message: "Connection removed",
+      });
+    } catch (error) {
+      console.error("Error removing connection:", error);
+      res.status(500).json({ error: "Failed to remove connection" });
+    }
+  }
+);
+
+// Get connection status with another user
+app.get(
+  "/api/connections/status/:username",
+  authenticateJWT,
+  async (req, res) => {
+    try {
+      const { username } = req.params;
+      const user_id = req.user.id;
+
+      // Get the other user
+      const { data: otherUser, error: userError } = await supabase
+        .from("users")
+        .select("id")
+        .eq("github_username", username)
+        .single();
+
+      if (userError || !otherUser) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      if (user_id === otherUser.id) {
+        return res.json({
+          status: "self",
+          message: "This is your own profile",
+        });
+      }
+
+      // Check if connected
+      const { data: connection } = await supabase
+        .from("connections")
+        .select("id")
+        .eq("user_id", user_id)
+        .eq("connected_user_id", otherUser.id)
+        .single();
+
+      if (connection) {
+        return res.json({
+          status: "connected",
+          message: "Already connected",
+        });
+      }
+
+      // Check for pending requests
+      const { data: sentRequest } = await supabase
+        .from("connection_requests")
+        .select("id, status")
+        .eq("requester_id", user_id)
+        .eq("recipient_id", otherUser.id)
+        .single();
+
+      if (sentRequest) {
+        return res.json({
+          status: "request_sent",
+          requestStatus: sentRequest.status,
+          message:
+            sentRequest.status === "pending"
+              ? "Request sent"
+              : "Request " + sentRequest.status,
+        });
+      }
+
+      const { data: receivedRequest } = await supabase
+        .from("connection_requests")
+        .select("id, status")
+        .eq("requester_id", otherUser.id)
+        .eq("recipient_id", user_id)
+        .single();
+
+      if (receivedRequest) {
+        return res.json({
+          status: "request_received",
+          requestStatus: receivedRequest.status,
+          message:
+            receivedRequest.status === "pending"
+              ? "Request received"
+              : "Request " + receivedRequest.status,
+        });
+      }
+
+      res.json({
+        status: "not_connected",
+        message: "Not connected",
+      });
+    } catch (error) {
+      console.error("Error checking connection status:", error);
+      res.status(500).json({ error: "Failed to check connection status" });
+    }
+  }
+);
+
 // Graceful shutdown handling
 process.on("SIGTERM", () => {
   console.log("SIGTERM received, shutting down gracefully");

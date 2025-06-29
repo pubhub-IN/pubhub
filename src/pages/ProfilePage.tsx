@@ -10,6 +10,7 @@ import {
   GitFork,
 } from "lucide-react";
 import GitHubCalendar from "react-github-calendar";
+import ConnectionButton from "../components/ConnectionButton";
 
 // Helper function to format dates in a user-friendly way
 const formatDate = (dateString: string): string => {
@@ -357,13 +358,7 @@ export default function ProfilePage() {
           </div>
         </div>
         <div className="mt-8 flex justify-end">
-          <button
-            className="flex items-center gap-2 px-5 py-2 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-700 transition"
-            title="Send a message"
-          >
-            <MessageCircle className="w-5 h-5" />
-            Message
-          </button>
+          <ConnectionButton username={user.github_username} />
         </div>
       </div>
     </div>

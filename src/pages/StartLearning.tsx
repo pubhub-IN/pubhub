@@ -563,7 +563,7 @@ export default function StartLearning({ user }: { user: User }) {
               {/* Filter toggle button */}
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center justify-center gap-2 px-5 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-medium rounded-xl transition-colors duration-300"
+                className="flex items-center justify-center gap-2 px-5 py-3 bg-green-100 dark:bg-green-700 hover:bg-green-200 dark:hover:bg-green-600 text-green-700 dark:text-green-200 font-medium rounded-xl transition-colors duration-300"
                 aria-expanded={showFilters ? true : false}
               >
                 <SlidersHorizontal className="h-5 w-5" />
@@ -578,7 +578,7 @@ export default function StartLearning({ user }: { user: User }) {
                   Active Filters:
                 </h3>
                 {activeFilters.search && (
-                  <span className="flex items-center gap-1.5 text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full">
+                  <span className="flex items-center gap-1.5 text-xs px-2 py-1 bg-green-100 dark:bg-green-700 rounded-full">
                     Search: "{searchQuery}"
                     <button
                       onClick={clearSearchFilter}
@@ -589,7 +589,7 @@ export default function StartLearning({ user }: { user: User }) {
                   </span>
                 )}
                 {activeFilters.category && (
-                  <span className="flex items-center gap-1.5 text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full">
+                  <span className="flex items-center gap-1.5 text-xs px-2 py-1 bg-green-100 dark:bg-green-700 rounded-full">
                     Category: {selectedCategory}
                     <button
                       onClick={clearCategoryFilter}
@@ -600,7 +600,7 @@ export default function StartLearning({ user }: { user: User }) {
                   </span>
                 )}
                 {activeFilters.difficulty && (
-                  <span className="flex items-center gap-1.5 text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full">
+                  <span className="flex items-center gap-1.5 text-xs px-2 py-1 bg-green-100 dark:bg-green-700 rounded-full">
                     Difficulty: {selectedDifficulty}
                     <button
                       onClick={clearDifficultyFilter}
@@ -611,7 +611,7 @@ export default function StartLearning({ user }: { user: User }) {
                   </span>
                 )}
                 {activeFilters.availability && (
-                  <span className="flex items-center gap-1.5 text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full">
+                  <span className="flex items-center gap-1.5 text-xs px-2 py-1 bg-green-100 dark:bg-green-700 rounded-full">
                     Availability:{" "}
                     {selectedAvailability === "available"
                       ? "Available"
@@ -709,7 +709,7 @@ export default function StartLearning({ user }: { user: User }) {
                         className={`text-xs px-3 py-1.5 rounded-full transition-colors ${
                           selectedTags.includes(tag)
                             ? "bg-green-500 text-white"
-                            : "bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-500"
+                            : "bg-green-100 dark:bg-green-600 text-green-700 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-500"
                         }`}
                       >
                         {tag}
@@ -735,7 +735,7 @@ export default function StartLearning({ user }: { user: User }) {
                 className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl transition-colors duration-300 ${
                   selectedCategory === "all"
                     ? "bg-green-500 text-white shadow-md"
-                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-green-100 dark:hover:bg-green-700"
                 }`}
               >
                 <Globe className="w-5 h-5" />
@@ -749,7 +749,7 @@ export default function StartLearning({ user }: { user: User }) {
                   className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl transition-colors duration-300 ${
                     selectedCategory === key
                       ? "bg-green-500 text-white shadow-md"
-                      : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-green-100 dark:hover:bg-green-700"
                   }`}
                 >
                   {icon}
@@ -845,7 +845,7 @@ export default function StartLearning({ user }: { user: User }) {
                     <option value="duration">Duration</option>
                   </select>
                 </div>
-                <div className="flex items-center gap-1 p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <div className="flex items-center gap-1 p-1 bg-green-100 dark:bg-green-700 rounded-lg">
                   <button
                     onClick={() => setViewMode("grid")}
                     className={`p-2 rounded-md ${

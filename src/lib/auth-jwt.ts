@@ -325,6 +325,191 @@ class AuthService {
       throw error;
     }
   }
+
+  // Connection methods
+  async sendConnectionRequest(
+    recipientUsername: string,
+    message?: string
+  ): Promise<any> {
+    if (!this.isAuthenticated()) {
+      throw new Error("Not authenticated");
+    }
+
+    try {
+      const response = await this.fetchWithAuth(
+        `${API_BASE_URL}/api/connections/request`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            recipient_username: recipientUsername,
+            message: message || null,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        return await response.json();
+      } else {
+        const error = await response.json();
+        throw new Error(
+          error.error || `Failed to send connection request: ${response.status}`
+        );
+      }
+    } catch (error) {
+      console.error("Error sending connection request:", error);
+      throw error;
+    }
+  }
+
+  async acceptConnectionRequest(requestId: string): Promise<any> {
+    if (!this.isAuthenticated()) {
+      throw new Error("Not authenticated");
+    }
+
+    try {
+      const response = await this.fetchWithAuth(
+        `${API_BASE_URL}/api/connections/accept/${requestId}`,
+        {
+          method: "PUT",
+        }
+      );
+
+      if (response.ok) {
+        return await response.json();
+      } else {
+        const error = await response.json();
+        throw new Error(
+          error.error ||
+            `Failed to accept connection request: ${response.status}`
+        );
+      }
+    } catch (error) {
+      console.error("Error accepting connection request:", error);
+      throw error;
+    }
+  }
+
+  async rejectConnectionRequest(requestId: string): Promise<any> {
+    if (!this.isAuthenticated()) {
+      throw new Error("Not authenticated");
+    }
+
+    try {
+      const response = await this.fetchWithAuth(
+        `${API_BASE_URL}/api/connections/reject/${requestId}`,
+        {
+          method: "PUT",
+        }
+      );
+
+      if (response.ok) {
+        return await response.json();
+      } else {
+        const error = await response.json();
+        throw new Error(
+          error.error ||
+            `Failed to reject connection request: ${response.status}`
+        );
+      }
+    } catch (error) {
+      console.error("Error rejecting connection request:", error);
+      throw error;
+    }
+  }
+
+  async getConnections(): Promise<any> {
+    if (!this.isAuthenticated()) {
+      throw new Error("Not authenticated");
+    }
+
+    try {
+      const response = await this.fetchWithAuth(
+        `${API_BASE_URL}/api/connections`
+      );
+
+      if (response.ok) {
+        return await response.json();
+      } else {
+        throw new Error(`Failed to fetch connections: ${response.status}`);
+      }
+    } catch (error) {
+      console.error("Error fetching connections:", error);
+      throw error;
+    }
+  }
+
+  async getConnectionRequests(): Promise<any> {
+    if (!this.isAuthenticated()) {
+      throw new Error("Not authenticated");
+    }
+
+    try {
+      const response = await this.fetchWithAuth(
+        `${API_BASE_URL}/api/connections/requests`
+      );
+
+      if (response.ok) {
+        return await response.json();
+      } else {
+        throw new Error(
+          `Failed to fetch connection requests: ${response.status}`
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching connection requests:", error);
+      throw error;
+    }
+  }
+
+  async getConnectionStatus(username: string): Promise<any> {
+    if (!this.isAuthenticated()) {
+      throw new Error("Not authenticated");
+    }
+
+    try {
+      const response = await this.fetchWithAuth(
+        `${API_BASE_URL}/api/connections/status/${username}`
+      );
+
+      if (response.ok) {
+        return await response.json();
+      } else {
+        throw new Error(
+          `Failed to fetch connection status: ${response.status}`
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching connection status:", error);
+      throw error;
+    }
+  }
+
+  async removeConnection(connectionId: string): Promise<any> {
+    if (!this.isAuthenticated()) {
+      throw new Error("Not authenticated");
+    }
+
+    try {
+      const response = await this.fetchWithAuth(
+        `${API_BASE_URL}/api/connections/${connectionId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (response.ok) {
+        return await response.json();
+      } else {
+        const error = await response.json();
+        throw new Error(
+          error.error || `Failed to remove connection: ${response.status}`
+        );
+      }
+    } catch (error) {
+      console.error("Error removing connection:", error);
+      throw error;
+    }
+  }
 }
 
 // Export singleton instance

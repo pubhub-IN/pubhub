@@ -225,7 +225,7 @@ export default function Dashboard({ user }: DashboardProps) {
               <ThemeToggle />
               <button
                 onClick={handleLogout}
-                className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-100 hover:bg-red-200 dark:hover:bg-red-800 transition-colors"
+                className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-100 hover:bg-green-200 dark:hover:bg-green-800 transition-colors"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Logout</span>
@@ -386,7 +386,7 @@ export default function Dashboard({ user }: DashboardProps) {
                   </h3>
                   <button
                     onClick={() => navigate("/share-socials")}
-                    className="text-xs px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-md hover:bg-purple-200 dark:hover:bg-purple-800/50 transition-colors"
+                    className="text-xs px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-md hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors"
                     aria-label="Go to Share on Socials page"
                     title="See all repositories"
                   >
@@ -409,7 +409,7 @@ export default function Dashboard({ user }: DashboardProps) {
                       </p>
                       <button
                         onClick={() => window.location.reload()}
-                        className="mt-2 px-3 py-1 bg-red-200 dark:bg-red-800 rounded-md text-red-700 dark:text-red-200 text-sm hover:bg-red-300 dark:hover:bg-red-700 transition-colors"
+                        className="mt-2 px-3 py-1 bg-green-200 dark:bg-green-800 rounded-md text-green-700 dark:text-green-200 text-sm hover:bg-green-300 dark:hover:bg-green-700 transition-colors"
                       >
                         Try again
                       </button>
@@ -451,7 +451,7 @@ export default function Dashboard({ user }: DashboardProps) {
                                 handleGeneratePost(repo.id, repo.name)
                               }
                               disabled={generatingPost !== null}
-                              className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-md text-xs font-medium hover:bg-purple-200 dark:hover:bg-purple-800/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                              className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-md text-xs font-medium hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
                             >
                               {generatingPost === repo.id.toString() ? (
                                 <>
@@ -467,7 +467,7 @@ export default function Dashboard({ user }: DashboardProps) {
                               onClick={() =>
                                 handleOpenShareModal(repo.id, repo.name)
                               }
-                              className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-md text-xs font-medium hover:bg-purple-200 dark:hover:bg-purple-800/50 transition-colors flex items-center gap-1"
+                              className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-md text-xs font-medium hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors flex items-center gap-1"
                             >
                               <Share2 className="w-3 h-3" />
                               Share
@@ -477,7 +477,7 @@ export default function Dashboard({ user }: DashboardProps) {
 
                         {generatedContent[repo.id] && (
                           <div
-                            className="mt-3 bg-purple-50/50 dark:bg-purple-900/20 p-3 rounded-md text-xs text-gray-700 dark:text-gray-300 border border-purple-100/50 dark:border-purple-800/30 cursor-pointer hover:bg-purple-100/50 dark:hover:bg-purple-900/30"
+                            className="mt-3 bg-green-50/50 dark:bg-green-900/20 p-3 rounded-md text-xs text-gray-700 dark:text-gray-300 border border-green-100/50 dark:border-green-800/30 cursor-pointer hover:bg-green-100/50 dark:hover:bg-green-900/30"
                             onClick={() =>
                               handleOpenShareModal(repo.id, repo.name)
                             }
@@ -486,7 +486,7 @@ export default function Dashboard({ user }: DashboardProps) {
                               <div className="line-clamp-1">
                                 {generatedContent[repo.id]}
                               </div>
-                              <Share2 className="w-3.5 h-3.5 text-purple-500 dark:text-purple-400 ml-2 flex-shrink-0" />
+                              <Share2 className="w-3.5 h-3.5 text-green-500 dark:text-green-400 ml-2 flex-shrink-0" />
                             </div>
                           </div>
                         )}
@@ -498,7 +498,7 @@ export default function Dashboard({ user }: DashboardProps) {
                 <div className="flex justify-center mt-4">
                   <button
                     onClick={() => window.location.reload()}
-                    className="flex items-center gap-1 text-sm text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 transition-colors"
+                    className="flex items-center gap-1 text-sm text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
                   >
                     <RefreshCcw className="w-3.5 h-3.5" />
                     Refresh repositories
@@ -526,7 +526,7 @@ export default function Dashboard({ user }: DashboardProps) {
                       },
                     })
                   }
-                  className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-md text-xs font-medium hover:bg-purple-200 dark:hover:bg-purple-800/50 transition-colors flex items-center gap-1"
+                  className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-md text-xs font-medium hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors flex items-center gap-1"
                   aria-label="Edit technologies"
                 >
                   <Edit2 className="w-4 h-4" />
@@ -540,7 +540,7 @@ export default function Dashboard({ user }: DashboardProps) {
                     return (
                       <span
                         key={tech}
-                        className={`px-4 py-2 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900 dark:to-purple-800 text-purple-700 dark:text-purple-100 rounded-lg text-sm font-medium border border-purple-200/50 dark:border-purple-700/50 shadow-sm animate-fade-in ${delayClass}`}
+                        className={`px-4 py-2 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 text-green-700 dark:text-green-100 rounded-lg text-sm font-medium border border-green-200/50 dark:border-green-700/50 shadow-sm animate-fade-in ${delayClass}`}
                       >
                         {tech}
                       </span>

@@ -40,7 +40,7 @@ export default function PeoplePage() {
   return (
     <div className="max-w-6xl mx-auto p-8">
       <h1 className="text-3xl font-bold mb-8 flex items-center gap-3">
-        <span className="inline-block bg-purple-100 text-purple-700 rounded-lg p-2">
+        <span className="inline-block bg-green-100 text-green-700 rounded-lg p-2">
           <UsersIcon className="w-6 h-6" />
         </span>
         People
@@ -49,7 +49,7 @@ export default function PeoplePage() {
         {users.map((user) => (
           <div
             key={user.id}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow hover:shadow-lg transition cursor-pointer p-5 flex flex-col gap-2 border border-gray-100 dark:border-gray-700 hover:border-purple-400"
+            className="bg-white dark:bg-gray-800 rounded-xl shadow hover:shadow-lg transition cursor-pointer p-5 flex flex-col gap-2 border border-gray-100 dark:border-gray-700 hover:border-green-400"
             onClick={() => navigate(`/profile/${user.github_username}`)}
             title={user.name || user.github_username}
           >
@@ -61,12 +61,12 @@ export default function PeoplePage() {
                   className="w-12 h-12 rounded-full border border-gray-200 dark:border-gray-700"
                 />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-xl font-bold text-purple-700">
+                <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-xl font-bold text-green-700">
                   {user.name?.[0] || user.github_username?.[0] || "U"}
                 </div>
               )}
               <div>
-                <div className="font-semibold text-blue-700 dark:text-blue-300 truncate max-w-[140px]">
+                <div className="font-semibold text-green-700 dark:text-green-300 truncate max-w-[140px]">
                   {user.name || user.github_username}
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">
