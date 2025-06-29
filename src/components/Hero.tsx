@@ -57,7 +57,7 @@ export default function Hero() {
               One platform to manage, share, and grow in public.
             </h1>
 
-            <p className="text-xs md:text-2xl text-green-100 leading-relaxed font-medium">
+            <p className="text-xs md:text-xl text-green-100 leading-relaxed font-medium">
               From your first commit to your next big launch—share it all.
             </p>
 
