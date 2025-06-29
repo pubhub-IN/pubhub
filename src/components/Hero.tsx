@@ -89,7 +89,7 @@ export default function Hero() {
               Everything you need to grow as a developer
             </h2>
             <p className="text-xl text-green-100 max-w-3xl mx-auto">
-              From your first commit to your next big launch, PubHub provides all the tools you need.
+              From your first commit to your next big launch, <br/> PubHub provides all the tools you need.
             </p>
           </div>
 
