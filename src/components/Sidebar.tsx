@@ -11,6 +11,7 @@ import {
   Share2,
   Users as UsersIcon,
   UserCheck,
+  Briefcase,
 } from "lucide-react";
 import pubhubLogo from "/pubhub.png";
 import { authService } from "../lib/auth-jwt";
@@ -27,6 +28,12 @@ const navItems = [
     to: "/connections",
     icon: <UserCheck />,
     label: "Connections",
+    hasNotifications: true,
+  },
+  {
+    to: "/job-hunting",
+    icon: <Briefcase />,
+    label: "Job Hunting",
     hasNotifications: true,
   },
   { to: "/account", icon: <User />, label: "Account" },
