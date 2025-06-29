@@ -27,13 +27,11 @@ export default function Hero() {
         <div className="text-center max-w-[80%] mx-auto px-6">
           {/* Hero Content */}
           <div className="space-y-6">
-            <h1 className="text-5xl leading-[1.2] md:text-6xl md:leading-[1.2] lg:text-7xl lg:leading-[1.2] font-bold text-white w-full">
-              One platform to manage,
-              <br />
-              share, and grow in public.
+            <h1 className="text-xl leading-[1.2] md:text-6xl md:leading-[1.2] lg:text-7xl lg:leading-[1.2] font-bold text-white w-full">
+              One platform to manage, share, and grow in public.
             </h1>
 
-            <p className="text-xl md:text-2xl text-green-100 mx-auto leading-relaxed font-medium">
+            <p className="text-xs md:text-2xl text-green-100 leading-relaxed font-medium">
               From your first commit to your next big launch—share it all.
             </p>
 

@@ -8,6 +8,8 @@ import {
   Menu,
   Brain,
   Youtube,
+  Share2,
+  Users as UsersIcon,
 } from "lucide-react";
 import pubhubLogo from "/pubhub.png";
 
@@ -17,6 +19,8 @@ const navItems = [
   { to: "/open-source", icon: <BookOpen />, label: "Open Source" },
   { to: "/start-learning", icon: <Brain />, label: "Start Learning" },
   { to: "/youtube", icon: <Youtube />, label: "Recorded Lectures" },
+  { to: "/share-socials", icon: <Share2 />, label: "Share on Socials" },
+  { to: "/people", icon: <UsersIcon />, label: "People" },
   { to: "/account", icon: <User />, label: "Account" },
 ];
 

@@ -6,14 +6,21 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { createClient } from "@supabase/supabase-js";
 import jwt from "jsonwebtoken";
+import { Mistral } from "@mistralai/mistralai";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+// Try both environment variable names
+const apiKey = process.env.MISTRAL_API_KEY || process.env.CODESTRAL_KEY;
+console.log("Mistral API Key available:", apiKey ? "Yes" : "No");
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRATION = process.env.JWT_EXPIRATION || "7d";
+
+// Initialize Mistral API client
+const mistralClient = new Mistral({ apiKey: apiKey });
 
 // Rate limiting helper
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -138,7 +145,7 @@ passport.use(
     {
       clientID: process.env.VITE_GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: "http://localhost:3000/auth/github/callback",
+      callbackURL: `http://localhost:${PORT}/auth/github/callback`,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -566,6 +573,39 @@ app.put("/api/user/profession", authenticateJWT, async (req, res) => {
   }
 });
 
+app.put("/api/user/social-links", authenticateJWT, async (req, res) => {
+  try {
+    const { linkedin_username, x_username } = req.body;
+    const updateData = {};
+
+    // Handle linkedin_username update
+    if (linkedin_username !== undefined) {
+      // Store empty string as null in the database
+      updateData.linkedin_username = linkedin_username || null;
+    }
+
+    // Handle x_username update
+    if (x_username !== undefined) {
+      // Store empty string as null in the database
+      updateData.x_username = x_username || null;
+    }
+
+    const { data: updatedUser, error } = await supabase
+      .from("users")
+      .update(updateData)
+      .eq("id", req.user.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json(updatedUser);
+  } catch (error) {
+    console.error("Error updating social links:", error);
+    res.status(500).json({ error: "Failed to update social links" });
+  }
+});
+
 app.get("/api/user/active-days", authenticateJWT, async (req, res) => {
   try {
     console.log(`Fetching active days for user: ${req.user.github_username}`);
@@ -924,6 +964,245 @@ app.post("/api/user/logout", (req, res) => {
     message:
       "Logged out successfully. Please remove the token from client storage.",
   });
+});
+
+// AI Chat endpoint
+app.post("/api/ai-chat", authenticateJWT, async (req, res) => {
+  try {
+    const { messages, sessionId } = req.body;
+
+    if (!messages || !Array.isArray(messages)) {
+      return res.status(400).json({ error: "Invalid messages format" });
+    }
+
+    console.log(
+      "Attempting to chat with Mistral AI, messages:",
+      JSON.stringify(
+        messages.map((m) => ({
+          role: m.role,
+          content: m.content.substring(0, 30) + "...",
+        }))
+      )
+    ); // Try with the correct model name - it might be mistral-large or mistral-medium instead of codestral-2501
+    const modelName = "codestral-2501"; // Use the correct model name for Mistral API
+    console.log("Using model:", modelName);
+
+    try {
+      // Call Mistral API with the provided messages
+      // Use the chatCompletions method instead of chat (API changed)
+      const chatResponse = await mistralClient.chat.complete({
+        model: modelName,
+        messages: messages,
+      });
+
+      console.log(
+        "Mistral API response received:",
+        chatResponse ? "Yes" : "No"
+      );
+
+      if (!chatResponse || !chatResponse.choices || !chatResponse.choices[0]) {
+        throw new Error("Invalid response from Mistral API");
+      }
+
+      const assistantResponse = chatResponse.choices[0].message.content;
+
+      console.log(
+        "Assistant response received",
+        assistantResponse ? "Yes" : "No",
+        "Length:",
+        assistantResponse ? assistantResponse.length : 0
+      );
+
+      // Store the user message and assistant response in Supabase
+      if (sessionId) {
+        // Only store if a session ID is provided
+        const userId = req.user.id;
+
+        // Store assistant's response
+        const { error: assistantError } = await supabase
+          .from("chat_messages")
+          .insert({
+            user_id: userId,
+            session_id: sessionId,
+            role: "assistant",
+            content: assistantResponse,
+          });
+
+        if (assistantError) {
+          console.error("Error storing assistant message:", assistantError);
+        }
+      }
+
+      return res.json({ response: assistantResponse });
+    } catch (mistralError) {
+      console.error("Error calling Mistral API:", mistralError);
+      console.error("Error details:", mistralError.stack);
+      throw new Error(`Mistral API error: ${mistralError.message}`);
+    }
+  } catch (error) {
+    console.error("Error in AI chat:", error);
+    console.error("Stack trace:", error.stack);
+    return res.status(500).json({
+      error: "Error processing AI request",
+      details: error.message,
+    });
+  }
+}); // Store user message endpoint
+app.post("/api/chat-messages", authenticateJWT, async (req, res) => {
+  try {
+    const { session_id, content, role } = req.body;
+
+    console.log("Chat message received:", {
+      session_id,
+      role,
+      contentLength: content?.length,
+    });
+
+    if (!session_id || !content || !role) {
+      return res.status(400).json({
+        error: "Missing required fields",
+        received: {
+          session_id: !!session_id,
+          content: !!content,
+          role: !!role,
+        },
+      });
+    }
+
+    const { data, error } = await supabase
+      .from("chat_messages")
+      .insert({
+        user_id: req.user.id,
+        session_id: session_id,
+        role: role,
+        content: content,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return res.status(201).json(data);
+  } catch (error) {
+    console.error("Error storing chat message:", error);
+    return res.status(500).json({
+      error: "Failed to store message",
+      details: error.message,
+    });
+  }
+});
+
+// Get chat messages for a session
+app.get("/api/chat-messages/:sessionId", authenticateJWT, async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const userId = req.user.id;
+
+    console.log(
+      `Fetching chat messages for session ${sessionId} and user ${userId}`
+    );
+
+    // Get messages from the last 48 hours
+    const { data, error } = await supabase
+      .from("chat_messages")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("session_id", sessionId)
+      .gte(
+        "created_at",
+        new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
+      )
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("Supabase error fetching messages:", error);
+      throw error;
+    }
+
+    console.log(
+      `Found ${data ? data.length : 0} messages for session ${sessionId}`
+    );
+    return res.json(data || []);
+  } catch (error) {
+    console.error("Error fetching chat messages:", error);
+    return res.status(500).json({
+      error: "Failed to fetch messages",
+      details: error.message,
+    });
+  }
+});
+
+// --- PUBLIC USER ENDPOINTS ---
+// Get all users (public)
+app.get("/api/users", async (req, res) => {
+  try {
+    const { data: users, error } = await supabase.from("users").select("*");
+    if (error) throw error;
+    res.json(users);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ error: "Failed to fetch users" });
+  }
+});
+
+// Get user by github_username (public)
+app.get("/api/user/:username", async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("github_username", username)
+      .single();
+    if (error || !user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.json(user);
+  } catch (error) {
+    console.error("Error fetching user by username:", error);
+    res.status(500).json({ error: "Failed to fetch user" });
+  }
+});
+
+// Get active days for a user by username (public)
+app.get("/api/user/:username/active-days", async (req, res) => {
+  try {
+    const { username } = req.params;
+    const days = await activeDays(username);
+    res.json({ activeDays: days.size });
+  } catch (error) {
+    console.error("Error fetching active days by username:", error);
+    res.status(500).json({ error: "Failed to fetch active days" });
+  }
+});
+
+// Get public repo count for a user by username (public, uses GITHUB_TOKEN)
+app.get("/api/user/:username/repo-count", async (req, res) => {
+  try {
+    const { username } = req.params;
+    const headers = {
+      Accept: "application/vnd.github.v3+json",
+      "User-Agent": "PubHub-App",
+    };
+    if (GITHUB_TOKEN) {
+      headers.Authorization = `token ${GITHUB_TOKEN}`;
+    }
+    const response = await fetch(`https://api.github.com/users/${username}`, {
+      headers,
+    });
+    if (!response.ok) {
+      return res
+        .status(response.status)
+        .json({ error: `GitHub API error: ${response.status}` });
+    }
+    const data = await response.json();
+    res.json({ repoCount: data.public_repos || 0 });
+  } catch (error) {
+    console.error("Error fetching repo count by username:", error);
+    res.status(500).json({ error: "Failed to fetch repo count" });
+  }
 });
 
 // Graceful shutdown handling

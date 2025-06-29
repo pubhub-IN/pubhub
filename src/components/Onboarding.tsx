@@ -1,4 +1,4 @@
-import { useState, KeyboardEvent, useEffect } from "react";
+import { useState, KeyboardEvent } from "react";
 import { CornerDownLeft, ArrowRight, ArrowLeft } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ThemeToggle } from "./ThemeToggle";

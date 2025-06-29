@@ -10,6 +10,7 @@ import Hero from "./components/Hero";
 import Onboarding from "./components/Onboarding";
 import Dashboard from "./components/Dashboard";
 import Sidebar from "./components/Sidebar";
+import { AIAssistant } from "./components/AIAssistant";
 import HackathonsPage from "./pages/HackathonsPage";
 import OpenSourceReposPage from "./pages/OpenSourceReposPage";
 import AccountPage from "./pages/AccountPage";
@@ -18,13 +19,20 @@ import CourseDetailPage from "./pages/learning/CourseDetailPage";
 import LessonPage from "./pages/learning/LessonPage";
 import CourseCompletionPage from "./pages/learning/CourseCompletionPage";
 import Youtube from "./pages/Youtube";
+import ShareOnSocials from "./pages/ShareOnSocials";
+import PeoplePage from "./pages/PeoplePage";
+import ProfilePage from "./pages/ProfilePage";
 
 function Layout() {
+  const { user } = useAuth();
+
   return (
     <div className="flex min-h-screen">
       <Sidebar />
       <div className="flex-1 ml-16 md:ml-16 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 overflow-x-hidden">
         <Outlet />
+        {/* AI Assistant is globally accessible on all authenticated pages */}
+        <AIAssistant user={user || undefined} />
       </div>
     </div>
   );
@@ -86,6 +94,7 @@ function AuthenticatedRoutes() {
           element={<CourseCompletionPage user={user} />}
         />
         <Route path="/youtube" element={<Youtube />} />
+        <Route path="/share-socials" element={<ShareOnSocials user={user} />} />
         <Route
           path="/account"
           element={
@@ -95,6 +104,8 @@ function AuthenticatedRoutes() {
             />
           }
         />
+        <Route path="/people" element={<PeoplePage />} />
+        <Route path="/profile/:username" element={<ProfilePage />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>

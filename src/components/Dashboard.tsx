@@ -17,6 +17,7 @@ import { authService } from "../lib/auth-jwt";
 import { ThemeToggle } from "./ThemeToggle";
 import { Particles } from "./magicui/particles";
 import { ShareModal } from "./ShareModal";
+import { LanguageChart } from "./LanguageChart";
 import type { AuthUser } from "../lib/auth-jwt";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -26,7 +27,6 @@ interface DashboardProps {
 
 export default function Dashboard({ user }: DashboardProps) {
   const [isLoading, setIsLoading] = useState(true);
-  const [streak, setStreak] = useState(0);
   const [hackathons, setHackathons] = useState(0);
   const [activeDays, setActiveDays] = useState(0);
   const navigate = useNavigate();
@@ -124,25 +124,10 @@ export default function Dashboard({ user }: DashboardProps) {
   }, [userData]);
 
   useEffect(() => {
-    setStreak(Math.floor(Math.random() * 26) + 1); // 1-26
     setHackathons(Math.floor(Math.random() * 6)); // 0-5
   }, []);
 
-  // Language colors for progress bars
-  const languageColors = [
-    "#3B82F6",
-    "#84CC16",
-    "#582C4D",
-    "#C60F7B",
-    "#D97706",
-    "#EC4899",
-    "#EF4444",
-    "#F59E0B",
-    "#10B981",
-    "#8B5CF6",
-    "#F97316",
-    "#06B6D4",
-  ];
+  // No longer need the language colors array as it's defined in the LanguageChart component
 
   const handleLogout = async () => {
     await authService.logout();
@@ -231,15 +216,6 @@ export default function Dashboard({ user }: DashboardProps) {
                       31
                         ? 366
                         : 365}
-                    </span>
-                  </div>
-                  <div className="flex items-center bg-blue-50 dark:bg-blue-900 px-4 py-2 rounded-lg border border-blue-100 dark:border-blue-800">
-                    <span className="text-xs font-medium text-gray-700 dark:text-gray-200 mr-1">
-                      Active Hackathons:
-                    </span>
-                    <Book className="w-5 h-5 text-blue-500 mx-1" />
-                    <span className="font-bold text-blue-600 dark:text-blue-300 mx-1">
-                      {hackathons}
                     </span>
                   </div>
                 </div>
@@ -386,7 +362,7 @@ export default function Dashboard({ user }: DashboardProps) {
 
             {/* Charts */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Language Distribution */}
+              {/* Language Distribution - Doughnut Chart */}
               <div className="bg-gradient-to-br from-white via-blue-50/30 to-white dark:from-gray-800 dark:via-blue-900/10 dark:to-gray-800 p-6 rounded-xl shadow-sm border border-blue-100/50 dark:border-blue-900/30 card-shadow-blue card-full-height">
                 <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
                   <div className="w-8 h-8 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-800 dark:to-blue-900 rounded-lg flex items-center justify-center shadow-md shadow-blue-100/50 dark:shadow-blue-900/30 ring-1 ring-blue-200/50 dark:ring-blue-700/50 mr-2">
@@ -394,68 +370,29 @@ export default function Dashboard({ user }: DashboardProps) {
                   </div>
                   Language Distribution
                 </h3>
-                <div className="space-y-4 mt-6 language-container pr-4">
-                  {Object.keys(userData.languages || {}).length > 0 ? (
-                    Object.entries(userData.languages || {})
-                      .sort((a, b) => Number(b[1]) - Number(a[1])) // Sort by percentage (highest to lowest)
-                      .map(([language, percentage], index) => {
-                        const colorIndex = index % languageColors.length;
-                        const colorClass = `language-color-${colorIndex}`;
-                        const delayClass = `delay-${Math.min(
-                          index * 100,
-                          900
-                        )}`;
-
-                        return (
-                          <div
-                            key={language}
-                            className={`animate-fade-in ${delayClass}`}
-                          >
-                            <div className="language-item">
-                              <div className="language-name">
-                                <div
-                                  className={`w-3 h-3 rounded-sm mr-2 ${colorClass}`}
-                                ></div>
-                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                  {language}
-                                </span>
-                              </div>
-                              <div className="language-progress-container">
-                                <div
-                                  className={`language-progress-bar ${colorClass}`}
-                                  style={{
-                                    width: `${Number(percentage).toFixed(1)}%`,
-                                  }}
-                                  data-percentage={Number(percentage).toFixed(
-                                    1
-                                  )}
-                                >
-                                  <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-white/20 animate-shimmer"></div>
-                                </div>
-                              </div>
-                              <div className="text-xs font-medium text-gray-600 dark:text-gray-400 w-12 text-right">
-                                {Number(percentage).toFixed(1)}%
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })
-                  ) : (
-                    <div className="flex items-center justify-center h-32 text-gray-500 dark:text-gray-400">
-                      No language data available
-                    </div>
-                  )}
+                <div className="mt-4 relative h-72">
+                  <LanguageChart languages={userData.languages || {}} />
                 </div>
               </div>
 
               {/* Share on Socials Card */}
               <div className="bg-gradient-to-br from-white via-purple-50/30 to-white dark:from-gray-800 dark:via-purple-900/10 dark:to-gray-800 p-6 rounded-xl shadow-sm border border-purple-100/50 dark:border-purple-900/30 card-shadow-purple card-full-height">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-                  <div className="w-8 h-8 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-800 dark:to-purple-900 rounded-lg flex items-center justify-center shadow-md shadow-purple-100/50 dark:shadow-purple-900/30 ring-1 ring-purple-200/50 dark:ring-purple-700/50 mr-2">
-                    <Share2 className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                  </div>
-                  Share on Socials
-                </h3>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center">
+                    <div className="w-8 h-8 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-800 dark:to-purple-900 rounded-lg flex items-center justify-center shadow-md shadow-purple-100/50 dark:shadow-purple-900/30 ring-1 ring-purple-200/50 dark:ring-purple-700/50 mr-2">
+                      <Share2 className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    Share on Socials
+                  </h3>
+                  <button
+                    onClick={() => navigate("/share-socials")}
+                    className="text-xs px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-md hover:bg-purple-200 dark:hover:bg-purple-800/50 transition-colors"
+                    aria-label="Go to Share on Socials page"
+                    title="See all repositories"
+                  >
+                    See all
+                  </button>
+                </div>
 
                 <div className="space-y-4 mt-6 max-h-[320px] overflow-y-auto pr-4">
                   {reposLoading ? (

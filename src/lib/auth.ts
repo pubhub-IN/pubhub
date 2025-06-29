@@ -1,3 +1,19 @@
+export interface User {
+  id: string;
+  github_id: number;
+  github_username: string;
+  name?: string;
+  email?: string;
+  avatar_url?: string;
+  profession?: string;
+  technologies?: string[];
+  total_public_repos: number;
+  total_commits: number;
+  languages: Record<string, number>;
+  github_data: Record<string, unknown>;
+  access_token?: string;
+}
+
 const API_BASE_URL = "http://localhost:3000";
 
 // Session refresh interval (25 minutes)

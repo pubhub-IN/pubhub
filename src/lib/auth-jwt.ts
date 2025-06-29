@@ -17,6 +17,8 @@ export interface AuthUser {
   languages: Record<string, number>;
   github_data: Record<string, unknown>;
   access_token?: string;
+  linkedin_username?: string;
+  x_username?: string;
   created_at: string;
   updated_at: string;
 }
@@ -96,6 +98,53 @@ class AuthService {
     }
 
     return response;
+  }
+
+  // Make an authenticated GET request
+  async get<T = unknown>(endpoint: string): Promise<T> {
+    const url = `${API_BASE_URL}${endpoint}`;
+    const response = await this.fetchWithAuth(url);
+
+    if (!response.ok) {
+      throw new Error(`GET request failed: ${response.status}`);
+    }
+
+    return response.json() as Promise<T>;
+  }
+  // Make an authenticated POST request
+  async post<T = unknown>(
+    endpoint: string,
+    data: Record<string, unknown>
+  ): Promise<T> {
+    const url = `${API_BASE_URL}${endpoint}`;
+    const response = await this.fetchWithAuth(url, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`POST request failed: ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  // Make an authenticated PUT request
+  async put<T = unknown>(
+    endpoint: string,
+    data: Record<string, unknown>
+  ): Promise<T> {
+    const url = `${API_BASE_URL}${endpoint}`;
+    const response = await this.fetchWithAuth(url, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`PUT request failed: ${response.status}`);
+    }
+
+    return response.json() as Promise<T>;
   }
 
   // Get current user data
@@ -243,6 +292,36 @@ class AuthService {
       }
     } catch (error) {
       console.error("Error updating profession:", error);
+      throw error;
+    }
+  }
+
+  // Update user social links
+  async updateSocialLinks(data: {
+    linkedin_username?: string;
+    x_username?: string;
+  }): Promise<AuthUser | null> {
+    if (!this.isAuthenticated()) {
+      throw new Error("Not authenticated");
+    }
+
+    try {
+      const response = await this.fetchWithAuth(
+        `${API_BASE_URL}/api/user/social-links`,
+        {
+          method: "PUT",
+          body: JSON.stringify(data),
+        }
+      );
+
+      if (response.ok) {
+        const updatedUser = await response.json();
+        return updatedUser;
+      } else {
+        throw new Error(`Failed to update social links: ${response.status}`);
+      }
+    } catch (error) {
+      console.error("Error updating social links:", error);
       throw error;
     }
   }
