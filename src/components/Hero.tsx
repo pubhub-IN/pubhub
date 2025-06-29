@@ -31,7 +31,7 @@ export default function Hero() {
             </a>
           </div>
 
-          <div className="flex items-center">
+          <div className="flex items-center mt-4">
             <img 
               src="https://res.cloudinary.com/dafqq1jvc/image/upload/v1749891645/black_circle_360x360_dpzcvm.png" 
               alt="Profile" 
