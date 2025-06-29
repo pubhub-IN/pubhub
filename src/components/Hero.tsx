@@ -49,7 +49,7 @@ export default function Hero() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex items-center justify-center relative z-10">
+      <div className="flex-1 flex items-center justify-center relative z-10 min-h-[80vh]">
         <div className="text-center max-w-[90%] mx-auto px-6">
           {/* Hero Content */}
           <div className="space-y-6">
