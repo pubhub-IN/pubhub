@@ -20,13 +20,7 @@ export default function Hero() {
             <a href="#about" className="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors">About</a>
             <a href="#contact" className="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors">Contact</a>
           </div>
-          <button
-            onClick={handleSignIn}
-            className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg"
-          >
-            <Github className="w-5 h-5" />
-            Sign in
-          </button>
+          <
         </div>
       </nav>
 
