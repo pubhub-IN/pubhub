@@ -35,7 +35,7 @@ export default function Hero() {
             <img 
               src="https://res.cloudinary.com/dafqq1jvc/image/upload/v1749891645/black_circle_360x360_dpzcvm.png" 
               alt="Profile" 
-              className="w-[100px] h-[100px] rounded-full object-cover"
+              className="w-[80px] h-[80px] rounded-full object-cover"
             />
           </div>
         </div>
