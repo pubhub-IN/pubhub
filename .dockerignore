@@ -1,0 +1,28 @@
+# Ignore node_modules, as they will be installed inside the container
+node_modules
+
+# Ignore Git directory
+.git
+.gitignore
+
+# Ignore local environment files
+.env
+
+# Ignore markdown files and other non-essential files
+README.md
+/scripts
+/src
+/public
+/supabase
+*.html
+*.js
+*.json
+*.ts
+*.tsx
+!/server
+!package.json
+!package-lock.json
+
+# Ignore build artifacts if any are present locally
+/dist
+/build 
