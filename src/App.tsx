@@ -24,6 +24,8 @@ import PeoplePage from "./pages/PeoplePage";
 import ProfilePage from "./pages/ProfilePage";
 import ConnectionsPage from "./pages/ConnectionsPage";
 import JobHunting from "./pages/JobHunting.tsx";
+import "lenis/dist/lenis.css";
+import Lenis from "lenis";
 
 function Layout() {
   const { user } = useAuth();
@@ -97,7 +99,7 @@ function AuthenticatedRoutes() {
         />
         <Route path="/youtube" element={<Youtube />} />
         <Route path="/share-socials" element={<ShareOnSocials user={user} />} />
-        <Route path="/job-hunting" element={<JobHunting/>} />
+        <Route path="/job-hunting" element={<JobHunting />} />
         <Route
           path="/account"
           element={
@@ -150,6 +152,18 @@ function AppRoutes() {
 }
 
 function App() {
+  // Initialize Lenis
+  const lenis = new Lenis({
+    autoRaf: true,
+  });
+
+  function raf(time: number) {
+    lenis.raf(time);
+    requestAnimationFrame(raf);
+  }
+
+  requestAnimationFrame(raf);
+
   return (
     <AuthProvider>
       <AppRoutes />

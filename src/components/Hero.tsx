@@ -21,6 +21,21 @@ export default function Hero() {
     window.location.href = authService.getGitHubAuthUrl();
   };
 
+  // Smooth scroll function
+  const smoothScroll = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    targetId: string
+  ) => {
+    e.preventDefault();
+    const targetElement = document.getElementById(targetId);
+    if (targetElement) {
+      targetElement.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
+
   const testimonials = [
     {
       name: "Sarah Chen",
@@ -85,10 +100,10 @@ export default function Hero() {
   ];
 
   const stats = [
-    { number: "10,000+", label: "Active Developers", icon: Users },
-    { number: "50,000+", label: "Projects Shared", icon: Code },
-    { number: "95%", label: "Success Rate", icon: TrendingUp },
-    { number: "24/7", label: "Support Available", icon: Heart },
+    { number: "100+", label: "Active Developers", icon: Users },
+    { number: "50+", label: "Projects Shared", icon: Code },
+    { number: "97%", label: "Success Rate", icon: TrendingUp },
+    { number: "24/7", label: " AI Support Available", icon: Heart },
   ];
 
   const features = [
@@ -119,25 +134,29 @@ export default function Hero() {
           <div className="hidden md:flex items-center space-x-8">
             <a
               href="#features"
-              className="text-white hover:text-green-200 transition-colors font-medium"
+              onClick={(e) => smoothScroll(e, "features")}
+              className="text-white hover:text-green-200 transition-colors font-medium cursor-pointer"
             >
               Features
             </a>
             <a
               href="#about"
-              className="text-white hover:text-green-200 transition-colors font-medium"
+              onClick={(e) => smoothScroll(e, "about")}
+              className="text-white hover:text-green-200 transition-colors font-medium cursor-pointer"
             >
               About
             </a>
             <a
               href="#pricing"
-              className="text-white hover:text-green-200 transition-colors font-medium"
+              onClick={(e) => smoothScroll(e, "pricing")}
+              className="text-white hover:text-green-200 transition-colors font-medium cursor-pointer"
             >
               Pricing
             </a>
             <a
               href="#contact"
-              className="text-white hover:text-green-200 transition-colors font-medium"
+              onClick={(e) => smoothScroll(e, "contact")}
+              className="text-white hover:text-green-200 transition-colors font-medium cursor-pointer"
             >
               Contact
             </a>
@@ -194,7 +213,10 @@ export default function Hero() {
       </div>
 
       {/* Features Section */}
-      <section className="py-20 bg-green-900/20 backdrop-blur-sm relative z-10">
+      <section
+        className="py-20 bg-green-900/20 backdrop-blur-sm relative z-10"
+        id="features"
+      >
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">
@@ -311,93 +333,6 @@ export default function Hero() {
                 Your personal account section with analytics and profile
                 management.
               </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="py-20 bg-green-800/10 backdrop-blur-sm relative z-10">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">
-              Loved by developers worldwide
-            </h2>
-            <p className="text-xl text-green-100 max-w-3xl mx-auto">
-              Join thousands of developers who have transformed their careers
-              with PubHub
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <div
-                key={index}
-                className="p-6 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105"
-              >
-                {/* Quote Icon */}
-                <div className="flex justify-start mb-4">
-                  <Quote className="w-8 h-8 text-green-300 opacity-60" />
-                </div>
-
-                {/* Rating */}
-                <div className="flex items-center mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className="w-4 h-4 text-yellow-400 fill-current"
-                    />
-                  ))}
-                </div>
-
-                {/* Content */}
-                <p className="text-green-100 text-sm leading-relaxed mb-6">
-                  "{testimonial.content}"
-                </p>
-
-                {/* Author */}
-                <div className="flex items-center">
-                  <img
-                    src={testimonial.avatar}
-                    alt={testimonial.name}
-                    className="w-12 h-12 rounded-full object-cover mr-4 border-2 border-green-300/30"
-                  />
-                  <div>
-                    <h4 className="text-white font-semibold text-sm">
-                      {testimonial.name}
-                    </h4>
-                    <p className="text-green-200 text-xs">
-                      {testimonial.role} at {testimonial.company}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Call to Action */}
-          <div className="text-center mt-16">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-8 py-4">
-              <div className="flex items-center">
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className="w-5 h-5 text-yellow-400 fill-current"
-                  />
-                ))}
-              </div>
-              <span className="text-white font-semibold ml-2">
-                Join 10,000+ developers
-              </span>
-            </div>
-            <div className="mt-6">
-              <button
-                onClick={handleSignIn}
-                className="inline-flex items-center gap-3 bg-white text-gray-900 px-8 py-4 rounded-lg text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 hover:bg-gray-50"
-              >
-                <Github className="w-6 h-6" />
-                Start Your Journey
-              </button>
             </div>
           </div>
         </div>
@@ -532,13 +467,94 @@ export default function Hero() {
                 Join our growing community of developers
               </span>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section
+        className="py-20 bg-green-800/10 backdrop-blur-sm relative z-10"
+        id="testimonials"
+      >
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-white mb-4">
+              Loved by developers worldwide
+            </h2>
+            <p className="text-xl text-green-100 max-w-3xl mx-auto">
+              Join thousands of developers who have transformed their careers
+              with PubHub
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <div
+                key={index}
+                className="p-6 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105"
+              >
+                {/* Quote Icon */}
+                <div className="flex justify-start mb-4">
+                  <Quote className="w-8 h-8 text-green-300 opacity-60" />
+                </div>
+
+                {/* Rating */}
+                <div className="flex items-center mb-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className="w-4 h-4 text-yellow-400 fill-current"
+                    />
+                  ))}
+                </div>
+
+                {/* Content */}
+                <p className="text-green-100 text-sm leading-relaxed mb-6">
+                  "{testimonial.content}"
+                </p>
+
+                {/* Author */}
+                <div className="flex items-center">
+                  <img
+                    src={testimonial.avatar}
+                    alt={testimonial.name}
+                    className="w-12 h-12 rounded-full object-cover mr-4 border-2 border-green-300/30"
+                  />
+                  <div>
+                    <h4 className="text-white font-semibold text-sm">
+                      {testimonial.name}
+                    </h4>
+                    <p className="text-green-200 text-xs">
+                      {testimonial.role} at {testimonial.company}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Call to Action */}
+          <div className="text-center mt-16">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-8 py-4">
+              <div className="flex items-center">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className="w-5 h-5 text-yellow-400 fill-current"
+                  />
+                ))}
+              </div>
+              <span className="text-white font-semibold ml-2">
+                Join 10,000+ developers
+              </span>
+            </div>
             <div className="mt-6">
               <button
                 onClick={handleSignIn}
                 className="inline-flex items-center gap-3 bg-white text-gray-900 px-8 py-4 rounded-lg text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 hover:bg-gray-50"
               >
                 <Github className="w-6 h-6" />
-                Get Started Today
+                Start Your Journey
               </button>
             </div>
           </div>
@@ -637,6 +653,112 @@ export default function Hero() {
         </div>
       </section>
 
+      {/* Contact Section */}
+      <section
+        id="contact"
+        className="py-20 bg-green-900/30 backdrop-blur-sm relative z-10"
+      >
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-white mb-4">Contact Us</h2>
+            <p className="text-xl text-green-100 max-w-2xl mx-auto">
+              Have questions, feedback, or want to partner with us? Reach out
+              and our team will get back to you soon!
+            </p>
+          </div>
+
+          <div className="flex flex-col justify-center gap-12 items-center">
+            {/* Contact Form */}
+            <form
+              className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-8 space-y-6 shadow-lg min-w-[70%]"
+              action="https://api.web3forms.com/submit"
+              method="POST"
+            >
+              <input
+                type="hidden"
+                name="access_key"
+                value="1db24109-7af7-4a23-a923-8f9fcec9c8ee"
+              />
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-green-100 mb-2 font-medium"
+                >
+                  Name
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  className="w-full px-4 py-3 rounded-lg bg-white/20 text-white border border-green-400/20 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder-green-200"
+                  placeholder="Your Name"
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-green-100 mb-2 font-medium"
+                >
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  className="w-full px-4 py-3 rounded-lg bg-white/20 text-white border border-green-400/20 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder-green-200"
+                  placeholder="you@email.com"
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="message"
+                  className="block text-green-100 mb-2 font-medium"
+                >
+                  Message
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows={5}
+                  className="w-full px-4 py-3 rounded-lg bg-white/20 text-white border border-green-400/20 focus:outline-none focus:ring-2 focus:ring-green-400 placeholder-green-200"
+                  placeholder="How can we help you?"
+                  required
+                ></textarea>
+              </div>
+              <input
+                type="hidden"
+                name="redirect"
+                value="https://web3forms.com/success"
+              ></input>
+              <button
+                type="submit"
+                className="w-full bg-gradient-to-r from-green-400 to-green-600 text-white py-4 px-6 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 hover:from-green-500 hover:to-green-700"
+              >
+                Send Message
+              </button>
+            </form>
+
+            {/* Contact Details */}
+            <div className="space-y-8">
+              <div className="flex items-center space-x-4">
+                <Mail className="w-7 h-7 text-green-300" />
+                <div className="flex gap-2">
+                  <div className="text-green-100 font-medium">Email :</div>
+                  <a
+                    href="mailto:pubhub.work@gmail.com"
+                    className="text-white hover:underline"
+                  >
+                    pubhub.work@gmail.com
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="bg-green-900/40 backdrop-blur-sm border-t border-green-400/20 relative z-10">
         <div className="max-w-7xl mx-auto px-6 py-16">
@@ -658,69 +780,27 @@ export default function Hero() {
               </p>
               <div className="flex space-x-4">
                 <a
-                  href="#"
+                  href="https://x.com/KotakPrerit"
                   className="text-green-300 hover:text-white transition-colors"
+                  target="_blank"
                 >
                   <Twitter className="w-5 h-5" />
                 </a>
                 <a
-                  href="#"
+                  href="https://www.linkedin.com/in/prerit-kotak/"
                   className="text-green-300 hover:text-white transition-colors"
+                  target="_blank"
                 >
                   <Linkedin className="w-5 h-5" />
                 </a>
                 <a
-                  href="#"
+                  href="mailto:pubhub.work@gmail.com"
                   className="text-green-300 hover:text-white transition-colors"
-                >
-                  <Instagram className="w-5 h-5" />
-                </a>
-                <a
-                  href="#"
-                  className="text-green-300 hover:text-white transition-colors"
+                  target="_blank"
                 >
                   <Mail className="w-5 h-5" />
                 </a>
               </div>
-            </div>
-
-            {/* Product Links */}
-            <div>
-              <h4 className="text-white font-semibold mb-4">Product</h4>
-              <ul className="space-y-2">
-                <li>
-                  <a
-                    href="#features"
-                    className="text-green-100 hover:text-white transition-colors text-sm"
-                  >
-                    Features
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#pricing"
-                    className="text-green-100 hover:text-white transition-colors text-sm"
-                  >
-                    Pricing
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="text-green-100 hover:text-white transition-colors text-sm"
-                  >
-                    API
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="text-green-100 hover:text-white transition-colors text-sm"
-                  >
-                    Documentation
-                  </a>
-                </li>
-              </ul>
             </div>
 
             {/* Company Links */}
@@ -729,32 +809,36 @@ export default function Hero() {
               <ul className="space-y-2">
                 <li>
                   <a
+                    href="#features"
+                    onClick={(e) => smoothScroll(e, "features")}
+                    className="text-green-100 hover:text-white transition-colors text-sm cursor-pointer"
+                  >
+                    Features
+                  </a>
+                </li>
+                <li>
+                  <a
                     href="#about"
-                    className="text-green-100 hover:text-white transition-colors text-sm"
+                    onClick={(e) => smoothScroll(e, "about")}
+                    className="text-green-100 hover:text-white transition-colors text-sm cursor-pointer"
                   >
                     About
                   </a>
                 </li>
                 <li>
                   <a
-                    href="#"
-                    className="text-green-100 hover:text-white transition-colors text-sm"
+                    href="#testimonials"
+                    onClick={(e) => smoothScroll(e, "testimonials")}
+                    className="text-green-100 hover:text-white transition-colors text-sm cursor-pointer"
                   >
-                    Blog
+                    Testimonials
                   </a>
                 </li>
                 <li>
                   <a
-                    href="#"
-                    className="text-green-100 hover:text-white transition-colors text-sm"
-                  >
-                    Careers
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#"
-                    className="text-green-100 hover:text-white transition-colors text-sm"
+                    href="#contact"
+                    onClick={(e) => smoothScroll(e, "contact")}
+                    className="text-green-100 hover:text-white transition-colors text-sm cursor-pointer"
                   >
                     Contact
                   </a>
@@ -768,26 +852,6 @@ export default function Hero() {
             <div className="flex flex-col md:flex-row justify-between items-center">
               <div className="text-green-100 text-sm mb-4 md:mb-0">
                 © 2024 PubHub. All rights reserved.
-              </div>
-              <div className="flex space-x-6 text-sm">
-                <a
-                  href="#"
-                  className="text-green-100 hover:text-white transition-colors"
-                >
-                  Privacy Policy
-                </a>
-                <a
-                  href="#"
-                  className="text-green-100 hover:text-white transition-colors"
-                >
-                  Terms of Service
-                </a>
-                <a
-                  href="#"
-                  className="text-green-100 hover:text-white transition-colors"
-                >
-                  Cookie Policy
-                </a>
               </div>
             </div>
           </div>
