@@ -1,12 +1,31 @@
-# Ignore node_modules, as they will be installed inside the container
+# Ignore local dependencies and build artifacts
 node_modules
+dist
+build
 
-# Ignore Git directory
+# Ignore Git, Docker, and environment files
 .git
 .gitignore
+Dockerfile
+.dockerignore
+.env*
 
-# Ignore local environment files
-.env
+# Ignore frontend code, assets, and configs
+src/
+public/
+index.html
+vite.config.ts
+tailwind.config.js
+postcss.config.js
+components.json
+tsconfig.json
+tsconfig.app.json
+tsconfig.node.json
+
+# Ignore other non-essential files
+README.md
+scripts/
+supabase/
 
 # Ignore markdown files and other non-essential files
 README.md
