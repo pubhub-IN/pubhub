@@ -32,8 +32,8 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
 # Install project dependencies, omitting development-only packages
 RUN npm ci --omit=dev
 
-# Copy the rest of the application source code into the container
-COPY . .
+# Copy the application source code into the container
+COPY server/ ./server/
 
 # Expose port 3000 to allow network connections to the container
 EXPOSE 3000
