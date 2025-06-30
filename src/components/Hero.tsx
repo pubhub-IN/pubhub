@@ -783,7 +783,7 @@ export default function Hero() {
                   className="text-green-300 hover:text-white transition-colors"
                   target="_blank"
                   rel="noopener"
-                  title="X PubHub"
+                  title="X Pubhub"
                 >
                   <Twitter className="w-5 h-5" />
                 </a>
