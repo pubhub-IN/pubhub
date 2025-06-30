@@ -28,7 +28,7 @@ const checks = [
   {
     name: "Environment Variables (Frontend - Localhost)",
     items: [
-      { var: "VITE_API_URL", description: "Backend API URL (http://localhost:3000)" },
+      { var: "VITE_API_URL", description: "Backend API URL (https://pubhub-lnao.onrender.com)" },
       { var: "VITE_SUPABASE_URL", description: "Supabase project URL (http://localhost)" },
       { var: "VITE_SUPABASE_ANON_KEY", description: "Supabase anonymous key (local)" },
       { var: "VITE_GITHUB_CLIENT_ID", description: "GitHub OAuth client ID (local)" },
@@ -55,11 +55,11 @@ const checks = [
     items: [
       {
         setting: "Authorization callback URL (Development)",
-        value: "http://localhost:3000/auth/github/callback",
+        value: "https://pubhub-lnao.onrender.com/auth/github/callback",
       },
       {
         setting: "Authorization callback URL (Production)",
-        value: "http://localhost:3000/auth/github/callback",
+        value: "https://pubhub-lnao.onrender.com/auth/github/callback",
       },
       {
         setting: "Homepage URL",
