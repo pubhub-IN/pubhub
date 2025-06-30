@@ -11,12 +11,12 @@ export default defineConfig({
     host: true,
     proxy: {
       "/api": {
-        target: "http://157.173.222.219:3000",
+        target: "http://localhost:3000",
         changeOrigin: true,
         secure: false,
       },
       "/auth": {
-        target: "http://157.173.222.219:3000",
+        target: "http://localhost:3000",
         changeOrigin: true,
         secure: false,
       },

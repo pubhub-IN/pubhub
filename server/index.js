@@ -383,9 +383,9 @@ const supabase = createClient(
 // Middleware
 const allowedOrigins = [
   "http://localhost:5173", // Development
-  "https://pubhub-in.netlify.app", // Production - replace with your actual Netlify URL
+  "http://localhost:5173", // Localhost for production too
   process.env.FRONTEND_URL, // Environment variable for production
-].filter(Boolean); // Remove undefined valuesko
+].filter(Boolean); // Remove undefined values
 
 app.use(
   cors({
@@ -449,11 +449,8 @@ passport.use(
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
       callbackURL:
         process.env.NODE_ENV === "production"
-          ? `${
-              process.env.BACKEND_URL ||
-              `https://${process.env.RENDER_EXTERNAL_HOSTNAME}`
-            }/auth/github/callback`
-          : `http://157.173.222.219/auth/github/callback`,
+          ? `http://localhost:3000/auth/github/callback`
+          : `http://localhost:3000/auth/github/callback`,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
