@@ -9,15 +9,17 @@ export default defineConfig({
   },
   server: {
     host: true,
-    // Proxy only for development
-    proxy:
-      process.env.NODE_ENV === "development"
-        ? {
-            "/api": {
-              target: "http://localhost:3000",
-              changeOrigin: true,
-            },
-          }
-        : undefined,
+    proxy: {
+      "/api": {
+        target: "http://157.173.222.219:3000",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/auth": {
+        target: "http://157.173.222.219:3000",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
 });

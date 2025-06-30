@@ -12,7 +12,6 @@ import {
   Mail,
   Twitter,
   Linkedin,
-  Instagram,
 } from "lucide-react";
 import { authService } from "../lib/auth";
 
@@ -783,6 +782,8 @@ export default function Hero() {
                   href="https://x.com/KotakPrerit"
                   className="text-green-300 hover:text-white transition-colors"
                   target="_blank"
+                  rel="noopener"
+                  title="X PubHub"
                 >
                   <Twitter className="w-5 h-5" />
                 </a>
@@ -790,6 +791,8 @@ export default function Hero() {
                   href="https://www.linkedin.com/in/prerit-kotak/"
                   className="text-green-300 hover:text-white transition-colors"
                   target="_blank"
+                  rel="noopener"
+                  title="LinkedIn PubHub"
                 >
                   <Linkedin className="w-5 h-5" />
                 </a>
@@ -797,6 +800,8 @@ export default function Hero() {
                   href="mailto:pubhub.work@gmail.com"
                   className="text-green-300 hover:text-white transition-colors"
                   target="_blank"
+                  rel="noopener"
+                  title="Email PubHub"
                 >
                   <Mail className="w-5 h-5" />
                 </a>

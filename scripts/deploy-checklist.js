@@ -56,15 +56,15 @@ const checks = [
     items: [
       {
         setting: "Authorization callback URL (Development)",
-        value: "http://localhost:3000/auth/github/callback",
+        value: "http://http://157.173.222.219:3000/auth/github/callback",
       },
       {
         setting: "Authorization callback URL (Production)",
-        value: "https://your-render-app-name.onrender.com/auth/github/callback",
+        value: "https://http://157.173.222.219:3000/auth/github/callback",
       },
       {
         setting: "Homepage URL",
-        value: "https://your-netlify-app.netlify.app",
+        value: "https://pubhub-in.netlify.app",
       },
     ],
   },

@@ -1,29 +1,32 @@
 // API Configuration for both development and production
 const isDevelopment = import.meta.env.DEV;
+const useProductionBackend =
+  import.meta.env.VITE_USE_PRODUCTION_BACKEND === "true";
 
 // Production backend URL (will be set by environment variable)
 const PRODUCTION_API_URL =
-  import.meta.env.VITE_API_URL || "https://your-render-app-name.onrender.com";
+  import.meta.env.VITE_API_URL || "http://157.173.222.219:3000";
 
 // Development backend URL
 const DEVELOPMENT_API_URL = "http://localhost:3000";
 
-// Export the appropriate API URL based on environment
-export const API_BASE_URL = isDevelopment
-  ? DEVELOPMENT_API_URL
-  : PRODUCTION_API_URL;
+// Export the appropriate API URL based on environment and configuration
+export const API_BASE_URL =
+  isDevelopment && !useProductionBackend
+    ? DEVELOPMENT_API_URL
+    : PRODUCTION_API_URL;
 
 // CORS configuration for production
 export const CORS_CONFIG = {
-  origin: isDevelopment
-    ? "http://localhost:5173"
-    : import.meta.env.VITE_FRONTEND_URL ||
-      "https://your-netlify-app.netlify.app",
+  origin:
+    isDevelopment && !useProductionBackend
+      ? "http://localhost:5173"
+      : import.meta.env.VITE_FRONTEND_URL || "https://pubhub-in.netlify.app",
   credentials: true,
 };
 
 // Environment check utility
-export const isProduction = () => !isDevelopment;
+export const isProduction = () => !isDevelopment || useProductionBackend;
 
 // API endpoints
 export const API_ENDPOINTS = {
