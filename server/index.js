@@ -800,7 +800,7 @@ app.get(
 app.get(
   "/auth/github/callback",
   passport.authenticate("github", {
-    failureRedirect: "https://pubhub-in.netlify.app/?error=auth_failed",
+    failureRedirect: "https://pubhub-bolt.netlify.app/?error=auth_failed",
   }),
   (req, res) => {
     try {
@@ -813,14 +813,14 @@ app.get(
 
       // Redirect with token as query parameter
       const redirectUrl = hasCompletedOnboarding
-        ? `https://pubhub-in.netlify.app/dashboard?token=${token}`
-        : `https://pubhub-in.netlify.app/onboarding?token=${token}`;
+        ? `https://pubhub-bolt.netlify.app/dashboard?token=${token}`
+        : `https://pubhub-bolt.netlify.app/onboarding?token=${token}`;
 
       res.redirect(redirectUrl);
     } catch (error) {
       console.error("Error generating JWT token:", error);
       res.redirect(
-        "https://pubhub-in.netlify.app/?error=token_generation_failed"
+        "https://pubhub-bolt.netlify.app/?error=token_generation_failed"
       );
     }
   }
@@ -831,7 +831,7 @@ app.get("/auth/logout", (req, res) => {
     if (err) {
       return res.status(500).json({ error: "Logout failed" });
     }
-    res.redirect("https://pubhub-in.netlify.app/");
+    res.redirect("https://pubhub-bolt.netlify.app/");
   });
 });
 
