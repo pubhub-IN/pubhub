@@ -6,10 +6,11 @@ import {
   RefreshCcw,
   ArrowLeft,
 } from "lucide-react";
-import { authService, AuthUser } from "../lib/auth-jwt";
+import { AuthUser, authService } from "../lib/auth-jwt";
 import { useNavigate } from "react-router-dom";
 import { ShareModal } from "../components/ShareModal";
 import { Particles } from "../components/magicui/particles";
+import { buildApiUrl, API_ENDPOINTS } from "../config/api";
 
 interface Repo {
   id: number;
@@ -48,12 +49,10 @@ export default function ShareOnSocials({ user }: ShareOnSocialsProps) {
       try {
         setReposLoading(true);
         setReposError(null);
-        const response = await authService.fetchWithAuth(
-          "http://localhost:3000/api/user/own-repositories"
-        );
-        if (!response.ok) throw new Error(`${response.status}`);
-        const data = await response.json();
-        setUserRepos(data.repositories);
+        const response = (await authService.get(API_ENDPOINTS.USER_REPOS)) as {
+          repositories: Repo[];
+        };
+        setUserRepos(response.repositories);
       } catch (error) {
         console.error("Error fetching repositories:", error);
         setReposError(
@@ -143,12 +142,10 @@ export default function ShareOnSocials({ user }: ShareOnSocialsProps) {
       try {
         setReposLoading(true);
         setReposError(null);
-        const response = await authService.fetchWithAuth(
-          "http://localhost:3000/api/user/own-repositories"
-        );
-        if (!response.ok) throw new Error(`${response.status}`);
-        const data = await response.json();
-        setUserRepos(data.repositories);
+        const response = (await authService.get(API_ENDPOINTS.USER_REPOS)) as {
+          repositories: Repo[];
+        };
+        setUserRepos(response.repositories);
       } catch (error) {
         console.error("Error fetching repositories:", error);
         setReposError(
@@ -226,7 +223,9 @@ export default function ShareOnSocials({ user }: ShareOnSocialsProps) {
                 </div>
               ) : reposError ? (
                 <div className="bg-green-100 dark:bg-green-900/20 p-6 rounded-lg text-center my-4">
-                  <p className="text-green-700 dark:text-green-400">{reposError}</p>
+                  <p className="text-green-700 dark:text-green-400">
+                    {reposError}
+                  </p>
                   <button
                     onClick={handleRefresh}
                     className="mt-4 px-4 py-2 bg-green-200 dark:bg-green-800 rounded-md text-green-700 dark:text-green-200 hover:bg-green-300 dark:hover:bg-green-700 transition-colors"

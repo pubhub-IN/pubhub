@@ -9,9 +9,11 @@
     "dev:server": "nodemon server/index.js",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy:check": "node scripts/deploy-checklist.js"
   },
   "dependencies": {
+    "@atharvh01/linkedin-jobs-api": "^1.0.1",
     "@mistralai/mistralai": "^1.7.2",
     "@supabase/supabase-js": "^2.38.4",
     "@types/react-syntax-highlighter": "^15.5.13",
@@ -40,8 +42,7 @@
     "react-router-dom": "^6.20.1",
     "react-syntax-highlighter": "^15.6.1",
     "tailwind-merge": "^3.3.1",
-    "tailwindcss-animate": "^1.0.7",
-    "@atharvh01/linkedin-jobs-api": "^1.0.1"
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",

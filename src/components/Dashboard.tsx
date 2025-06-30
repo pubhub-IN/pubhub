@@ -6,7 +6,6 @@ import {
   TrendingUp,
   Calendar,
   Flame,
-  Book,
   Share2,
   ExternalLink,
   Loader2,
@@ -20,6 +19,7 @@ import { ShareModal } from "./ShareModal";
 import { LanguageChart } from "./LanguageChart";
 import type { AuthUser } from "../lib/auth-jwt";
 import { useNavigate, useLocation } from "react-router-dom";
+import { buildApiUrl, API_ENDPOINTS } from "../config/api";
 
 interface DashboardProps {
   user: AuthUser;
@@ -27,7 +27,6 @@ interface DashboardProps {
 
 export default function Dashboard({ user }: DashboardProps) {
   const [isLoading, setIsLoading] = useState(true);
-  const [hackathons, setHackathons] = useState(0);
   const [activeDays, setActiveDays] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
@@ -85,12 +84,10 @@ export default function Dashboard({ user }: DashboardProps) {
   useEffect(() => {
     const fetchActiveDays = async () => {
       try {
-        const response = await authService.fetchWithAuth(
-          "http://localhost:3000/api/user/active-days"
-        );
-        if (!response.ok) throw new Error(`${response.status}`);
-        const data = await response.json();
-        setActiveDays(data.activeDays);
+        const response = (await authService.get(
+          API_ENDPOINTS.USER_ACTIVE_DAYS
+        )) as { activeDays: number };
+        setActiveDays(response.activeDays);
       } catch (error) {
         console.log(error);
       }
@@ -100,12 +97,10 @@ export default function Dashboard({ user }: DashboardProps) {
       try {
         setReposLoading(true);
         setReposError(null);
-        const response = await authService.fetchWithAuth(
-          "http://localhost:3000/api/user/own-repositories"
-        );
-        if (!response.ok) throw new Error(`${response.status}`);
-        const data = await response.json();
-        setUserRepos(data.repositories);
+        const response = (await authService.get(API_ENDPOINTS.USER_REPOS)) as {
+          repositories: Repo[];
+        };
+        setUserRepos(response.repositories);
       } catch (error) {
         console.error("Error fetching repositories:", error);
         setReposError(
@@ -122,12 +117,6 @@ export default function Dashboard({ user }: DashboardProps) {
       setIsLoading(false);
     }
   }, [userData]);
-
-  useEffect(() => {
-    setHackathons(Math.floor(Math.random() * 6)); // 0-5
-  }, []);
-
-  // No longer need the language colors array as it's defined in the LanguageChart component
 
   const handleLogout = async () => {
     await authService.logout();

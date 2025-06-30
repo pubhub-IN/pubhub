@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 import { createClient } from "@supabase/supabase-js";
 import jwt from "jsonwebtoken";
 import { Mistral } from "@mistralai/mistralai";
-import { fetchJobListings } from '@atharvh01/linkedin-jobs-api/src/services/linkedinService.js';
+import { fetchJobListings } from "@atharvh01/linkedin-jobs-api/src/services/linkedinService.js";
 
 dotenv.config();
 
@@ -38,7 +38,7 @@ const jobCache = new Map();
 const JOB_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 function normalizeJob(job, source) {
-  if (source === 'remotive') {
+  if (source === "remotive") {
     return {
       id: `remotive-${job.id}`,
       title: job.title,
@@ -47,120 +47,190 @@ function normalizeJob(job, source) {
       url: job.url,
       publication_date: job.publication_date,
       job_type: job.job_type,
-      salary: job.salary || '',
-      experience: job.experience || '',
-      remoteType: job.job_type?.toLowerCase().includes('remote') ? 'remote' : '',
-      description: job.description || '',
+      salary: job.salary || "",
+      experience: job.experience || "",
+      remoteType: job.job_type?.toLowerCase().includes("remote")
+        ? "remote"
+        : "",
+      description: job.description || "",
     };
-  } else if (source === 'remoteok') {
+  } else if (source === "remoteok") {
     return {
       id: `remoteok-${job.id}`,
       title: job.position || job.title,
-      company_name: job.company || '',
-      candidate_required_location: job.location || 'Worldwide',
-      url: job.url || job.apply_url || '',
-      publication_date: job.date || job.created_at || '',
-      job_type: job.tags ? job.tags.join(', ') : '',
-      salary: job.salary || '',
-      experience: job.experience || '',
-      remoteType: (job.tags || []).includes('remote') ? 'remote' : '',
-      description: job.description || '',
+      company_name: job.company || "",
+      candidate_required_location: job.location || "Worldwide",
+      url: job.url || job.apply_url || "",
+      publication_date: job.date || job.created_at || "",
+      job_type: job.tags ? job.tags.join(", ") : "",
+      salary: job.salary || "",
+      experience: job.experience || "",
+      remoteType: (job.tags || []).includes("remote") ? "remote" : "",
+      description: job.description || "",
     };
-  } else if (source === 'linkedin') {
+  } else if (source === "linkedin") {
     return {
       id: `linkedin-${job.link}`,
-      title: job.title && job.title !== '*' ? job.title : 'Untitled Position',
-      company_name: job.company && job.company !== '*' ? job.company : 'Unknown Company',
-      candidate_required_location: job.location && job.location !== '*' ? job.location : '',
-      url: job.link && job.link !== '*' ? job.link : '',
-      publication_date: job.postedDate && job.postedDate !== '*' ? job.postedDate : '',
-      job_type: '',
-      salary: '',
-      experience: '',
-      remoteType: (job.location && job.location.toLowerCase().includes('remote')) ? 'remote' : '',
-      description: job.description && job.description !== '*' ? job.description : '',
+      title: job.title && job.title !== "*" ? job.title : "Untitled Position",
+      company_name:
+        job.company && job.company !== "*" ? job.company : "Unknown Company",
+      candidate_required_location:
+        job.location && job.location !== "*" ? job.location : "",
+      url: job.link && job.link !== "*" ? job.link : "",
+      publication_date:
+        job.postedDate && job.postedDate !== "*" ? job.postedDate : "",
+      job_type: "",
+      salary: "",
+      experience: "",
+      remoteType:
+        job.location && job.location.toLowerCase().includes("remote")
+          ? "remote"
+          : "",
+      description:
+        job.description && job.description !== "*" ? job.description : "",
     };
   }
   return null;
 }
 
-async function fetchRemotiveJobs({ techStack, location, jobType, perPage = 20 }) {
+async function fetchRemotiveJobs({
+  techStack,
+  location,
+  jobType,
+  perPage = 20,
+}) {
   try {
-    let url = 'https://remotive.com/api/remote-jobs';
+    let url = "https://remotive.com/api/remote-jobs";
     const res = await fetch(url);
     const data = await res.json();
-    let jobs = (data.jobs || []);
-    if (techStack) jobs = jobs.filter(j => (j.title + ' ' + j.job_type).toLowerCase().includes(techStack.toLowerCase()));
-    if (location) jobs = jobs.filter(j => j.candidate_required_location.trim().toLowerCase() === location.trim().toLowerCase());
+    let jobs = data.jobs || [];
+    if (techStack)
+      jobs = jobs.filter((j) =>
+        (j.title + " " + j.job_type)
+          .toLowerCase()
+          .includes(techStack.toLowerCase())
+      );
+    if (location)
+      jobs = jobs.filter(
+        (j) =>
+          j.candidate_required_location.trim().toLowerCase() ===
+          location.trim().toLowerCase()
+      );
     if (jobType) {
       const jt = jobType.trim().toLowerCase();
-      if (jt === 'remote') {
-        jobs = jobs.filter(j => (j.job_type || '').toLowerCase().includes('remote'));
+      if (jt === "remote") {
+        jobs = jobs.filter((j) =>
+          (j.job_type || "").toLowerCase().includes("remote")
+        );
       } else {
-        jobs = jobs.filter(j => (j.job_type || '').toLowerCase().replace(/[-_ ]/g, '').includes(jt.replace(/[-_ ]/g, '')));
-      }
-    }
-    return jobs.slice(0, perPage).map(j => normalizeJob(j, 'remotive'));
-  } catch (e) {
-    return { error: 'Remotive fetch failed' };
-  }
-}
-
-async function fetchRemoteOKJobs({ techStack, location, jobType, perPage = 20 }) {
-  try {
-    const res = await fetch('https://remoteok.com/api');
-    const data = await res.json();
-    let jobs = (data.slice(1) || []);
-    if (techStack) jobs = jobs.filter(j => ((j.position || j.title || '') + ' ' + (j.tags ? j.tags.join(', ') : '')).toLowerCase().includes(techStack.toLowerCase()));
-    if (location) jobs = jobs.filter(j => (j.location || 'Worldwide').trim().toLowerCase() === location.trim().toLowerCase());
-    if (jobType) {
-      const jt = jobType.trim().toLowerCase();
-      if (jt === 'remote') {
-        jobs = jobs.filter(j => (j.tags || []).map(t => t.toLowerCase()).includes('remote'));
-      } else {
-        jobs = jobs.filter(j => (j.tags || []).map(t => t.toLowerCase().replace(/[-_ ]/g, '')).includes(jt.replace(/[-_ ]/g, '')));
-      }
-    }
-    return jobs.slice(0, perPage).map(j => normalizeJob(j, 'remoteok'));
-  } catch (e) {
-    return { error: 'RemoteOK fetch failed' };
-  }
-}
-
-async function fetchLinkedInJobs({ techStack, location, jobType, perPage = 20 }) {
-  try {
-    if (!techStack || !location) return [];
-    const jobs = await fetchJobListings(techStack, location, 'past_week');
-    let filtered = jobs;
-    if (jobType) {
-      const jt = jobType.trim().toLowerCase();
-      if (jt === 'remote') {
-        filtered = jobs.filter(j => (j.location || '').toLowerCase().includes('remote'));
-      } else {
-        filtered = jobs.filter(j =>
-          (j.title || '').toLowerCase().replace(/[-_ ]/g, '').includes(jt.replace(/[-_ ]/g, '')) ||
-          (j.description || '').toLowerCase().replace(/[-_ ]/g, '').includes(jt.replace(/[-_ ]/g, ''))
+        jobs = jobs.filter((j) =>
+          (j.job_type || "")
+            .toLowerCase()
+            .replace(/[-_ ]/g, "")
+            .includes(jt.replace(/[-_ ]/g, ""))
         );
       }
     }
-    return filtered.slice(0, perPage).map(j => normalizeJob(j, 'linkedin'));
+    return jobs.slice(0, perPage).map((j) => normalizeJob(j, "remotive"));
   } catch (e) {
-    return { error: 'LinkedIn fetch failed' };
+    return { error: "Remotive fetch failed" };
   }
 }
 
-app.get('/api/jobs', async (req, res) => {
+async function fetchRemoteOKJobs({
+  techStack,
+  location,
+  jobType,
+  perPage = 20,
+}) {
+  try {
+    const res = await fetch("https://remoteok.com/api");
+    const data = await res.json();
+    let jobs = data.slice(1) || [];
+    if (techStack)
+      jobs = jobs.filter((j) =>
+        (
+          (j.position || j.title || "") +
+          " " +
+          (j.tags ? j.tags.join(", ") : "")
+        )
+          .toLowerCase()
+          .includes(techStack.toLowerCase())
+      );
+    if (location)
+      jobs = jobs.filter(
+        (j) =>
+          (j.location || "Worldwide").trim().toLowerCase() ===
+          location.trim().toLowerCase()
+      );
+    if (jobType) {
+      const jt = jobType.trim().toLowerCase();
+      if (jt === "remote") {
+        jobs = jobs.filter((j) =>
+          (j.tags || []).map((t) => t.toLowerCase()).includes("remote")
+        );
+      } else {
+        jobs = jobs.filter((j) =>
+          (j.tags || [])
+            .map((t) => t.toLowerCase().replace(/[-_ ]/g, ""))
+            .includes(jt.replace(/[-_ ]/g, ""))
+        );
+      }
+    }
+    return jobs.slice(0, perPage).map((j) => normalizeJob(j, "remoteok"));
+  } catch (e) {
+    return { error: "RemoteOK fetch failed" };
+  }
+}
+
+async function fetchLinkedInJobs({
+  techStack,
+  location,
+  jobType,
+  perPage = 20,
+}) {
+  try {
+    if (!techStack || !location) return [];
+    const jobs = await fetchJobListings(techStack, location, "past_week");
+    let filtered = jobs;
+    if (jobType) {
+      const jt = jobType.trim().toLowerCase();
+      if (jt === "remote") {
+        filtered = jobs.filter((j) =>
+          (j.location || "").toLowerCase().includes("remote")
+        );
+      } else {
+        filtered = jobs.filter(
+          (j) =>
+            (j.title || "")
+              .toLowerCase()
+              .replace(/[-_ ]/g, "")
+              .includes(jt.replace(/[-_ ]/g, "")) ||
+            (j.description || "")
+              .toLowerCase()
+              .replace(/[-_ ]/g, "")
+              .includes(jt.replace(/[-_ ]/g, ""))
+        );
+      }
+    }
+    return filtered.slice(0, perPage).map((j) => normalizeJob(j, "linkedin"));
+  } catch (e) {
+    return { error: "LinkedIn fetch failed" };
+  }
+}
+
+app.get("/api/jobs", async (req, res) => {
   try {
     const {
-      location = '',
-      techStack = '',
-      jobType = '',
-      salaryMin = '',
-      salaryMax = '',
-      experienceLevel = '',
-      company = '',
-      datePosted = '',
-      remoteType = '',
+      location = "",
+      techStack = "",
+      jobType = "",
+      salaryMin = "",
+      salaryMax = "",
+      experienceLevel = "",
+      company = "",
+      datePosted = "",
+      remoteType = "",
       page = 1,
       perPage = 20,
     } = req.query;
@@ -168,50 +238,84 @@ app.get('/api/jobs', async (req, res) => {
     const cacheKey = `jobs_${location}_${techStack}_${jobType}_${salaryMin}_${salaryMax}_${experienceLevel}_${company}_${datePosted}_${remoteType}_${page}_${perPageNum}`;
     const cached = jobCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < JOB_CACHE_DURATION) {
-      return res.json({ jobs: cached.jobs, total: cached.total, cached: true, errors: cached.errors });
+      return res.json({
+        jobs: cached.jobs,
+        total: cached.total,
+        cached: true,
+        errors: cached.errors,
+      });
     }
     let jobs = [];
     let errors = {};
     const [remotive, remoteok, linkedin] = await Promise.all([
       fetchRemotiveJobs({ techStack, location, jobType, perPage: 100 }),
       fetchRemoteOKJobs({ techStack, location, jobType, perPage: 100 }),
-      fetchLinkedInJobs({ techStack, location, jobType, perPage: 100 })
+      fetchLinkedInJobs({ techStack, location, jobType, perPage: 100 }),
     ]);
-    if (Array.isArray(remotive)) jobs = jobs.concat(remotive); else errors.Remotive = remotive.error;
-    if (Array.isArray(remoteok)) jobs = jobs.concat(remoteok); else errors.RemoteOK = remoteok.error;
-    if (Array.isArray(linkedin)) jobs = jobs.concat(linkedin); else errors.LinkedIn = linkedin.error;
+    if (Array.isArray(remotive)) jobs = jobs.concat(remotive);
+    else errors.Remotive = remotive.error;
+    if (Array.isArray(remoteok)) jobs = jobs.concat(remoteok);
+    else errors.RemoteOK = remoteok.error;
+    if (Array.isArray(linkedin)) jobs = jobs.concat(linkedin);
+    else errors.LinkedIn = linkedin.error;
     jobs = jobs.filter(Boolean);
-    if (salaryMin) jobs = jobs.filter(j => {
-      const min = parseInt(salaryMin);
-      if (!j.salary) return true;
-      const [low] = j.salary.split('-').map(Number);
-      return !isNaN(low) && low >= min;
-    });
-    if (salaryMax) jobs = jobs.filter(j => {
-      const max = parseInt(salaryMax);
-      if (!j.salary) return true;
-      const [, high] = j.salary.split('-').map(Number);
-      return !isNaN(high) && high <= max;
-    });
-    if (experienceLevel) jobs = jobs.filter(j => (j.experience || '').toLowerCase().includes(experienceLevel.toLowerCase()));
-    if (company) jobs = jobs.filter(j => (j.company_name || '').toLowerCase().includes(company.toLowerCase()));
+    if (salaryMin)
+      jobs = jobs.filter((j) => {
+        const min = parseInt(salaryMin);
+        if (!j.salary) return true;
+        const [low] = j.salary.split("-").map(Number);
+        return !isNaN(low) && low >= min;
+      });
+    if (salaryMax)
+      jobs = jobs.filter((j) => {
+        const max = parseInt(salaryMax);
+        if (!j.salary) return true;
+        const [, high] = j.salary.split("-").map(Number);
+        return !isNaN(high) && high <= max;
+      });
+    if (experienceLevel)
+      jobs = jobs.filter((j) =>
+        (j.experience || "")
+          .toLowerCase()
+          .includes(experienceLevel.toLowerCase())
+      );
+    if (company)
+      jobs = jobs.filter((j) =>
+        (j.company_name || "").toLowerCase().includes(company.toLowerCase())
+      );
     if (datePosted) {
       const now = Date.now();
       let cutoff = now;
-      if (datePosted === '24h') cutoff -= 24 * 60 * 60 * 1000;
-      else if (datePosted === '7d') cutoff -= 7 * 24 * 60 * 60 * 1000;
-      jobs = jobs.filter(j => new Date(j.publication_date).getTime() >= cutoff);
+      if (datePosted === "24h") cutoff -= 24 * 60 * 60 * 1000;
+      else if (datePosted === "7d") cutoff -= 7 * 24 * 60 * 60 * 1000;
+      jobs = jobs.filter(
+        (j) => new Date(j.publication_date).getTime() >= cutoff
+      );
     }
-    if (remoteType) jobs = jobs.filter(j => (j.remoteType || '').toLowerCase() === remoteType.toLowerCase());
-    jobs = jobs.sort((a, b) => new Date(b.publication_date).getTime() - new Date(a.publication_date).getTime());
+    if (remoteType)
+      jobs = jobs.filter(
+        (j) => (j.remoteType || "").toLowerCase() === remoteType.toLowerCase()
+      );
+    jobs = jobs.sort(
+      (a, b) =>
+        new Date(b.publication_date).getTime() -
+        new Date(a.publication_date).getTime()
+    );
     const total = jobs.length;
     const start = (parseInt(page) - 1) * perPageNum;
     const end = start + perPageNum;
     const paginated = jobs.slice(start, end);
-    jobCache.set(cacheKey, { jobs: paginated, total, timestamp: Date.now(), errors });
+    jobCache.set(cacheKey, {
+      jobs: paginated,
+      total,
+      timestamp: Date.now(),
+      errors,
+    });
     res.json({ jobs: paginated, total, cached: false, errors });
   } catch (error) {
-    res.status(500).json({ error: 'Job aggregation failed', details: error.message });
+    res
+      .status(500)
+      .json({ error: "Job aggregation failed", details: error.message });
   }
 });
 
@@ -277,9 +381,25 @@ const supabase = createClient(
 );
 
 // Middleware
+const allowedOrigins = [
+  "http://localhost:5173", // Development
+  "https://your-netlify-app.netlify.app", // Production - replace with your actual Netlify URL
+  process.env.FRONTEND_URL, // Environment variable for production
+].filter(Boolean); // Remove undefined values
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        console.log("CORS blocked origin:", origin);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
@@ -327,7 +447,13 @@ passport.use(
     {
       clientID: process.env.VITE_GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL: `http://localhost:${PORT}/auth/github/callback`,
+      callbackURL:
+        process.env.NODE_ENV === "production"
+          ? `${
+              process.env.BACKEND_URL ||
+              `https://${process.env.RENDER_EXTERNAL_HOSTNAME}`
+            }/auth/github/callback`
+          : `http://localhost:${PORT}/auth/github/callback`,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {

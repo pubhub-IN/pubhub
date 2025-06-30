@@ -6,6 +6,7 @@ import {
   ReactNode,
 } from "react";
 import { authService, AuthUser } from "./auth-jwt";
+import { buildApiUrl, API_ENDPOINTS } from "../config/api";
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -70,7 +71,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const login = () => {
-    window.location.href = "http://localhost:3000/auth/github";
+    window.location.href = buildApiUrl(API_ENDPOINTS.GITHUB_AUTH);
   };
 
   const logout = async () => {

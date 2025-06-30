@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { authService, AuthUser } from "../lib/auth-jwt";
+import { buildApiUrl } from "../config/api";
 
 interface GitHubRepo {
   id: number;
@@ -24,7 +25,7 @@ interface TechRepoSection {
   error?: string;
 }
 
-const API_BASE_URL = "http://localhost:3000";
+const API_BASE_URL = buildApiUrl("");
 
 const motivations = [
   "Code for change, contribute today!",

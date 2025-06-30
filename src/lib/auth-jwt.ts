@@ -1,7 +1,7 @@
 // JWT Authentication utilities for the frontend
+import { buildApiUrl, API_ENDPOINTS } from "../config/api";
 
 const TOKEN_KEY = "pubhub_jwt_token";
-const API_BASE_URL = "http://localhost:3000";
 
 export interface AuthUser {
   id: string;
@@ -102,7 +102,7 @@ class AuthService {
 
   // Make an authenticated GET request
   async get<T = unknown>(endpoint: string): Promise<T> {
-    const url = `${API_BASE_URL}${endpoint}`;
+    const url = buildApiUrl(endpoint);
     const response = await this.fetchWithAuth(url);
 
     if (!response.ok) {
@@ -116,7 +116,7 @@ class AuthService {
     endpoint: string,
     data: Record<string, unknown>
   ): Promise<T> {
-    const url = `${API_BASE_URL}${endpoint}`;
+    const url = buildApiUrl(endpoint);
     const response = await this.fetchWithAuth(url, {
       method: "POST",
       body: JSON.stringify(data),
@@ -134,7 +134,7 @@ class AuthService {
     endpoint: string,
     data: Record<string, unknown>
   ): Promise<T> {
-    const url = `${API_BASE_URL}${endpoint}`;
+    const url = buildApiUrl(endpoint);
     const response = await this.fetchWithAuth(url, {
       method: "PUT",
       body: JSON.stringify(data),
@@ -154,7 +154,9 @@ class AuthService {
     }
 
     try {
-      const response = await this.fetchWithAuth(`${API_BASE_URL}/api/user`);
+      const response = await this.fetchWithAuth(
+        buildApiUrl(API_ENDPOINTS.USER_PROFILE)
+      );
 
       if (response.ok) {
         return await response.json();
@@ -176,7 +178,7 @@ class AuthService {
 
     try {
       const response = await this.fetchWithAuth(
-        `${API_BASE_URL}/api/user/refresh-token`,
+        buildApiUrl(API_ENDPOINTS.REFRESH_TOKEN),
         {
           method: "POST",
         }
@@ -198,38 +200,34 @@ class AuthService {
   }
 
   // Logout user
-  async logout(): Promise<void> {
-    try {
-      // Notify server about logout (optional)
-      if (this.isAuthenticated()) {
-        await this.fetchWithAuth(`${API_BASE_URL}/api/user/logout`, {
-          method: "POST",
-        });
-      }
-    } catch (error) {
-      console.error("Error during logout:", error);
-    } finally {
-      this.removeToken();
-    }
+  logout(): void {
+    this.removeToken();
+    window.location.href = buildApiUrl(API_ENDPOINTS.LOGOUT);
   }
 
-  // Handle token from URL (after OAuth callback)
+  // Handle token from URL (OAuth callback)
   handleTokenFromUrl(): boolean {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get("token");
+    const error = urlParams.get("error");
+
+    if (error) {
+      console.error("Authentication error:", error);
+      return false;
+    }
 
     if (token) {
       this.setToken(token);
-      // Clean URL
-      const cleanUrl = window.location.pathname;
-      window.history.replaceState({}, document.title, cleanUrl);
+      // Clean up URL
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, newUrl);
       return true;
     }
 
     return false;
   }
 
-  // Get token expiration time
+  // Get token expiration date
   getTokenExpiration(): Date | null {
     const token = this.getToken();
     if (!token) return null;
@@ -237,32 +235,27 @@ class AuthService {
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
       return payload.exp ? new Date(payload.exp * 1000) : null;
-    } catch {
+    } catch (error) {
+      console.error("Error parsing token expiration:", error);
       return null;
     }
   }
 
   // Update user technologies
   async updateTechnologies(technologies: string[]): Promise<AuthUser | null> {
-    if (!this.isAuthenticated()) {
-      throw new Error("Not authenticated");
-    }
-
     try {
-      const response = await this.fetchWithAuth(
-        `${API_BASE_URL}/api/user/technologies`,
-        {
-          method: "PUT",
-          body: JSON.stringify({ technologies }),
-        }
-      );
+      const response = await this.put(API_ENDPOINTS.USER_TECHNOLOGIES, {
+        technologies,
+      });
 
-      if (response.ok) {
-        const updatedUser = await response.json();
-        return updatedUser;
-      } else {
-        throw new Error(`Failed to update technologies: ${response.status}`);
+      if (response) {
+        // Dispatch user-updated event
+        window.dispatchEvent(
+          new CustomEvent("user-updated", { detail: response })
+        );
+        return response as AuthUser;
       }
+      return null;
     } catch (error) {
       console.error("Error updating technologies:", error);
       throw error;
@@ -271,240 +264,146 @@ class AuthService {
 
   // Update user profession
   async updateProfession(profession: string): Promise<AuthUser | null> {
-    if (!this.isAuthenticated()) {
-      throw new Error("Not authenticated");
-    }
-
     try {
-      const response = await this.fetchWithAuth(
-        `${API_BASE_URL}/api/user/profession`,
-        {
-          method: "PUT",
-          body: JSON.stringify({ profession }),
-        }
-      );
+      const response = await this.put(API_ENDPOINTS.USER_PROFESSION, {
+        profession,
+      });
 
-      if (response.ok) {
-        const updatedUser = await response.json();
-        return updatedUser;
-      } else {
-        throw new Error(`Failed to update profession: ${response.status}`);
+      if (response) {
+        // Dispatch user-updated event
+        window.dispatchEvent(
+          new CustomEvent("user-updated", { detail: response })
+        );
+        return response as AuthUser;
       }
+      return null;
     } catch (error) {
       console.error("Error updating profession:", error);
       throw error;
     }
   }
 
-  // Update user social links
+  // Update social links
   async updateSocialLinks(data: {
     linkedin_username?: string;
     x_username?: string;
   }): Promise<AuthUser | null> {
-    if (!this.isAuthenticated()) {
-      throw new Error("Not authenticated");
-    }
-
     try {
-      const response = await this.fetchWithAuth(
-        `${API_BASE_URL}/api/user/social-links`,
-        {
-          method: "PUT",
-          body: JSON.stringify(data),
-        }
-      );
+      const response = await this.put(API_ENDPOINTS.USER_SOCIAL_LINKS, data);
 
-      if (response.ok) {
-        const updatedUser = await response.json();
-        return updatedUser;
-      } else {
-        throw new Error(`Failed to update social links: ${response.status}`);
+      if (response) {
+        // Dispatch user-updated event
+        window.dispatchEvent(
+          new CustomEvent("user-updated", { detail: response })
+        );
+        return response as AuthUser;
       }
+      return null;
     } catch (error) {
       console.error("Error updating social links:", error);
       throw error;
     }
   }
 
-  // Connection methods
+  // Send connection request
   async sendConnectionRequest(
     recipientUsername: string,
     message?: string
   ): Promise<any> {
-    if (!this.isAuthenticated()) {
-      throw new Error("Not authenticated");
-    }
-
     try {
-      const response = await this.fetchWithAuth(
-        `${API_BASE_URL}/api/connections/request`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            recipient_username: recipientUsername,
-            message: message || null,
-          }),
-        }
-      );
+      const response = await this.post(API_ENDPOINTS.CONNECTION_REQUESTS, {
+        recipientUsername,
+        message,
+      });
 
-      if (response.ok) {
-        return await response.json();
-      } else {
-        const error = await response.json();
-        throw new Error(
-          error.error || `Failed to send connection request: ${response.status}`
-        );
-      }
+      return response;
     } catch (error) {
       console.error("Error sending connection request:", error);
       throw error;
     }
   }
 
+  // Accept connection request
   async acceptConnectionRequest(requestId: string): Promise<any> {
-    if (!this.isAuthenticated()) {
-      throw new Error("Not authenticated");
-    }
-
     try {
-      const response = await this.fetchWithAuth(
-        `${API_BASE_URL}/api/connections/accept/${requestId}`,
-        {
-          method: "PUT",
-        }
+      const response = await this.put(
+        `${API_ENDPOINTS.CONNECTION_REQUESTS}/${requestId}/accept`,
+        {}
       );
 
-      if (response.ok) {
-        return await response.json();
-      } else {
-        const error = await response.json();
-        throw new Error(
-          error.error ||
-            `Failed to accept connection request: ${response.status}`
-        );
-      }
+      return response;
     } catch (error) {
       console.error("Error accepting connection request:", error);
       throw error;
     }
   }
 
+  // Reject connection request
   async rejectConnectionRequest(requestId: string): Promise<any> {
-    if (!this.isAuthenticated()) {
-      throw new Error("Not authenticated");
-    }
-
     try {
-      const response = await this.fetchWithAuth(
-        `${API_BASE_URL}/api/connections/reject/${requestId}`,
-        {
-          method: "PUT",
-        }
+      const response = await this.put(
+        `${API_ENDPOINTS.CONNECTION_REQUESTS}/${requestId}/reject`,
+        {}
       );
 
-      if (response.ok) {
-        return await response.json();
-      } else {
-        const error = await response.json();
-        throw new Error(
-          error.error ||
-            `Failed to reject connection request: ${response.status}`
-        );
-      }
+      return response;
     } catch (error) {
       console.error("Error rejecting connection request:", error);
       throw error;
     }
   }
 
+  // Get connections
   async getConnections(): Promise<any> {
-    if (!this.isAuthenticated()) {
-      throw new Error("Not authenticated");
-    }
-
     try {
-      const response = await this.fetchWithAuth(
-        `${API_BASE_URL}/api/connections`
-      );
-
-      if (response.ok) {
-        return await response.json();
-      } else {
-        throw new Error(`Failed to fetch connections: ${response.status}`);
-      }
+      const response = await this.get(API_ENDPOINTS.CONNECTIONS);
+      return response;
     } catch (error) {
       console.error("Error fetching connections:", error);
       throw error;
     }
   }
 
+  // Get connection requests
   async getConnectionRequests(): Promise<any> {
-    if (!this.isAuthenticated()) {
-      throw new Error("Not authenticated");
-    }
-
     try {
-      const response = await this.fetchWithAuth(
-        `${API_BASE_URL}/api/connections/requests`
-      );
-
-      if (response.ok) {
-        return await response.json();
-      } else {
-        throw new Error(
-          `Failed to fetch connection requests: ${response.status}`
-        );
-      }
+      const response = await this.get(API_ENDPOINTS.CONNECTION_REQUESTS);
+      return response;
     } catch (error) {
       console.error("Error fetching connection requests:", error);
       throw error;
     }
   }
 
+  // Get connection status with another user
   async getConnectionStatus(username: string): Promise<any> {
-    if (!this.isAuthenticated()) {
-      throw new Error("Not authenticated");
-    }
-
     try {
-      const response = await this.fetchWithAuth(
-        `${API_BASE_URL}/api/connections/status/${username}`
+      const response = await this.get(
+        `${API_ENDPOINTS.CONNECTION_STATUS}/${username}`
       );
-
-      if (response.ok) {
-        return await response.json();
-      } else {
-        throw new Error(
-          `Failed to fetch connection status: ${response.status}`
-        );
-      }
+      return response;
     } catch (error) {
       console.error("Error fetching connection status:", error);
       throw error;
     }
   }
 
+  // Remove connection
   async removeConnection(connectionId: string): Promise<any> {
-    if (!this.isAuthenticated()) {
-      throw new Error("Not authenticated");
-    }
-
     try {
-      const response = await this.fetchWithAuth(
-        `${API_BASE_URL}/api/connections/${connectionId}`,
+      const response = await fetch(
+        buildApiUrl(`${API_ENDPOINTS.CONNECTIONS}/${connectionId}`),
         {
           method: "DELETE",
+          headers: this.getAuthHeaders(),
         }
       );
 
-      if (response.ok) {
-        return await response.json();
-      } else {
-        const error = await response.json();
-        throw new Error(
-          error.error || `Failed to remove connection: ${response.status}`
-        );
+      if (!response.ok) {
+        throw new Error(`DELETE request failed: ${response.status}`);
       }
+
+      return await response.json();
     } catch (error) {
       console.error("Error removing connection:", error);
       throw error;

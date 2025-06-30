@@ -1,3 +1,5 @@
+import { buildApiUrl, API_ENDPOINTS } from "../config/api";
+
 export interface User {
   id: string;
   github_id: number;
@@ -14,8 +16,6 @@ export interface User {
   access_token?: string;
 }
 
-const API_BASE_URL = "http://localhost:3000";
-
 // Session refresh interval (25 minutes)
 const SESSION_REFRESH_INTERVAL = 25 * 60 * 1000;
 let refreshTimer: NodeJS.Timeout | null = null;
@@ -23,7 +23,7 @@ let refreshTimer: NodeJS.Timeout | null = null;
 // Utility to check if server is running
 export const checkServerHealth = async (): Promise<boolean> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/health`, {
+    const response = await fetch(buildApiUrl(API_ENDPOINTS.HEALTH), {
       method: "GET",
       cache: "no-cache",
     });
@@ -36,7 +36,7 @@ export const checkServerHealth = async (): Promise<boolean> => {
 // Function to refresh session periodically
 const refreshSession = async (): Promise<boolean> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/user/refresh-session`, {
+    const response = await fetch(buildApiUrl(API_ENDPOINTS.REFRESH_TOKEN), {
       method: "POST",
       credentials: "include",
       headers: {
@@ -82,7 +82,7 @@ export const authService = {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-      const response = await fetch(`${API_BASE_URL}/api/user`, {
+      const response = await fetch(buildApiUrl(API_ENDPOINTS.USER_PROFILE), {
         credentials: "include",
         headers: {
           Accept: "application/json",
@@ -126,9 +126,7 @@ export const authService = {
       stopSessionRefresh();
 
       if (error instanceof DOMException && error.name === "AbortError") {
-        console.error(
-          "Request timeout - server may not be running on port 3000"
-        );
+        console.error("Request timeout - server may not be running");
         throw new Error(
           "Connection timeout: Please ensure the server is running"
         );
@@ -142,7 +140,7 @@ export const authService = {
           "Network error - server may not be running or CORS issue"
         );
         throw new Error(
-          "Unable to connect to server: Please ensure the backend server is running on port 3000"
+          "Unable to connect to server: Please ensure the backend server is running"
         );
       }
 
@@ -154,14 +152,17 @@ export const authService = {
   // Update user technologies
   async updateTechnologies(technologies: string[]) {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/user/technologies`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ technologies }),
-      });
+      const response = await fetch(
+        buildApiUrl(API_ENDPOINTS.USER_TECHNOLOGIES),
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ technologies }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to update technologies");
@@ -176,13 +177,13 @@ export const authService = {
 
   // Get GitHub auth URL
   getGitHubAuthUrl() {
-    return `${API_BASE_URL}/auth/github`;
+    return buildApiUrl(API_ENDPOINTS.GITHUB_AUTH);
   },
 
   // Logout
   logout() {
     stopSessionRefresh();
-    window.location.href = `${API_BASE_URL}/auth/logout`;
+    window.location.href = buildApiUrl(API_ENDPOINTS.LOGOUT);
   },
 
   // Manual session refresh
@@ -193,14 +194,16 @@ export const authService = {
   // Check if session is active
   async isSessionActive() {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/user/session-status`, {
+      const response = await fetch(buildApiUrl(API_ENDPOINTS.SESSION_STATUS), {
         credentials: "include",
         headers: {
           Accept: "application/json",
         },
       });
+
       return response.ok;
-    } catch {
+    } catch (error) {
+      console.error("Error checking session status:", error);
       return false;
     }
   },
