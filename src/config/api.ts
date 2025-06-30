@@ -20,7 +20,7 @@ export const API_BASE_URL =
 export const CORS_CONFIG = {
   origin:
     isDevelopment && !useProductionBackend
-      ? "http://localhost:5173"
+      ? "https://pubhub-bolt.netlify.app"
       : import.meta.env.VITE_FRONTEND_URL || "http://localhost:5173",
   credentials: true,
 };
