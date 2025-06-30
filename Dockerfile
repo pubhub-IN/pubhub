@@ -24,6 +24,13 @@ COPY package*.json ./
 # Install production dependencies
 RUN npm ci --omit=dev
 
+# --- DEBUGGING STEPS ---
+# List all files in the current directory to see what has been copied.
+RUN echo "--- Listing files in /usr/src/app ---" && ls -la
+# List the contents of node_modules to verify dependencies are installed.
+RUN echo "--- Listing contents of node_modules ---" && ls -la node_modules | head -n 20
+# --- END DEBUGGING STEPS ---
+
 # Copy the rest of your application's code
 COPY . .
 

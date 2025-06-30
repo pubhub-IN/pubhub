@@ -1,14 +1,21 @@
-# Ignore local dependencies and build artifacts
+# Ignore the local node_modules directory
 node_modules
+
+# Ignore the git directory
+.git
+.gitignore
+
+# Ignore local environment files
+.env
+.env.*
+
+# Ignore local dependencies and build artifacts
 dist
 build
 
-# Ignore Git, Docker, and environment files
-.git
-.gitignore
+# Ignore Docker, and environment files
 Dockerfile
 .dockerignore
-.env*
 
 # Ignore frontend code, assets, and configs
 src/
