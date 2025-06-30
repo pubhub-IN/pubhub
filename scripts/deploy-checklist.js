@@ -20,35 +20,34 @@ const checks = [
   {
     name: "Configuration Files",
     items: [
-      { file: "netlify.toml", description: "Netlify configuration" },
-      { file: "render.yaml", description: "Render configuration" },
+      { file: "netlify.toml", description: "Netlify configuration (not used for localhost)" },
+      { file: "render.yaml", description: "Render configuration (not used for localhost)" },
       { file: "src/config/api.ts", description: "API configuration" },
     ],
   },
   {
-    name: "Environment Variables (Frontend - Netlify)",
+    name: "Environment Variables (Frontend - Localhost)",
     items: [
-      { var: "VITE_API_URL", description: "Backend API URL" },
-      { var: "VITE_SUPABASE_URL", description: "Supabase project URL" },
-      { var: "VITE_SUPABASE_ANON_KEY", description: "Supabase anonymous key" },
-      { var: "VITE_GITHUB_CLIENT_ID", description: "GitHub OAuth client ID" },
-      { var: "VITE_FRONTEND_URL", description: "Frontend URL" },
+      { var: "VITE_API_URL", description: "Backend API URL (https://pubhub-lnao.onrender.com)" },
+      { var: "VITE_SUPABASE_URL", description: "Supabase project URL (http://localhost)" },
+      { var: "VITE_SUPABASE_ANON_KEY", description: "Supabase anonymous key (local)" },
+      { var: "VITE_GITHUB_CLIENT_ID", description: "GitHub OAuth client ID (local)" },
+      { var: "VITE_FRONTEND_URL", description: "Frontend URL (http://localhost:5173)" },
     ],
   },
   {
-    name: "Environment Variables (Backend - Render)",
+    name: "Environment Variables (Backend - Localhost)",
     items: [
-      { var: "NODE_ENV", description: "Production environment" },
-      { var: "PORT", description: "Server port" },
-      { var: "SESSION_SECRET", description: "Session secret" },
-      { var: "JWT_SECRET", description: "JWT secret" },
+      { var: "NODE_ENV", description: "Development environment" },
+      { var: "PORT", description: "Server port (3000)" },
+      { var: "SESSION_SECRET", description: "Session secret (local)" },
+      { var: "JWT_SECRET", description: "JWT secret (local)" },
       {
         var: "GITHUB_CLIENT_SECRET",
-        description: "GitHub OAuth client secret",
-      },
-      { var: "GITHUB_TOKEN", description: "GitHub personal access token" },
-      { var: "MISTRAL_API_KEY", description: "Mistral AI API key" },
-      { var: "FRONTEND_URL", description: "Frontend URL for CORS" },
+        description: "GitHub OAuth client secret (local)" },
+      { var: "GITHUB_TOKEN", description: "GitHub personal access token (local)" },
+      { var: "MISTRAL_API_KEY", description: "Mistral AI API key (local)" },
+      { var: "FRONTEND_URL", description: "Frontend URL for CORS (http://localhost:5173)" },
     ],
   },
   {
@@ -56,15 +55,15 @@ const checks = [
     items: [
       {
         setting: "Authorization callback URL (Development)",
-        value: "http://http://157.173.222.219:3000/auth/github/callback",
+        value: "https://pubhub-lnao.onrender.com/auth/github/callback",
       },
       {
         setting: "Authorization callback URL (Production)",
-        value: "https://http://157.173.222.219:3000/auth/github/callback",
+        value: "https://pubhub-lnao.onrender.com/auth/github/callback",
       },
       {
         setting: "Homepage URL",
-        value: "https://pubhub-in.netlify.app",
+        value: "http://localhost:5173",
       },
     ],
   },

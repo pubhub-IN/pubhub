@@ -1,0 +1,54 @@
+# Ignore the local node_modules directory
+node_modules
+
+# Ignore the git directory
+.git
+.gitignore
+
+# Ignore local environment files
+.env
+.env.*
+
+# Ignore local dependencies and build artifacts
+dist
+build
+
+# Ignore Docker, and environment files
+Dockerfile
+.dockerignore
+
+# Ignore frontend code, assets, and configs
+src/
+public/
+index.html
+vite.config.ts
+tailwind.config.js
+postcss.config.js
+components.json
+tsconfig.json
+tsconfig.app.json
+tsconfig.node.json
+
+# Ignore other non-essential files
+README.md
+scripts/
+supabase/
+
+# Ignore markdown files and other non-essential files
+README.md
+/scripts
+/src
+/public
+/supabase
+*.html
+*.js
+*.json
+*.ts
+*.tsx
+!/server
+!package.json
+!package-lock.json
+
+# Ignore build artifacts if any are present locally
+/dist
+/build 

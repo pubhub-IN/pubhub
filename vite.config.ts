@@ -11,12 +11,12 @@ export default defineConfig({
     host: true,
     proxy: {
       "/api": {
-        target: "http://157.173.222.219:3000",
+        target: "https://pubhub-lnao.onrender.com",
         changeOrigin: true,
         secure: false,
       },
       "/auth": {
-        target: "http://157.173.222.219:3000",
+        target: "https://pubhub-lnao.onrender.com",
         changeOrigin: true,
         secure: false,
       },
