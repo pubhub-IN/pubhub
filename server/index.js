@@ -450,7 +450,7 @@ passport.use(
       callbackURL:
         process.env.NODE_ENV === "production"
           ? `https://pubhub-lnao.onrender.com/auth/github/callback`
-          : `https://pubhub-lnao.onrender.com/auth/github/callback`,
+          : `http://localhost:3000/auth/github/callback`,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
