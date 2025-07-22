@@ -116,4 +116,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👏 Acknowledgments
 
 - Thanks to all the users who have helped shape PubHub
-- Built by [Prerit](https://github.com/Kotak-Prerit) & [Ashish](https://github.com/codingashishdev) two postgraduate students
+- Built by [Prerit](https://github.com/Kotak-Prerit) & [Ashish](https://github.com/codingashishdev)  | Postgraduate students
