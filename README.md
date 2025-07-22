@@ -2,7 +2,7 @@
 
 PubHub is your all-in-one developer platform built specially for techies and founders to manage your coding journey, share your progress, and grow in public. From your first commit to your next big launch, PubHub helps you showcase your work, connect with other developers, and advance your career through continuous learning.
 
-[Github](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)
+(https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)
 
 # Screenshots
 
