@@ -2,14 +2,30 @@
 
 PubHub is your all-in-one developer platform built specially for techies and founders to manage your coding journey, share your progress, and grow in public. From your first commit to your next big launch, PubHub helps you showcase your work, connect with other developers, and advance your career through continuous learning.
 
+[Github](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)
+
 # Screenshots
+
+### Onboarding Page
+![Onboarding Page](https://res.cloudinary.com/dafqq1jvc/image/upload/v1753171272/Screenshot_2025-07-22_132621_iwxk3t.png)
 
 ### Personalised User Dashboard
 ![User Dashboard Page](https://res.cloudinary.com/dafqq1jvc/image/upload/v1751302624/Screenshot_2025-06-30_222620_kurwgu.png)
 
-### Open source recommendation page
+### Open Source Recommendation Page
 ![Open Source Recommendation Page](https://res.cloudinary.com/dafqq1jvc/image/upload/v1751303504/Screenshot_2025-06-30_223956_arxg5h.png)
 
+### Hackathons Recommendation Page
+![Hackathons Recommendation Page]([https://res.cloudinary.com/dafqq1jvc/image/upload/v1751303504/Screenshot_2025-06-30_223956_arxg5h.png](https://res.cloudinary.com/dafqq1jvc/image/upload/v1751303284/Screenshot_2025-06-30_223744_sfctf1.png))
+
+### Courses Page
+![Courses Page]([https://res.cloudinary.com/dafqq1jvc/image/upload/v1751303504/Screenshot_2025-06-30_223956_arxg5h.png](https://res.cloudinary.com/dafqq1jvc/image/upload/v1751303198/Screenshot_2025-06-30_223310_zrmuly.png))
+
+### Job Hunting Page
+![Job Hunting Page]([https://res.cloudinary.com/dafqq1jvc/image/upload/v1751303504/Screenshot_2025-06-30_223956_arxg5h.png](https://res.cloudinary.com/dafqq1jvc/image/upload/v1753170772/Screenshot_2025-07-22_132145_uds7vi.png))
+
+### Profile Page
+![Profile Page](https://res.cloudinary.com/dafqq1jvc/image/upload/v1753171272/Screenshot_2025-07-22_133017_b2rgf5.png)
 
 ## ✨ Features
 
