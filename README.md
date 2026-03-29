@@ -1,6 +1,6 @@
-# Working One 🚀
+# PubHub 🚀
 
-Working One is your all-in-one developer platform built specially for techies and founders to manage your coding journey, share your progress, and grow in public. From your first commit to your next big launch, Working One helps you showcase your work, connect with other developers, and advance your career through continuous learning.
+PubHub is your all-in-one developer platform built specially for techies and founders to manage your coding journey, share your progress, and grow in public. From your first commit to your next big launch, PubHub helps you showcase your work, connect with other developers, and advance your career through continuous learning.
 
 ## ✨ Features
 
@@ -112,5 +112,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👏 Acknowledgments
 
-- Thanks to all the users who have helped shape working-one
+- Thanks to all the users who have helped shape PubHub
 - Built by [Prerit](https://github.com/Kotak-Prerit) & [Ashish](https://github.com/codingashishdev) two postgraduate students

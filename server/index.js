@@ -383,9 +383,9 @@ const supabase = createClient(
 // Middleware
 const allowedOrigins = [
   "http://localhost:5173", // Development
-  "https://localhost:5173", // Production - replace with your actual Netlify URL
+  "http://localhost:5173", // Localhost for production too
   process.env.FRONTEND_URL, // Environment variable for production
-].filter(Boolean); // Remove undefined valuesko
+].filter(Boolean); // Remove undefined values
 
 app.use(
   cors({
@@ -449,10 +449,7 @@ passport.use(
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
       callbackURL:
         process.env.NODE_ENV === "production"
-          ? `${
-              process.env.BACKEND_URL ||
-              `https://${process.env.RENDER_EXTERNAL_HOSTNAME}`
-            }/auth/github/callback`
+          ? `https://pubhub-lnao.onrender.com/auth/github/callback`
           : `http://localhost:3000/auth/github/callback`,
     },
     async (accessToken, refreshToken, profile, done) => {
@@ -803,7 +800,7 @@ app.get(
 app.get(
   "/auth/github/callback",
   passport.authenticate("github", {
-    failureRedirect: "http://localhost:5173/?error=auth_failed",
+    failureRedirect: "https://pubhub-bolt.netlify.app/?error=auth_failed",
   }),
   (req, res) => {
     try {
@@ -816,13 +813,15 @@ app.get(
 
       // Redirect with token as query parameter
       const redirectUrl = hasCompletedOnboarding
-        ? `http://localhost:5173/dashboard?token=${token}`
-        : `http://localhost:5173/onboarding?token=${token}`;
+        ? `https://pubhub-bolt.netlify.app/dashboard?token=${token}`
+        : `https://pubhub-bolt.netlify.app/onboarding?token=${token}`;
 
       res.redirect(redirectUrl);
     } catch (error) {
       console.error("Error generating JWT token:", error);
-      res.redirect("http://localhost:5173/?error=token_generation_failed");
+      res.redirect(
+        "https://pubhub-bolt.netlify.app/?error=token_generation_failed"
+      );
     }
   }
 );
@@ -832,7 +831,7 @@ app.get("/auth/logout", (req, res) => {
     if (err) {
       return res.status(500).json({ error: "Logout failed" });
     }
-    res.redirect("http://localhost:5173/");
+    res.redirect("https://pubhub-bolt.netlify.app/");
   });
 });
 
