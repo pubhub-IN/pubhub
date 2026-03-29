@@ -157,7 +157,7 @@ export default function CourseCompletionPage({
                 </p>
                 <div className="w-24 h-1 bg-green-600 mx-auto my-4"></div>
                 <p className="text-gray-800 dark:text-gray-200 font-semibold">
-                  PubHub Learning
+                  working-one Learning
                 </p>
               </div>
 

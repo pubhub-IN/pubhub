@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -6,7 +7,7 @@ import {
   Outlet,
 } from "react-router-dom";
 import { AuthProvider, useAuth } from "./lib/useAuth";
-import Hero from "./components/Hero";
+import Hero from "./components/Hero.tsx";
 import Onboarding from "./components/Onboarding";
 import Dashboard from "./components/Dashboard";
 import Sidebar from "./components/Sidebar";
@@ -24,6 +25,7 @@ import PeoplePage from "./pages/PeoplePage";
 import ProfilePage from "./pages/ProfilePage";
 import ConnectionsPage from "./pages/ConnectionsPage";
 import JobHunting from "./pages/JobHunting.tsx";
+import { Loader as LoadingScreen } from "./components/loader";
 import "lenis/dist/lenis.css";
 import Lenis from "lenis";
 
@@ -42,22 +44,11 @@ function Layout() {
   );
 }
 
-function LoadingScreen() {
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-      <div className="text-center flex flex-col items-center">
-        <div className="w-12 h-12 bg-green-500 rounded-xl mb-4 animate-pulse"></div>
-        <p className="text-gray-600 dark:text-gray-400">Loading...</p>
-      </div>
-    </div>
-  );
-}
-
 function AuthenticatedRoutes() {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <LoadingScreen />;
+    return null;
   }
 
   if (!user) {
@@ -66,20 +57,6 @@ function AuthenticatedRoutes() {
 
   return (
     <Routes>
-      <Route
-        path="/onboarding"
-        element={
-          <Onboarding
-            user={user}
-            onComplete={(updatedUser) => {
-              // Update the user data without full page reload
-              window.dispatchEvent(
-                new CustomEvent("user-updated", { detail: updatedUser })
-              );
-            }}
-          />
-        }
-      />
       <Route element={<Layout />}>
         <Route path="/dashboard" element={<Dashboard user={user} />} />
         <Route path="/hackathons" element={<HackathonsPage user={user} />} />
@@ -118,11 +95,31 @@ function AuthenticatedRoutes() {
   );
 }
 
+function OnboardingRoute() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return null;
+  }
+
+  return (
+    <Onboarding
+      user={user || undefined}
+      onComplete={(updatedUser) => {
+        // Update the user data without full page reload
+        window.dispatchEvent(
+          new CustomEvent("user-updated", { detail: updatedUser })
+        );
+      }}
+    />
+  );
+}
+
 function PublicRoutes() {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <LoadingScreen />;
+    return null;
   }
 
   if (user) {
@@ -141,10 +138,40 @@ function PublicRoutes() {
 }
 
 function AppRoutes() {
+  const [minLoadingTimePassed, setMinLoadingTimePassed] = useState(false);
+  const [timerProgress, setTimerProgress] = useState(0);
+  const { loading: authLoading } = useAuth();
+  const MIN_LOADING_MS = 2000;
+
+  useEffect(() => {
+    const start = Date.now();
+    const progressTimer = setInterval(() => {
+      const elapsed = Date.now() - start;
+      const nextProgress = Math.min((elapsed / MIN_LOADING_MS) * 100, 100);
+      setTimerProgress(nextProgress);
+    }, 50);
+
+    const timer = setTimeout(() => {
+      setMinLoadingTimePassed(true);
+    }, MIN_LOADING_MS);
+
+    return () => {
+      clearTimeout(timer);
+      clearInterval(progressTimer);
+    };
+  }, []);
+
+  const loaderProgress = authLoading ? Math.min(timerProgress, 95) : timerProgress;
+
+  if (!minLoadingTimePassed || authLoading) {
+    return <LoadingScreen progress={loaderProgress} />;
+  }
+
   return (
     <Router>
       <Routes>
         <Route path="/" element={<PublicRoutes />} />
+        <Route path="/onboarding" element={<OnboardingRoute />} />
         <Route path="/*" element={<AuthenticatedRoutes />} />
       </Routes>
     </Router>
@@ -152,17 +179,26 @@ function AppRoutes() {
 }
 
 function App() {
-  // Initialize Lenis
-  const lenis = new Lenis({
-    autoRaf: true,
-  });
+  useEffect(() => {
+    const lenis = new Lenis({
+      autoRaf: false,
+      prevent: (node: HTMLElement) => Boolean(node.closest("[data-lenis-prevent='true']")),
+    });
 
-  function raf(time: number) {
-    lenis.raf(time);
-    requestAnimationFrame(raf);
-  }
+    let rafId = 0;
 
-  requestAnimationFrame(raf);
+    const raf = (time: number) => {
+      lenis.raf(time);
+      rafId = window.requestAnimationFrame(raf);
+    };
+
+    rafId = window.requestAnimationFrame(raf);
+
+    return () => {
+      window.cancelAnimationFrame(rafId);
+      lenis.destroy();
+    };
+  }, []);
 
   return (
     <AuthProvider>

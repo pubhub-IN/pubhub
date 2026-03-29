@@ -1,5 +1,5 @@
 /*
-  # Create users table for PubHub
+  # Create users table for working-one
 
   1. New Tables
     - `users`

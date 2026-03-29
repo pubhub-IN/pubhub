@@ -9,7 +9,7 @@ export const typescriptCourse: Course = {
   image: "https://images.unsplash.com/photo-1627398242454-45a1465c2479?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80",
   isAvailable: true,
   difficulty: "intermediate",
-  creator: "PubHub Team",
+  creator: "working-one Team",
   createdAt: "2025-05-01T00:00:00Z",
   updatedAt: "2025-06-15T00:00:00Z",
   modules: [
@@ -99,7 +99,7 @@ export const pythonCourse: Course = {
   image: "https://images.unsplash.com/photo-1526379879527-8559ecfd8bf7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80",
   isAvailable: true,
   difficulty: "beginner",
-  creator: "PubHub Team",
+  creator: "working-one Team",
   createdAt: "2025-04-15T00:00:00Z",
   updatedAt: "2025-06-10T00:00:00Z",
   modules: [
@@ -162,7 +162,7 @@ export const goCourse: Course = {
   image: "https://images.unsplash.com/photo-1600267204091-5c1ab8b10c02?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
   isAvailable: false, // Go is marked as coming soon
   difficulty: "intermediate",
-  creator: "PubHub Team",
+  creator: "working-one Team",
   createdAt: "2025-05-10T00:00:00Z",
   updatedAt: "2025-06-12T00:00:00Z",
   modules: [

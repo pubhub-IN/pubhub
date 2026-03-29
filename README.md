@@ -1,42 +1,70 @@
-# PubHub 🚀
+# Working One 🚀
 
-PubHub is your all-in-one developer platform built specially for techies and founders to manage your coding journey, share your progress, and grow in public. From your first commit to your next big launch, PubHub helps you showcase your work, connect with other developers, and advance your career through continuous learning.
+Working One is your all-in-one developer platform built specially for techies and founders to manage your coding journey, share your progress, and grow in public. From your first commit to your next big launch, Working One helps you showcase your work, connect with other developers, and advance your career through continuous learning.
 
 ## ✨ Features
 
-### 🏠 Dashboard & Analytics
+### 1. GitHub-Based Authentication
 
-- 📊 Comprehensive GitHub activity tracking with commit history and language distribution
-- 📈 Real-time statistics on active days, repositories, and technologies
-- 📱 Modern, responsive UI with light/dark mode support
+- One-click login with GitHub
+- Automatically fetches repositories, commits, and language usage
+- Real work is reflected directly in the profile
 
-### 👥 Social Features
+### 2. Smart Onboarding System
 
-- 🤝 Connect with other developers through friend requests
-- 🔄 Real-time notifications and updates
-- 📱 Share repository updates directly to social media platforms
-- 👤 Customizable profile with technology preferences and profession
+- Role-based onboarding (Frontend, Backend, AI/ML, Designer, and more)
+- Technology selection for learning and current work
+- Platform experience adapts to user choices
 
-### 🎓 Learning & Growth
+### 3. Developer Dashboard
 
-- 📚 Interactive courses across multiple programming languages and frameworks
-- 🎯 Personalized learning paths based on your profession
-- 💻 Hands-on coding exercises and projects
-- 📝 Progress tracking and course completion certificates
+- Total public repositories and commit activity tracking
+- Languages used and technologies explored
+- Yearly contribution insights in one place
 
-### 🏆 Developer Opportunities
+### 4. Personalized Hackathons Feed
 
-- 🎪 Discover and participate in hackathons
-- 🌟 Explore curated open-source projects to solve organizations issues as your proof of knowledge
-- 📹 Access recorded tech lectures and tutorials
-- 🎯 Track your contributions and achievements
+- Hackathons filtered by user tech stack
+- Relevant opportunities with clear participation context
 
-### 🔐 Security & Authentication
+### 5. Open Source Discovery
 
-- 🔒 Secure GitHub OAuth authentication
-- � JWT-based session management
-- 🛡️ Role-based access control with Supabase
-- 🔐 Secure API endpoints and data handling
+- Curated repositories organized by language and technology
+- Paths for beginner-friendly to advanced contributors
+
+### 6. Smart Job Hunting
+
+- Role-based listings with tech-specific filtering
+- Clean and focused browsing experience
+
+### 7. Learning Hub (Courses)
+
+- Curated free courses by skills and domains
+- Beginner to advanced learning paths
+
+### 8. YouTube Learning Engine
+
+- Topic-based creator recommendations
+- Organized categories to reduce noise and speed up learning
+
+### 9. Social Sharing Engine
+
+- Generate ready-to-post project summaries
+- Share directly to social platforms for personal brand growth
+
+### 10. Developer Networking
+
+- Send and accept connection requests
+- Build a network for collaboration and growth
+
+### 11. Personalized Ecosystem
+
+- Content, opportunities, and learning paths adapt to skills and goals
+
+### 12. Account & Profile Management
+
+- Manage developer identity and social profiles
+- Track account activity and GitHub contribution visuals
 
 ## 🛠️ Tech Stack
 
@@ -67,7 +95,7 @@ PubHub is your all-in-one developer platform built specially for techies and fou
 ## 🧩 Project Structure
 
 ```
-pubhub/
+working-one/
 ├── src/                  # Frontend source code
 │   ├── components/       # React components
 │   ├── lib/             # Utilities and services
@@ -84,5 +112,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👏 Acknowledgments
 
-- Thanks to all the users who have helped shape PubHub
+- Thanks to all the users who have helped shape working-one
 - Built by [Prerit](https://github.com/Kotak-Prerit) & [Ashish](https://github.com/codingashishdev) two postgraduate students

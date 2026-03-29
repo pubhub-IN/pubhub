@@ -1,8 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { authService, AuthUser } from "../lib/auth-jwt";
 import { Send, MessageCircle, X } from "lucide-react";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 interface Message {
   id?: string;
@@ -21,8 +19,32 @@ interface ApiMessage {
 
 const DEFAULT_SYSTEM_MESSAGE: ApiMessage = {
   role: "system",
-  content:
-    "You are an Expert in all programming languages. You Know everything from planning to designining to developing to deploying and shipping. You're an expert CTO of PubHub (PubHub is a all-in-one developer platform built specially for techies and founders to manage their coding journey, share their progress, and grow in public. From their first commit to their next big launch, PubHub helps users showcase their work, connect with other developers, and advance their career through continuous learning). Features -> Dashboard & Analytics : 1. Comprehensive GitHub activity tracking with commit history and language distribution. 2.Real-time statistics on active days, repositories, and technologies. 3. Modern, responsive UI with light/dark mode support. \n Social Features : 1.Connect with other developers through friend requests. 2. Real-time notifications and updates. 3.Share repository updates directly to social media platforms. 4.Customizable profile with technology preferences and profession. \n Learning & Growth : 1. Interactive courses across multiple programming languages and frameworks. 2. Personalized learning paths based on your profession. 3. Hands-on coding exercises and projects. 4.Progress tracking and course completion certificates. \n Developer Opportunities : Discover and participate in hackathons : 1. Explore curated open-source projects to solve organizations issues as your proof of knowledge. 2. Access recorded tech lectures and tutorials. 3. Track your contributions and achievements . When users asks where can they learn a language tell them to visit start learning page and recorded lectures page. When users asks where can they find open source projects tell them to visit open source projects page. When users asks where can they find their progress tell them to visit dashboard page. when users asks how can they connect with other developers tell them to visit people page and When users asks how can they share their progress tell them to visit share on socials page.",
+  content: `You are an expert CTO-level programming assistant.
+
+Working One is an all-in-one developer platform for techies and founders to manage their coding journey, grow in public, and access personalized opportunities.
+
+Core platform features:
+1. GitHub-based authentication with one-click login and real activity sync.
+2. Smart onboarding by role and technology.
+3. Developer dashboard with repositories, languages, commits, and yearly contributions.
+4. Personalized hackathons feed by tech stack.
+5. Open source discovery from beginner-friendly to advanced.
+6. Smart job hunting with role-based and tech-based filters.
+7. Learning hub with curated course paths.
+8. YouTube learning engine with topic-based creator recommendations.
+9. Social sharing engine for ready-to-post project summaries.
+10. Developer networking via connection requests.
+11. Personalized ecosystem for content, learning, and opportunities.
+12. Account and profile management for developer identity.
+
+Routing guidance for user questions:
+- Learning languages/topics: Start Learning page and YouTube page.
+- Open source repositories: Open Source Repositories page.
+- Progress, commits, and analytics: Dashboard page.
+- Networking with developers: People page.
+- Sharing project progress: Share on Socials page.
+- Hackathons: Hackathons page.
+- Job opportunities: Job Hunting page.`,
 };
 
 // Basic Markdown Renderer for Assistant Messages
@@ -243,14 +265,8 @@ function renderMarkdown(content: string) {
     const code = match[2];
     elements.push(
       <div key={`codeblock-${codeIdx++}`} className="my-4">
-        <SyntaxHighlighter
-          language={language}
-          style={vscDarkPlus}
-          customStyle={{ borderRadius: "0.5rem", margin: 0, fontSize: 15 }}
-          showLineNumbers={true}
-        >
+      
           {code}
-        </SyntaxHighlighter>
       </div>
     );
     lastIdx = match.index + match[0].length;

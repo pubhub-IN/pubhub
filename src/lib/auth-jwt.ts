@@ -1,7 +1,7 @@
 // JWT Authentication utilities for the frontend
 import { buildApiUrl, API_ENDPOINTS } from "../config/api";
 
-const TOKEN_KEY = "pubhub_jwt_token";
+const TOKEN_KEY = "working_one_jwt_token";
 
 export interface AuthUser {
   id: string;

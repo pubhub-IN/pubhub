@@ -15,7 +15,7 @@ export const courseTemplates = [
     image:
       "https://images.unsplash.com/photo-1627398242454-45a1465c2479?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80",
     difficulty: "intermediate",
-    creator: "PubHub Team",
+    creator: "working-one Team",
   },
   {
     id: "python-programming",
@@ -26,7 +26,7 @@ export const courseTemplates = [
     image:
       "https://images.unsplash.com/photo-1526379879527-8559ecfd8bf7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80",
     difficulty: "beginner",
-    creator: "PubHub Team",
+    creator: "working-one Team",
   },
   {
     id: "mean-stack",
@@ -37,7 +37,7 @@ export const courseTemplates = [
     image:
       "https://images.unsplash.com/photo-1565106430482-8f6e74349ca1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
     difficulty: "intermediate",
-    creator: "PubHub Team",
+    creator: "working-one Team",
   },
   {
     id: "go-programming",
@@ -48,7 +48,7 @@ export const courseTemplates = [
     image:
       "https://images.unsplash.com/photo-1600267204091-5c1ab8b10c02?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
     difficulty: "intermediate",
-    creator: "PubHub Team",
+    creator: "working-one Team",
   },
   {
     id: "frontend-mastery",
@@ -59,7 +59,7 @@ export const courseTemplates = [
     image:
       "https://images.unsplash.com/photo-1581276879432-15e50529f34b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
     difficulty: "intermediate",
-    creator: "PubHub Team",
+    creator: "working-one Team",
   },
   {
     id: "backend-architecture",
@@ -70,7 +70,7 @@ export const courseTemplates = [
     image:
       "https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
     difficulty: "advanced",
-    creator: "PubHub Team",
+    creator: "working-one Team",
   },
   {
     id: "devops-essentials",
@@ -81,7 +81,7 @@ export const courseTemplates = [
     image:
       "https://images.unsplash.com/photo-1607743386760-88ac62b89b8a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
     difficulty: "advanced",
-    creator: "PubHub Team",
+    creator: "working-one Team",
   },
   {
     id: "blockchain-development",
@@ -92,7 +92,7 @@ export const courseTemplates = [
     image:
       "https://images.unsplash.com/photo-1644143379190-08d601663834?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
     difficulty: "intermediate",
-    creator: "PubHub Team",
+    creator: "working-one Team",
   },
   {
     id: "web3-development",
@@ -103,7 +103,7 @@ export const courseTemplates = [
     image:
       "https://images.unsplash.com/photo-1621501103258-3e135c8c1fda?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
     difficulty: "advanced",
-    creator: "PubHub Team",
+    creator: "working-one Team",
   },
   {
     id: "web2-optimization",
@@ -114,7 +114,7 @@ export const courseTemplates = [
     image:
       "https://images.unsplash.com/photo-1547658719-da2b51169166?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2064&q=80",
     difficulty: "intermediate",
-    creator: "PubHub Team",
+    creator: "working-one Team",
   },
 ];
 
@@ -131,7 +131,7 @@ function createCourseFromTemplate(template: Partial<Course>): Course {
     category: category,
     image: template.image || "",
     difficulty: template.difficulty || "beginner",
-    creator: template.creator || "PubHub Team",
+    creator: template.creator || "working-one Team",
     createdAt: template.createdAt || "2025-06-01T00:00:00Z",
     updatedAt: template.updatedAt || "2025-06-15T00:00:00Z",
     isAvailable: isAvailable,
@@ -174,7 +174,7 @@ const baseCourses: Course[] = [
     image:
       "https://res.cloudinary.com/dafqq1jvc/image/upload/v1751219874/dsa_nuzetn.png",
     difficulty: "beginner",
-    creator: "PubHub Team",
+    creator: "working-one Team",
     createdAt: "2025-05-15T00:00:00Z",
     updatedAt: "2025-06-10T00:00:00Z",
     modules: [
@@ -3478,7 +3478,7 @@ bool search(struct TrieNode *root, string key)
     image:
       "https://images.unsplash.com/photo-1579468118864-1b9ea3c0db4a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
     difficulty: "beginner",
-    creator: "PubHub Team",
+    creator: "working-one Team",
     createdAt: "2025-04-20T00:00:00Z",
     updatedAt: "2025-06-15T00:00:00Z",
     modules: [
@@ -4662,7 +4662,7 @@ bool search(struct TrieNode *root, string key)
     image:
       "https://images.unsplash.com/photo-1593720213428-28a5b9e94613?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
     difficulty: "intermediate",
-    creator: "PubHub Team",
+    creator: "working-one Team",
     createdAt: "2025-03-10T00:00:00Z",
     updatedAt: "2025-06-05T00:00:00Z",
     modules: [
@@ -4707,7 +4707,7 @@ bool search(struct TrieNode *root, string key)
     image:
       "https://images.unsplash.com/photo-1648483893285-4bf2462e93fa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
     difficulty: "beginner",
-    creator: "PubHub Team",
+    creator: "working-one Team",
     createdAt: "2025-04-05T00:00:00Z",
     updatedAt: "2025-05-30T00:00:00Z",
     isAvailable: false, // Manually set to unavailable

@@ -1,9 +1,9 @@
-import { useState, KeyboardEvent } from "react";
+import { useState, useEffect, useRef, KeyboardEvent } from "react";
 import { CornerDownLeft, ArrowRight, ArrowLeft } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ThemeToggle } from "./ThemeToggle";
 import { AuthUser } from "../lib/auth-jwt";
 import { authService } from "../lib/auth-jwt";
+import "../styles/retro-shared.css";
 
 const PROFESSIONS = [
   "Frontend Developer",
@@ -12,7 +12,7 @@ const PROFESSIONS = [
   "Mobile App Developer",
   "DevOps Engineer",
   "Data Scientist",
-  "Machine Learning Engineer",
+  "ML Engineer",
   "Software Engineer",
   "Web Designer",
   "UI/UX Designer",
@@ -130,7 +130,7 @@ const PROFESSION_TECHNOLOGIES: Record<string, string[]> = {
     "Statistics",
     "Data Visualization",
   ],
-  "Machine Learning Engineer": [
+  "ML Engineer": [
     "Python",
     "TensorFlow",
     "PyTorch",
@@ -374,30 +374,77 @@ const ALL_TECHNOLOGIES = [
 ];
 
 interface OnboardingProps {
-  user: AuthUser;
-  onComplete: (user: AuthUser) => void;
+  user?: AuthUser;
+  onComplete?: (user: AuthUser) => void;
 }
 
 export default function Onboarding({ user, onComplete }: OnboardingProps) {
   const location = useLocation();
   const isEditMode = location.state?.editMode === true;
+  // const displayName = user?.name || user?.github_username || "Developer";
 
   // Get profession and technologies from state or user object
-  const initialProfession = location.state?.profession || user.profession || "";
+  const initialProfession = location.state?.profession || user?.profession || "";
   const initialTechnologies =
-    location.state?.technologies || user.technologies || [];
+    location.state?.technologies || user?.technologies || [];
 
   const [currentStep, setCurrentStep] = useState<"profession" | "technologies">(
     isEditMode && initialProfession ? "technologies" : "profession"
   );
   const [selectedProfession, setSelectedProfession] =
     useState<string>(initialProfession);
+  const [highlightedProfessionIndex, setHighlightedProfessionIndex] =
+    useState<number>(() => {
+      const initialIndex = PROFESSIONS.findIndex(
+        (option) => option === initialProfession
+      );
+      return initialIndex >= 0 ? initialIndex : 0;
+    });
   const [selectedTechnologies, setSelectedTechnologies] =
     useState<string[]>(initialTechnologies);
   const [customTech, setCustomTech] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [currentTime, setCurrentTime] = useState(() =>
+    new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    })
+  );
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const professionTerminalRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (currentStep === "profession") {
+      professionTerminalRef.current?.focus();
+
+      const selectedIndex = PROFESSIONS.findIndex(
+        (option) => option === selectedProfession
+      );
+      if (selectedIndex >= 0) {
+        setHighlightedProfessionIndex(selectedIndex);
+      }
+    }
+  }, [currentStep, selectedProfession]);
+
+  useEffect(() => {
+    const clock = window.setInterval(() => {
+      setCurrentTime(
+        new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+        })
+      );
+    }, 1000);
+
+    return () => {
+      window.clearInterval(clock);
+    };
+  }, []);
 
   // Get technologies based on selected profession
   const getRecommendedTechnologies = () => {
@@ -407,6 +454,11 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
 
   const handleProfessionSelect = async (profession: string) => {
     setSelectedProfession(profession);
+    if (!user) {
+      setCurrentStep("technologies");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -447,6 +499,11 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
   const handleComplete = async () => {
     if (selectedTechnologies.length === 0) return;
 
+    if (!user) {
+      navigate("/", { replace: true });
+      return;
+    }
+
     setIsLoading(true);
     try {
       const updatedUser = await authService.updateTechnologies(
@@ -454,7 +511,7 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
       );
       if (updatedUser) {
         // Update the user object in memory before navigating
-        onComplete(updatedUser);
+        onComplete?.(updatedUser);
 
         // Don't reload the page, directly navigate to dashboard
         navigate("/dashboard", { replace: true, state: { refreshUser: true } });
@@ -465,60 +522,137 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
       setIsLoading(false);
     }
   };
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 dark:from-gray-900 dark:to-green-900">
-      <nav className="h-[100px] flex items-center justify-between px-6">
-        <div className="flex items-center">
-          <img src="/pubhub.png" alt="PubHub Logo" className="h-12 w-auto" />
-        </div>
-        <ThemeToggle />
-      </nav>
 
-      <main className="max-w-4xl mx-auto px-6 py-12">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+  const handleProfessionTerminalKeyDown = (
+    event: KeyboardEvent<HTMLDivElement>
+  ) => {
+    if (isLoading) {
+      return;
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setHighlightedProfessionIndex((prev) =>
+        prev <= 0 ? PROFESSIONS.length - 1 : prev - 1
+      );
+      return;
+    }
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setHighlightedProfessionIndex((prev) =>
+        prev >= PROFESSIONS.length - 1 ? 0 : prev + 1
+      );
+      return;
+    }
+
+    if (event.key === "Enter") {
+      event.preventDefault();
+      const chosen = PROFESSIONS[highlightedProfessionIndex];
+
+      if (chosen) {
+        void handleProfessionSelect(chosen);
+      }
+    }
+  };
+
+  return (
+    <div
+      className="retro-shell h-screen min-h-screen w-full overflow-hidden"
+      style={{ minHeight: "100dvh", height: "100dvh" }}
+    >
+      <div className="retro-terminal relative h-full min-h-full w-full bg-[#120900]/95">
+        <div className="retro-topbar flex h-full items-center justify-between bg-[#130a06] px-2 text-sm relative overflow-hidden">
+          <div className="retro-tab bg-[#f2a04304] flex min-w-0 items-center gap-2 rounded-t-lg border border-[#3a2416] border-b-0 p-2.5 absolute left-2.5 bottom-0">
+            <span className="retro-tab-label retro-glow-text truncate text-[#f2a043] text-xs">MINGW64:/C/Users/w.o/onboarding</span>
+          </div>
+
+          <div className="my-2 flex items-center gap-1 absolute right-2">
+            <span className="hidden text-lg tracking-[0.14em] text-[#b48b63] sm:inline">{currentTime}</span>
+          </div>
+        </div>
+
+        <div
+          data-lenis-prevent="true"
+          className="retro-content h-full min-h-0 overflow-auto px-3 pb-14 pt-4 text-sm leading-[1.5] sm:px-5"
+        >
+          <div className="w-full">
           {currentStep === "profession" ? (
             <>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              <h1 className="retro-glow-text mb-2 text-3xl font-bold">
                 {isEditMode
-                  ? `Edit Your Profile, ${user.name || user.github_username}`
-                  : `Welcome to PubHub, ${user.name || user.github_username}!`}
+                  ? `Edit Your Profile`
+                  : `Welcome to Working One!`}
               </h1>
-              <p className="text-gray-600 dark:text-gray-300 mb-8">
+              <p className="mb-2 text-[#d69f63] text-sm">
                 Let's start by knowing what you do. Select your profession to
                 get personalized technology recommendations.
               </p>
 
+              <p className="mb-4 text-xs tracking-[0.08em] text-[#b8834f]">
+                Use Arrow Up and Arrow Down to navigate, and Enter to select.
+              </p>
+
               {error && (
-                <div className="mb-6 p-4 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-800 rounded-lg">
-                  <p className="text-red-800 dark:text-red-200 text-sm">
+                <div className="mb-6 rounded-lg border border-[#7a2b1f] bg-[#2f110b] p-4">
+                  <p className="text-sm text-[#ffb7ab]">
                     {error}
                   </p>
                 </div>
               )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {PROFESSIONS.map((profession) => (
-                  <button
-                    key={profession}
-                    onClick={() => handleProfessionSelect(profession)}
-                    disabled={isLoading}
-                    className={`p-4 rounded-lg text-left border-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed
-                              focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400
-                              ${
-                                profession === selectedProfession
-                                  ? "border-green-500 dark:border-green-400 bg-green-50 dark:bg-green-900 text-green-800 dark:text-green-200"
-                                  : "border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900"
-                              }`}
-                  >
-                    <span className="font-medium">{profession}</span>
-                  </button>
-                ))}
+              <div
+                ref={professionTerminalRef}
+                tabIndex={0}
+                onKeyDown={handleProfessionTerminalKeyDown}
+                className="outline-none"
+              >
+                <div className="relative pl-8">
+                  <div className="pointer-events-none absolute left-0 top-[6px] h-[calc(100%-8px)] w-4">
+                    <span className="absolute left-0 top-0 h-[2px] w-4 bg-[#a85f27]" />
+                    <span className="absolute left-0 top-0 h-full w-[2px] bg-[#a85f27]" />
+                    <span className="absolute left-0 bottom-0 h-[2px] w-4 bg-[#a85f27]" />
+                  </div>
+
+                  <p className="mb-2 inline-flex items-center gap-2 text-md font-medium text-[#d69f63]">
+                    <span className="h-2.5 w-2.5 rotate-45 border border-[#f2a043] bg-[#2a1305]" />
+                    Select your profession:
+                  </p>
+
+                {PROFESSIONS.map((profession, index) => {
+                  const isHighlighted = index === highlightedProfessionIndex;
+                  const isSelected = profession === selectedProfession;
+
+                  return (
+                    <div
+                      key={profession}
+                      className="flex items-center gap-2 text-base"
+                    >
+                      <span className="inline-flex w-4 justify-center">
+                        <span
+                          className={`h-2.5 w-2.5 rounded-full border ${
+                            isHighlighted
+                              ? "border-[#59e86f] bg-[#00d719]"
+                              : "border-[#777] bg-transparent"
+                          }`}
+                        />
+                      </span>
+                      <span style={{ color: isHighlighted ? "#00d719" : "#777" }}>{profession}</span>
+                      {isSelected && (
+                        <span className="ml-auto text-xs tracking-[0.08em] text-[#f2a043]">
+                          selected
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+                </div>
               </div>
 
               {isLoading && (
                 <div className="mt-8 text-center">
-                  <div className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400">
-                    <div className="w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
+                  <div className="inline-flex items-center gap-2 text-[#d69f63]">
+                    <div className="h-4 w-4 animate-pulse rounded-full bg-[#f2a043]"></div>
                     Saving your profession...
                   </div>
                 </div>
@@ -529,23 +663,23 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
               <div className="flex items-center gap-2 mb-6">
                 <button
                   onClick={() => setCurrentStep("profession")}
-                  className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 transition-colors"
+                  className="text-[#d69f63] transition-colors hover:text-[#f2a043]"
                   title="Back to profession selection"
                   aria-label="Back to profession selection"
                 >
                   <ArrowLeft size={20} />
                 </button>
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                  <h1 className="retro-glow-text text-3xl font-bold text-[#ffd29a]">
                     Technology Stack
                   </h1>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-[#b8834f]">
                     Profession: {selectedProfession}
                   </p>
                 </div>
               </div>
 
-              <p className="text-gray-600 dark:text-gray-300 mb-8">
+              <p className="mb-8 text-[#d69f63]">
                 Based on your profession, we've recommended some technologies.
                 Select the ones you're interested in or currently working with.
               </p>
@@ -558,17 +692,17 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
                     onChange={(e) => setCustomTech(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="Add a custom technology (Press Enter)"
-                    className="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 
-                              bg-white dark:bg-gray-700 text-gray-900 dark:text-white
-                              placeholder-gray-500 dark:placeholder-gray-400
-                              focus:outline-none focus:ring-2 focus:ring-green-500 dark:focus:ring-green-400
+                    className="w-full rounded-lg border border-[#5a2602]
+                              bg-[#120901] py-3 pl-12 pr-4 text-[#ffd29a]
+                              placeholder:text-[#9f6a3d]
+                              focus:outline-none focus:ring-2 focus:ring-[#f2a043]
                               transition-colors"
                   />
-                  <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-300 pointer-events-none">
+                  <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#b8834f]">
                     <CornerDownLeft size={18} />
                   </span>
                   {error && (
-                    <p className="absolute -bottom-6 left-0 text-sm text-red-500 dark:text-red-400">
+                    <p className="absolute -bottom-6 left-0 text-sm text-[#ff8f7f]">
                       {error}
                     </p>
                   )}
@@ -576,7 +710,7 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
               </div>
 
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                <h3 className="mb-4 text-lg font-semibold text-[#ffd29a]">
                   Recommended for {selectedProfession}
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
@@ -586,8 +720,8 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
                       onClick={() => toggleTechnology(tech)}
                       className={`p-3 rounded-lg text-sm font-medium transition-colors ${
                         selectedTechnologies.includes(tech)
-                          ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-100 border-2 border-green-500 dark:border-green-400"
-                          : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 border-2 border-transparent"
+                          ? "border-2 border-[#f2a043] bg-[#2a1508] text-[#ffd29a]"
+                          : "border-2 border-transparent bg-[#140a03] text-[#d69f63] hover:bg-[#1f1006]"
                       }`}
                     >
                       {tech}
@@ -600,7 +734,7 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
                 (tech) => !getRecommendedTechnologies().includes(tech)
               ).length > 0 && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  <h3 className="mb-4 text-lg font-semibold text-[#ffd29a]">
                     Your Custom Technologies
                   </h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
@@ -612,7 +746,7 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
                         <button
                           key={tech}
                           onClick={() => toggleTechnology(tech)}
-                          className="p-3 rounded-lg text-sm font-medium bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-100 border-2 border-blue-500 dark:border-blue-400 transition-colors"
+                          className="rounded-lg border-2 border-[#f2a043] bg-[#2a1508] p-3 text-sm font-medium text-[#ffd29a] transition-colors"
                         >
                           {tech}
                         </button>
@@ -622,16 +756,16 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
               )}
 
               <div className="mt-8 flex justify-between items-center">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-[#b8834f]">
                   {selectedTechnologies.length} technologies selected
                 </p>
                 <button
                   onClick={handleComplete}
                   disabled={selectedTechnologies.length === 0 || isLoading}
-                  className={`px-6 py-3 rounded-lg text-white font-medium transition-colors flex items-center gap-2 ${
+                  className={`flex items-center gap-2 rounded-lg px-6 py-3 font-medium transition-colors ${
                     selectedTechnologies.length > 0 && !isLoading
-                      ? "bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600"
-                      : "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
+                      ? "bg-[#f2a043] text-[#2a1305] hover:bg-[#ffb256]"
+                      : "cursor-not-allowed bg-[#5a2602] text-[#a87445]"
                   }`}
                 >
                   {isLoading
@@ -644,8 +778,12 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
               </div>
             </>
           )}
+          </div>
         </div>
-      </main>
+
+        <div className="retro-scanlines" />
+      </div>
+
     </div>
   );
 }

@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: pubhub-backend
+    name: working-one-backend
     env: node
     plan: free
     buildCommand: npm install

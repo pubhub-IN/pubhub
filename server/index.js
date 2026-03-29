@@ -383,7 +383,7 @@ const supabase = createClient(
 // Middleware
 const allowedOrigins = [
   "http://localhost:5173", // Development
-  "https://pubhub-in.netlify.app", // Production - replace with your actual Netlify URL
+  "https://localhost:5173", // Production - replace with your actual Netlify URL
   process.env.FRONTEND_URL, // Environment variable for production
 ].filter(Boolean); // Remove undefined valuesko
 
@@ -420,7 +420,7 @@ app.use(
     secret: process.env.SESSION_SECRET || "your-secret-key-change-this",
     resave: false,
     saveUninitialized: false,
-    name: "pubhub.session", // Custom session name
+    name: "working-one.session", // Custom session name
     cookie: {
       secure: process.env.NODE_ENV === "production", // Set to true in production with HTTPS
       httpOnly: true, // Prevent XSS attacks
@@ -453,7 +453,7 @@ passport.use(
               process.env.BACKEND_URL ||
               `https://${process.env.RENDER_EXTERNAL_HOSTNAME}`
             }/auth/github/callback`
-          : `http://157.173.222.219/auth/github/callback`,
+          : `http://localhost:3000/auth/github/callback`,
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -581,7 +581,7 @@ async function activeDays(username) {
 async function getCommitHistoryWithDates(username) {
   const headers = {
     Accept: "application/vnd.github.v3+json",
-    "User-Agent": "PubHub-App",
+    "User-Agent": "working-one-App",
   };
   if (GITHUB_TOKEN) {
     headers.Authorization = `Bearer ${GITHUB_TOKEN}`;
@@ -657,7 +657,7 @@ async function fetchUserRepos(token, username) {
   try {
     const headers = {
       Accept: "application/vnd.github.v3+json",
-      "User-Agent": "PubHub-App",
+      "User-Agent": "working-one-App",
     };
 
     if (token) {
@@ -690,7 +690,7 @@ async function fetchLanguageStats(token, repos) {
     try {
       const headers = {
         Accept: "application/vnd.github.v3+json",
-        "User-Agent": "PubHub-App",
+        "User-Agent": "working-one-App",
       };
 
       if (token) {
@@ -741,8 +741,8 @@ function generateToken(user) {
 
   return jwt.sign(payload, JWT_SECRET, {
     expiresIn: JWT_EXPIRATION,
-    issuer: "pubhub-app",
-    audience: "pubhub-users",
+    issuer: "working-one-app",
+    audience: "working-one-users",
   });
 }
 
@@ -753,8 +753,8 @@ function verifyToken(token) {
 
   try {
     return jwt.verify(token, JWT_SECRET, {
-      issuer: "pubhub-app",
-      audience: "pubhub-users",
+      issuer: "working-one-app",
+      audience: "working-one-users",
     });
   } catch (error) {
     throw new Error(`Invalid token: ${error.message}`);
@@ -803,7 +803,7 @@ app.get(
 app.get(
   "/auth/github/callback",
   passport.authenticate("github", {
-    failureRedirect: "http://pubhub-in.netlify.app/?error=auth_failed",
+    failureRedirect: "http://localhost:5173/?error=auth_failed",
   }),
   (req, res) => {
     try {
@@ -816,15 +816,13 @@ app.get(
 
       // Redirect with token as query parameter
       const redirectUrl = hasCompletedOnboarding
-        ? `http://pubhub-in.netlify.app/dashboard?token=${token}`
-        : `http://pubhub-in.netlify.app/onboarding?token=${token}`;
+        ? `http://localhost:5173/dashboard?token=${token}`
+        : `http://localhost:5173/onboarding?token=${token}`;
 
       res.redirect(redirectUrl);
     } catch (error) {
       console.error("Error generating JWT token:", error);
-      res.redirect(
-        "http://pubhub-in.netlify.app/?error=token_generation_failed"
-      );
+      res.redirect("http://localhost:5173/?error=token_generation_failed");
     }
   }
 );
@@ -834,7 +832,7 @@ app.get("/auth/logout", (req, res) => {
     if (err) {
       return res.status(500).json({ error: "Logout failed" });
     }
-    res.redirect("http://pubhub-in.netlify.app/");
+    res.redirect("http://localhost:5173/");
   });
 });
 
@@ -983,7 +981,7 @@ app.get("/api/user/repositories", authenticateJWT, async (req, res) => {
 
     const headers = {
       Accept: "application/vnd.github.v3+json",
-      "User-Agent": "PubHub-App",
+      "User-Agent": "working-one-App",
       Authorization: `Bearer ${GITHUB_TOKEN}`,
     };
 
@@ -1133,7 +1131,7 @@ app.get("/api/user/own-repositories", authenticateJWT, async (req, res) => {
 
     const headers = {
       Accept: "application/vnd.github.v3+json",
-      "User-Agent": "PubHub-App",
+      "User-Agent": "working-one-App",
       Authorization: `Bearer ${GITHUB_TOKEN}`,
     };
 
@@ -1202,7 +1200,7 @@ app.get("/api/test-github", async (req, res) => {
     // Test basic API access
     const response = await makeGitHubAPICall("https://api.github.com/user", {
       Accept: "application/vnd.github.v3+json",
-      "User-Agent": "PubHub-App",
+      "User-Agent": "working-one-App",
     });
 
     if (response && response.login) {
@@ -1494,7 +1492,7 @@ app.get("/api/user/:username/repo-count", async (req, res) => {
     const { username } = req.params;
     const headers = {
       Accept: "application/vnd.github.v3+json",
-      "User-Agent": "PubHub-App",
+      "User-Agent": "working-one-App",
     };
     if (GITHUB_TOKEN) {
       headers.Authorization = `token ${GITHUB_TOKEN}`;
@@ -1892,7 +1890,7 @@ process.on("SIGINT", () => {
 
 // Handle port already in use error
 const server = app
-  .listen(PORT,"0.0.0.0", () => {
+  .listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on PORT : ${PORT}`);
   })
   .on("error", (err) => {

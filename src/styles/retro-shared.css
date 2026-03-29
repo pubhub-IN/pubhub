@@ -1,0 +1,91 @@
+.retro-shell {
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 135, 20, 0.02) 0 2px, transparent 2px 4px);
+  color: #f2a043;
+  font-family: "Share Tech Mono", "Courier New", monospace;
+}
+
+.retro-glow-text {
+  text-shadow: 0 0 6px rgba(242, 160, 67, 0.28);
+}
+
+.retro-terminal {
+  display: grid;
+  grid-template-rows: 50px minmax(0, 1fr);
+  backdrop-filter: blur(2px);
+  box-shadow:
+    inset 0 0 1px rgba(255, 165, 77, 0.5),
+    inset 0 0 45px rgba(255, 122, 0, 0.12),
+    0 0 50px rgba(0, 0, 0, 0.75);
+}
+
+.retro-topbar {
+  letter-spacing: 0.04em;
+  box-shadow: inset 0 -1px 0 rgba(255, 180, 112, 0.08);
+}
+
+.retro-tab-label {
+  font-family: "Roboto", sans-serif;
+}
+
+.retro-tab {
+  position: absolute;
+  isolation: isolate;
+}
+
+.retro-tab::before,
+.retro-tab::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.retro-tab::before {
+  left: -12px;
+  border-bottom-right-radius: 12px;
+  border-right: 1px solid #3a2416;
+  box-shadow: 6px 6px 0 0 #f2a04304;
+}
+
+.retro-tab::after {
+  right: -12px;
+  border-bottom-left-radius: 12px;
+  border-left: 1px solid #3a2416;
+  box-shadow: -6px 6px 0 0 #f2a04304;
+}
+
+.retro-content {
+  scrollbar-width: thin;
+  scrollbar-color: #8f430d #1b0d02;
+}
+
+.retro-content::-webkit-scrollbar {
+  width: 10px;
+}
+
+.retro-content::-webkit-scrollbar-track {
+  background: #1b0d02;
+}
+
+.retro-content::-webkit-scrollbar-thumb {
+  background-color: #8f430d;
+  border: 2px solid #1b0d02;
+}
+
+.retro-scanlines {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(242, 160, 67, 0.015) 0,
+    rgba(242, 160, 67, 0.015) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: screen;
+}

@@ -55,7 +55,7 @@ export default function Youtube() {
                 className="w-20 h-20 rounded-2xl flex-shrink-0 border-4 border-white dark:border-gray-700 shadow-lg"
                 onError={(e) => {
                   // Use correct public path for default avatar
-                  e.currentTarget.src = "/pubhub.png";
+                  e.currentTarget.src = "/working-one.png";
                 }}
               />
               {/* Online indicator */}

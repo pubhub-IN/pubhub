@@ -86,7 +86,7 @@ export default function Sidebar() {
               open ? "opacity-100 w-auto" : "opacity-0 w-0"
             }`}
           >
-            PubHub
+            Working One
           </span>
         </div>
         <nav className="flex flex-col gap-2 px-2 w-full">

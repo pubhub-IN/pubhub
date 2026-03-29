@@ -6,7 +6,7 @@
   NODE_VERSION = "18"
   VITE_USE_PRODUCTION_BACKEND = "true"
   VITE_API_URL = "http://157.173.222.219:3000"
-  VITE_FRONTEND_URL = "https://pubhub-in.netlify.app"
+  VITE_FRONTEND_URL = "https://working-one-in.netlify.app"
 
 [[redirects]]
   from = "/*"

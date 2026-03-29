@@ -189,7 +189,7 @@ export default function Dashboard({ user }: DashboardProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-semibold">PubHub</h1>
+              <h1 className="text-xl font-semibold">working-one</h1>
             </div>
             <div className="flex items-center gap-8">
               <div className="flex flex-col gap-2">
