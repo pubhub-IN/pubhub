@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, KeyboardEvent } from "react";
-import { CornerDownLeft, ArrowRight, ArrowLeft } from "lucide-react";
+import { ArrowLeft, Check } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { AuthUser } from "../lib/auth-jwt";
 import { authService } from "../lib/auth-jwt";
@@ -402,6 +402,17 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
     });
   const [selectedTechnologies, setSelectedTechnologies] =
     useState<string[]>(initialTechnologies);
+  const [highlightedTechnologyIndex, setHighlightedTechnologyIndex] =
+    useState<number>(() => {
+      const initialOptions =
+        PROFESSION_TECHNOLOGIES[initialProfession] || ALL_TECHNOLOGIES;
+      const initialSelectedTechnology = initialTechnologies[0];
+      const initialIndex = initialOptions.findIndex(
+        (option) => option === initialSelectedTechnology
+      );
+
+      return initialIndex >= 0 ? initialIndex : 0;
+    });
   const [customTech, setCustomTech] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [currentTime, setCurrentTime] = useState(() =>
@@ -415,6 +426,7 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const professionTerminalRef = useRef<HTMLDivElement | null>(null);
+  const technologyTerminalRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (currentStep === "profession") {
@@ -426,6 +438,23 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
       if (selectedIndex >= 0) {
         setHighlightedProfessionIndex(selectedIndex);
       }
+      return;
+    }
+  }, [currentStep, selectedProfession]);
+
+  useEffect(() => {
+    if (currentStep !== "technologies") {
+      return;
+    }
+
+    technologyTerminalRef.current?.focus();
+    const recommendedTechnologies =
+      PROFESSION_TECHNOLOGIES[selectedProfession] || ALL_TECHNOLOGIES;
+
+    if (recommendedTechnologies.length > 0) {
+      setHighlightedTechnologyIndex((prev) =>
+        prev >= recommendedTechnologies.length ? 0 : prev
+      );
     }
   }, [currentStep, selectedProfession]);
 
@@ -500,7 +529,13 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
     if (selectedTechnologies.length === 0) return;
 
     if (!user) {
-      navigate("/", { replace: true });
+      navigate("/github-screen", {
+        replace: true,
+        state: {
+          profession: selectedProfession,
+          technologies: selectedTechnologies,
+        },
+      });
       return;
     }
 
@@ -513,8 +548,13 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
         // Update the user object in memory before navigating
         onComplete?.(updatedUser);
 
-        // Don't reload the page, directly navigate to dashboard
-        navigate("/dashboard", { replace: true, state: { refreshUser: true } });
+        navigate("/github-screen", {
+          replace: true,
+          state: {
+            profession: updatedUser.profession || selectedProfession,
+            technologies: updatedUser.technologies || selectedTechnologies,
+          },
+        });
       }
     } catch (error) {
       console.error("Error updating technologies:", error);
@@ -552,6 +592,51 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
 
       if (chosen) {
         void handleProfessionSelect(chosen);
+      }
+    }
+  };
+
+  const handleTechnologyTerminalKeyDown = (
+    event: KeyboardEvent<HTMLDivElement>
+  ) => {
+    if (isLoading) {
+      return;
+    }
+
+    if ((event.target as HTMLElement).tagName === "INPUT") {
+      return;
+    }
+
+    const recommendedTechnologies = getRecommendedTechnologies();
+    if (recommendedTechnologies.length === 0) {
+      return;
+    }
+
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setHighlightedTechnologyIndex((prev) =>
+        prev <= 0 ? recommendedTechnologies.length - 1 : prev - 1
+      );
+      return;
+    }
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setHighlightedTechnologyIndex((prev) =>
+        prev >= recommendedTechnologies.length - 1 ? 0 : prev + 1
+      );
+      return;
+    }
+
+    if (event.key === "Enter") {
+      event.preventDefault();
+      const chosen = recommendedTechnologies[highlightedTechnologyIndex];
+
+      if (chosen) {
+        toggleTechnology(chosen);
+        setHighlightedTechnologyIndex((prev) =>
+          prev >= recommendedTechnologies.length - 1 ? 0 : prev + 1
+        );
       }
     }
   };
@@ -660,7 +745,7 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
             </>
           ) : (
             <>
-              <div className="flex items-center gap-2 mb-6">
+              <div className="flex items-center gap-2 mb-3">
                 <button
                   onClick={() => setCurrentStep("profession")}
                   className="text-[#d69f63] transition-colors hover:text-[#f2a043]"
@@ -679,65 +764,123 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
                 </div>
               </div>
 
-              <p className="mb-8 text-[#d69f63]">
+              <p className="mb-2 text-[#d69f63] text-sm">
                 Based on your profession, we've recommended some technologies.
                 Select the ones you're interested in or currently working with.
               </p>
 
-              <div className="mb-6">
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={customTech}
-                    onChange={(e) => setCustomTech(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    placeholder="Add a custom technology (Press Enter)"
-                    className="w-full rounded-lg border border-[#5a2602]
-                              bg-[#120901] py-3 pl-12 pr-4 text-[#ffd29a]
-                              placeholder:text-[#9f6a3d]
-                              focus:outline-none focus:ring-2 focus:ring-[#f2a043]
-                              transition-colors"
-                  />
-                  <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#b8834f]">
-                    <CornerDownLeft size={18} />
-                  </span>
-                  {error && (
-                    <p className="absolute -bottom-6 left-0 text-sm text-[#ff8f7f]">
-                      {error}
-                    </p>
-                  )}
+              <p className="mb-4 text-xs tracking-[0.08em] text-[#b8834f]">
+                Use Arrow Up and Down key to navigate, and Enter to select.
+              </p>
+
+              {error && (
+                <div className="mb-6 rounded-lg border border-[#7a2b1f] bg-[#2f110b] p-4">
+                  <p className="text-sm text-[#ffb7ab]">{error}</p>
+                </div>
+              )}
+
+              <div
+                ref={technologyTerminalRef}
+                tabIndex={0}
+                onKeyDown={handleTechnologyTerminalKeyDown}
+                className="mb-6 outline-none"
+              >
+                <div className="relative pl-8">
+                  <div className="pointer-events-none absolute left-0 top-[6px] h-[calc(100%-8px)] w-4">
+                    <span className="absolute left-0 top-0 h-[2px] w-4 bg-[#a85f27]" />
+                    <span className="absolute left-0 top-0 h-full w-[2px] bg-[#a85f27]" />
+                    <span className="absolute left-0 bottom-0 h-[2px] w-4 bg-[#a85f27]" />
+                  </div>
+
+                  <p className="mb-2 inline-flex items-center gap-2 text-md font-medium text-[#d69f63]">
+                    <span className="h-2.5 w-2.5 rotate-45 border border-[#f2a043] bg-[#2a1305]" />
+                    Select your technologies:
+                  </p>
+
+                  {getRecommendedTechnologies().map((tech: string, index) => {
+                    const isHighlighted = index === highlightedTechnologyIndex;
+                    const isSelected = selectedTechnologies.includes(tech);
+
+                    return (
+                      <button
+                        key={tech}
+                        type="button"
+                        onClick={() => toggleTechnology(tech)}
+                        className="flex w-full items-center gap-2 bg-transparent text-left text-base outine-none"
+                      >
+                        <span className="inline-flex w-4 justify-center">
+                          <span
+                            className={`inline-flex h-3 w-3 items-center justify-center ${
+                              isSelected
+                                ? "text-[#00d719]"
+                                : isHighlighted
+                                  ? "bg-[#00d719] rounded-full"
+                                  : "border-[#777] bg-transparent rounded-full border"
+                            }`}
+                          >
+                            {isSelected ? <Check size={12}/> : null}
+                          </span>
+                        </span>
+                        <span
+                          style={{
+                            color: isSelected
+                              ? "#00d719"
+                              : isHighlighted
+                                ? "#00d719"
+                                : "#777",
+                          }}
+                          className={isHighlighted ? "underline" : ""}
+                        >
+                          {tech}
+                        </span>
+                        {isSelected && (
+                          <span className="ml-auto text-xs tracking-[0.08em] text-[#f2a043]">
+                            selected
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              <div className="mb-6">
-                <h3 className="mb-4 text-lg font-semibold text-[#ffd29a]">
-                  Recommended for {selectedProfession}
-                </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {getRecommendedTechnologies().map((tech: string) => (
-                    <button
-                      key={tech}
-                      onClick={() => toggleTechnology(tech)}
-                      className={`p-3 rounded-lg text-sm font-medium transition-colors ${
-                        selectedTechnologies.includes(tech)
-                          ? "border-2 border-[#f2a043] bg-[#2a1508] text-[#ffd29a]"
-                          : "border-2 border-transparent bg-[#140a03] text-[#d69f63] hover:bg-[#1f1006]"
-                      }`}
-                    >
-                      {tech}
-                    </button>
-                  ))}
+              <div className="mb-6 relative pl-8">
+                <div className="pointer-events-none absolute left-0 top-[6px] h-[calc(100%-8px)] w-4">
+                  <span className="absolute left-0 top-0 h-[2px] w-4 bg-[#a85f27]" />
+                  <span className="absolute left-0 top-0 h-full w-[2px] bg-[#a85f27]" />
+                  <span className="absolute left-0 bottom-0 h-[2px] w-4 bg-[#a85f27]" />
                 </div>
+
+                <p className="mb-2 inline-flex items-center gap-2 text-md font-medium text-[#d69f63]">
+                  <span className="h-2.5 w-2.5 rotate-45 border border-[#f2a043] bg-[#2a1305]" />
+                  Add custom technology:
+                </p>
+
+                <input
+                  type="text"
+                  value={customTech}
+                  onChange={(e) => setCustomTech(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Type and press Enter"
+                  className="w-full border border-[#5a2602] bg-[#120901] px-3 py-2 text-[#ffd29a] placeholder:text-[#9f6a3d] focus:outline-none focus:ring-2 focus:ring-[#f2a043]"
+                />
               </div>
 
               {selectedTechnologies.filter(
                 (tech) => !getRecommendedTechnologies().includes(tech)
               ).length > 0 && (
-                <div className="mb-6">
-                  <h3 className="mb-4 text-lg font-semibold text-[#ffd29a]">
+                <div className="mb-6 relative pl-8">
+                  <div className="pointer-events-none absolute left-0 top-[6px] h-[calc(100%-8px)] w-4">
+                    <span className="absolute left-0 top-0 h-[2px] w-4 bg-[#a85f27]" />
+                    <span className="absolute left-0 top-0 h-full w-[2px] bg-[#a85f27]" />
+                    <span className="absolute left-0 bottom-0 h-[2px] w-4 bg-[#a85f27]" />
+                  </div>
+
+                  <h3 className="mb-2 text-md font-medium text-[#d69f63]">
                     Your Custom Technologies
                   </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+
+                  <div>
                     {selectedTechnologies
                       .filter(
                         (tech) => !getRecommendedTechnologies().includes(tech)
@@ -745,35 +888,41 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
                       .map((tech) => (
                         <button
                           key={tech}
+                          type="button"
                           onClick={() => toggleTechnology(tech)}
-                          className="rounded-lg border-2 border-[#f2a043] bg-[#2a1508] p-3 text-sm font-medium text-[#ffd29a] transition-colors"
+                          className="flex w-full items-center gap-2 bg-transparent text-left text-base"
                         >
-                          {tech}
+                          <span className="inline-flex w-4 justify-center">
+                            <span className="inline-flex h-3 w-3 items-center justify-centertext-[#00d719]">
+                              <Check size={12} strokeWidth={3} />
+                            </span>
+                          </span>
+                          <span className="text-[#00d719]">{tech}</span>
+                          <span className="ml-auto text-xs tracking-[0.08em] text-[#a77749]">
+                            custom
+                          </span>
                         </button>
                       ))}
                   </div>
                 </div>
               )}
 
-              <div className="mt-8 flex justify-between items-center">
+              <div className="mt-8">
                 <p className="text-sm text-[#b8834f]">
                   {selectedTechnologies.length} technologies selected
                 </p>
+
                 <button
-                  onClick={handleComplete}
+                  type="button"
+                  onClick={() => void handleComplete()}
                   disabled={selectedTechnologies.length === 0 || isLoading}
-                  className={`flex items-center gap-2 rounded-lg px-6 py-3 font-medium transition-colors ${
+                  className={`mt-2 text-sm font-medium underline decoration-[#59e86f] underline-offset-4 transition-colors ${
                     selectedTechnologies.length > 0 && !isLoading
-                      ? "bg-[#f2a043] text-[#2a1305] hover:bg-[#ffb256]"
-                      : "cursor-not-allowed bg-[#5a2602] text-[#a87445]"
+                      ? "text-[#59e86f] hover:text-[#8aff9c]"
+                      : "cursor-not-allowed text-[#5f5f5f] decoration-[#5f5f5f]"
                   }`}
                 >
-                  {isLoading
-                    ? "Saving..."
-                    : isEditMode
-                    ? "Save Changes"
-                    : "Continue to Dashboard"}
-                  {!isLoading && <ArrowRight size={16} />}
+                  {isLoading ? "Saving..." : "Finish and Connect GitHub"}
                 </button>
               </div>
             </>

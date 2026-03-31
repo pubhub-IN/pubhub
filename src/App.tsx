@@ -9,6 +9,7 @@ import {
 import { AuthProvider, useAuth } from "./lib/useAuth";
 import Hero from "./components/Hero.tsx";
 import Onboarding from "./components/Onboarding";
+import GitHubScreen from "./components/GitHubScreen";
 import Dashboard from "./components/Dashboard";
 import Sidebar from "./components/Sidebar";
 import { AIAssistant } from "./components/AIAssistant";
@@ -172,6 +173,7 @@ function AppRoutes() {
       <Routes>
         <Route path="/" element={<PublicRoutes />} />
         <Route path="/onboarding" element={<OnboardingRoute />} />
+        <Route path="/github-screen" element={<GitHubScreen />} />
         <Route path="/*" element={<AuthenticatedRoutes />} />
       </Routes>
     </Router>
