@@ -13,7 +13,7 @@ import {
   UserCheck,
   Briefcase,
 } from "lucide-react";
-import pubhubLogo from "/pubhub.png";
+import pubhubLogo from "/android-chrome-512x512.png";
 import { authService } from "../lib/auth-jwt";
 
 const navItems = [

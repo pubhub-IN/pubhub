@@ -24,9 +24,7 @@ services:
         sync: false
       - key: MISTRAL_API_KEY
         sync: false
-      - key: VITE_SUPABASE_URL
-        sync: false
-      - key: VITE_SUPABASE_ANON_KEY
+      - key: MONGODB_URI
         sync: false
       - key: VITE_GITHUB_CLIENT_ID
         sync: false

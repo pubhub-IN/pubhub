@@ -82,14 +82,11 @@ PubHub is your all-in-one developer platform built specially for techies and fou
 - 🚀 Node.js with Express
 - 🔐 Passport.js for OAuth
 - 🎫 JWT for authentication
-- 🔄 Real-time updates with Supabase
-- 🗃️ PostgreSQL (via Supabase)
+- 🗃️ MongoDB (in progress)
 
 ### Infrastructure
 
-- 🏗️ Supabase for database & real-time features
-- 🔒 Row Level Security policies
-- 🔄 Database migrations and versioning
+- 🏗️ MongoDB-backed API (in progress)
 - 📡 RESTful API architecture
 
 ## 🧩 Project Structure
@@ -102,8 +99,7 @@ working-one/
 │   ├── pages/           # Page components
 │   └── context/         # React context providers
 ├── server/              # Backend API server
-├── public/              # Static assets
-└── supabase/           # Database migrations
+└── public/              # Static assets
 ```
 
 ## 📄 License

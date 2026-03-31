@@ -29,8 +29,6 @@ const checks = [
     name: "Environment Variables (Frontend - Localhost)",
     items: [
       { var: "VITE_API_URL", description: "Backend API URL (https://pubhub-lnao.onrender.com)" },
-      { var: "VITE_SUPABASE_URL", description: "Supabase project URL (http://localhost)" },
-      { var: "VITE_SUPABASE_ANON_KEY", description: "Supabase anonymous key (local)" },
       { var: "VITE_GITHUB_CLIENT_ID", description: "GitHub OAuth client ID (local)" },
       { var: "VITE_FRONTEND_URL", description: "Frontend URL (http://localhost:5173)" },
     ],
@@ -47,6 +45,7 @@ const checks = [
         description: "GitHub OAuth client secret (local)" },
       { var: "GITHUB_TOKEN", description: "GitHub personal access token (local)" },
       { var: "MISTRAL_API_KEY", description: "Mistral AI API key (local)" },
+      { var: "MONGODB_URI", description: "MongoDB connection string" },
       { var: "FRONTEND_URL", description: "Frontend URL for CORS (http://localhost:5173)" },
     ],
   },

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ChevronDown, ChevronRight, BookOpen, ArrowRight, GraduationCap } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { Course } from '../../types/course';
-import { User } from '../../lib/supabase';
+import type { User } from '../../types/user';
 import { isLessonCompleted } from '../../lib/courseProgress';
 
 interface CourseNavigationProps {

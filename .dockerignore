@@ -32,14 +32,12 @@ tsconfig.node.json
 # Ignore other non-essential files
 README.md
 scripts/
-supabase/
 
 # Ignore markdown files and other non-essential files
 README.md
 /scripts
 /src
 /public
-/supabase
 *.html
 *.js
 *.json

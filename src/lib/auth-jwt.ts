@@ -24,6 +24,26 @@ export interface AuthUser {
 }
 
 class AuthService {
+  private decodeJwtPayload(token: string): Record<string, unknown> | null {
+    try {
+      const parts = token.split(".");
+      if (parts.length < 2 || !parts[1]) {
+        return null;
+      }
+
+      // JWT uses base64url encoding.
+      let payload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+      const padding = payload.length % 4;
+      if (padding > 0) {
+        payload += "=".repeat(4 - padding);
+      }
+
+      return JSON.parse(atob(payload)) as Record<string, unknown>;
+    } catch {
+      return null;
+    }
+  }
+
   // Store JWT token in localStorage
   setToken(token: string): void {
     localStorage.setItem(TOKEN_KEY, token);
@@ -44,23 +64,21 @@ class AuthService {
     const token = this.getToken();
     if (!token) return false;
 
-    try {
-      // Decode JWT payload (without verification, just to check expiration)
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      const currentTime = Date.now() / 1000;
-
-      // Check if token is expired
-      if (payload.exp && payload.exp < currentTime) {
-        this.removeToken();
-        return false;
-      }
-
-      return true;
-    } catch (error) {
-      console.error("Error checking token validity:", error);
+    const payload = this.decodeJwtPayload(token) as { exp?: number } | null;
+    if (!payload) {
       this.removeToken();
       return false;
     }
+
+    const currentTime = Date.now() / 1000;
+
+    // Check if token is expired
+    if (payload.exp && payload.exp < currentTime) {
+      this.removeToken();
+      return false;
+    }
+
+    return true;
   }
 
   // Get authorization headers for API requests
@@ -232,13 +250,8 @@ class AuthService {
     const token = this.getToken();
     if (!token) return null;
 
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      return payload.exp ? new Date(payload.exp * 1000) : null;
-    } catch (error) {
-      console.error("Error parsing token expiration:", error);
-      return null;
-    }
+    const payload = this.decodeJwtPayload(token) as { exp?: number } | null;
+    return payload?.exp ? new Date(payload.exp * 1000) : null;
   }
 
   // Update user technologies

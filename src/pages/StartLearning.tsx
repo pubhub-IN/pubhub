@@ -27,7 +27,7 @@ import { courses } from "../courses/courseData.ts";
 import type { Course } from "../types/course";
 import { getUserCourseProgress } from "../lib/courseProgress";
 import type { CourseProgress } from "../lib/courseProgress";
-import { User } from "../lib/supabase";
+import type { User } from "../types/user";
 
 const categoryLabels: Record<string, string> = {
   dsa: "Data Structures & Algorithms",

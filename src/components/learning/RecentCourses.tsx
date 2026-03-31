@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Clock, BookOpen } from 'lucide-react';
-import { User } from '../../lib/supabase';
+import type { User } from '../../types/user';
 import { getRecentCourses, getTotalLessonCount, getNextLessonPath } from '../../lib/courseProgress';
 import { getCourseById } from '../../courses/courseData';
 

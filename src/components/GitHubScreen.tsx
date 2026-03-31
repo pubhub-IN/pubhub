@@ -17,15 +17,16 @@ type TerminalEntry = {
   variant?: "default" | "boxed";
 };
 
+const PENDING_ONBOARDING_KEY = "pending_onboarding_profile";
+
 const PROMPT_USER = "guest";
 const PROMPT_HOST = "working-one";
 
 const COMMAND_HELP: string[] = [
   "Available commands:",
   "  help            Show all commands",
-  "  run             Show setup checklist",
   "  status          Show setup progress",
-  "  connect         Open GitHub OAuth flow",
+  "  connect github  Open GitHub OAuth flow",
   "  finish          Skip and go to dashboard",
   "  clear           Clear terminal output",
 ];
@@ -41,12 +42,8 @@ function getIntroLines(profession: string, technologyCount: number) {
     `selected profession: ${profession || "not provided"}`,
     `selected technologies: ${technologyCount}`,
     "",
-    "Type the following commands in terminal:",
-    "run",
-    'git config --global user.email "youremail@domain.com"',
-    'git config --global user.name "your username"',
-    "",
-    "After configuring both values, type 'connect' to continue.",
+    "Type 'connect github' and press Enter to continue.",
+    "You will be redirected to GitHub OAuth for authentication.",
     "Type 'help' to list all supported commands.",
   ];
 }
@@ -82,10 +79,6 @@ export default function GitHubScreen() {
       hour12: false,
     })
   );
-
-  const [hasRun, setHasRun] = useState(false);
-  const [configuredEmail, setConfiguredEmail] = useState("");
-  const [configuredName, setConfiguredName] = useState("");
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -147,10 +140,9 @@ export default function GitHubScreen() {
 
   const printStatus = () => {
     pushEntries([
-      `run: ${hasRun ? "done" : "pending"}`,
-      `email: ${configuredEmail ? configuredEmail : "pending"}`,
-      `name: ${configuredName ? configuredName : "pending"}`,
-      `ready to connect: ${configuredEmail && configuredName ? "yes" : "no"}`,
+      "terminal: ready",
+      "next command: connect github",
+      "oauth destination: github",
     ]);
   };
 
@@ -172,17 +164,6 @@ export default function GitHubScreen() {
       return;
     }
 
-    if (normalized === "run") {
-      setHasRun(true);
-      pushEntries([
-        "Checklist:",
-        '- run: done',
-        '- next: git config --global user.email "youremail@domain.com"',
-        '- next: git config --global user.name "your username"',
-      ]);
-      return;
-    }
-
     if (normalized === "status") {
       printStatus();
       return;
@@ -193,33 +174,19 @@ export default function GitHubScreen() {
       return;
     }
 
-    const emailMatch = command.match(
-      /^git\s+config\s+--global\s+user\.email\s+"([^"]+)"$/i
-    );
-    if (emailMatch) {
-      const email = emailMatch[1].trim();
-      setConfiguredEmail(email);
-      pushEntries([`email configured: ${email}`]);
-      return;
-    }
+    if (/^connect\s+github$/i.test(command)) {
+      const pendingProfile = {
+        profession,
+        technologies: technologiesFromState || [],
+      };
 
-    const nameMatch = command.match(
-      /^git\s+config\s+--global\s+user\.name\s+"([^"]+)"$/i
-    );
-    if (nameMatch) {
-      const name = nameMatch[1].trim();
-      setConfiguredName(name);
-      pushEntries([`name configured: ${name}`]);
-      return;
-    }
-
-    if (normalized === "connect") {
-      if (!configuredEmail || !configuredName) {
-        pushEntries([
-          "Configuration incomplete.",
-          'Please set both user.email and user.name first, then type "connect".',
-        ]);
-        return;
+      try {
+        sessionStorage.setItem(
+          PENDING_ONBOARDING_KEY,
+          JSON.stringify(pendingProfile)
+        );
+      } catch (error) {
+        console.warn("Could not persist onboarding profile before OAuth:", error);
       }
 
       pushEntries(["opening github oauth flow..."]);

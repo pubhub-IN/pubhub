@@ -58,6 +58,7 @@ export default function Dashboard({ user }: DashboardProps) {
   // Repositories state
   interface Repo {
     id: number;
+    repo_id?: number;
     name: string;
     html_url: string;
     updated_at: string;
@@ -100,7 +101,20 @@ export default function Dashboard({ user }: DashboardProps) {
         const response = (await authService.get(API_ENDPOINTS.USER_REPOS)) as {
           repositories: Repo[];
         };
-        setUserRepos(response.repositories);
+
+        const normalizedRepositories = (response.repositories || []).map(
+          (repo, index) => ({
+            ...repo,
+            id:
+              typeof repo.id === "number"
+                ? repo.id
+                : typeof repo.repo_id === "number"
+                ? repo.repo_id
+                : index + 1,
+          })
+        );
+
+        setUserRepos(normalizedRepositories);
       } catch (error) {
         console.error("Error fetching repositories:", error);
         setReposError(

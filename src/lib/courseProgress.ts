@@ -1,4 +1,4 @@
-import { User } from "./supabase";
+import type { User } from "../types/user";
 import type { Course } from "../types/course";
 
 // Types for course progress tracking
