@@ -9,7 +9,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 10000
+        value: 3000
       - key: SESSION_SECRET
         generateValue: true
       - key: JWT_SECRET

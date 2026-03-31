@@ -5,7 +5,7 @@ const useProductionBackend =
 
 // Production backend URL (will be set by environment variable)
 const PRODUCTION_API_URL =
-  import.meta.env.VITE_API_URL || "https://pubhub-lnao.onrender.com";
+  import.meta.env.VITE_API_URL || "https://workingone.onrender.com";
 
 // Development backend URL
 const DEVELOPMENT_API_URL = "http://localhost:3000";
@@ -20,7 +20,7 @@ export const API_BASE_URL =
 export const CORS_CONFIG = {
   origin:
     isDevelopment && !useProductionBackend
-      ? "https://pubhub-bolt.netlify.app"
+      ? "https://workingone.vercel.app"
       : import.meta.env.VITE_FRONTEND_URL || "http://localhost:5173",
   credentials: true,
 };
