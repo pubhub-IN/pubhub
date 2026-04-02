@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, KeyboardEvent } from "react";
 import { ArrowLeft, Check } from "lucide-react";
+import { FiExternalLink } from "react-icons/fi";
 import { useNavigate, useLocation } from "react-router-dom";
 import { AuthUser } from "../lib/auth-jwt";
 import { authService } from "../lib/auth-jwt";
@@ -373,6 +374,59 @@ const ALL_TECHNOLOGIES = [
   "Scrum",
 ];
 
+const ADD_MORE_OPTION = "Add more";
+
+// Cache keys for localStorage
+const CACHE_KEYS = {
+  PROFESSION: "onboarding_profession",
+  TECHNOLOGIES: "onboarding_technologies",
+};
+
+// Cache utility functions
+const cacheUtils = {
+  getProfession: () => {
+    try {
+      return localStorage.getItem(CACHE_KEYS.PROFESSION) || "";
+    } catch {
+      return "";
+    }
+  },
+  getTechnologies: () => {
+    try {
+      const cached = localStorage.getItem(CACHE_KEYS.TECHNOLOGIES);
+      return cached ? JSON.parse(cached) : [];
+    } catch {
+      return [];
+    }
+  },
+  setProfession: (profession: string) => {
+    try {
+      if (profession) {
+        localStorage.setItem(CACHE_KEYS.PROFESSION, profession);
+      }
+    } catch {
+      console.warn("Failed to cache profession");
+    }
+  },
+  setTechnologies: (technologies: string[]) => {
+    try {
+      if (technologies.length > 0) {
+        localStorage.setItem(CACHE_KEYS.TECHNOLOGIES, JSON.stringify(technologies));
+      }
+    } catch {
+      console.warn("Failed to cache technologies");
+    }
+  },
+  clear: () => {
+    try {
+      localStorage.removeItem(CACHE_KEYS.PROFESSION);
+      localStorage.removeItem(CACHE_KEYS.TECHNOLOGIES);
+    } catch {
+      console.warn("Failed to clear cache");
+    }
+  },
+};
+
 interface OnboardingProps {
   user?: AuthUser;
   onComplete?: (user: AuthUser) => void;
@@ -383,10 +437,13 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
   const isEditMode = location.state?.editMode === true;
   // const displayName = user?.name || user?.github_username || "Developer";
 
-  // Get profession and technologies from state or user object
-  const initialProfession = location.state?.profession || user?.profession || "";
+  // Get profession and technologies from state, user object, or cache
+  const cachedProfession = cacheUtils.getProfession();
+  const cachedTechnologies = cacheUtils.getTechnologies();
+  
+  const initialProfession = location.state?.profession || user?.profession || cachedProfession || "";
   const initialTechnologies =
-    location.state?.technologies || user?.technologies || [];
+    location.state?.technologies || user?.technologies || cachedTechnologies || [];
 
   const [currentStep, setCurrentStep] = useState<"profession" | "technologies">(
     isEditMode && initialProfession ? "technologies" : "profession"
@@ -404,8 +461,10 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
     useState<string[]>(initialTechnologies);
   const [highlightedTechnologyIndex, setHighlightedTechnologyIndex] =
     useState<number>(() => {
-      const initialOptions =
-        PROFESSION_TECHNOLOGIES[initialProfession] || ALL_TECHNOLOGIES;
+      const initialOptions = [
+        ...(PROFESSION_TECHNOLOGIES[initialProfession] || ALL_TECHNOLOGIES),
+        ADD_MORE_OPTION,
+      ];
       const initialSelectedTechnology = initialTechnologies[0];
       const initialIndex = initialOptions.findIndex(
         (option) => option === initialSelectedTechnology
@@ -428,6 +487,29 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
   const professionTerminalRef = useRef<HTMLDivElement | null>(null);
   const technologyTerminalRef = useRef<HTMLDivElement | null>(null);
 
+  // Auto-redirect to GitHub connect if profession and technologies are already cached or loaded
+  useEffect(() => {
+    const cachedProf = cacheUtils.getProfession();
+    const cachedTechs = cacheUtils.getTechnologies();
+    
+    // Check cache or initial values
+    const hasProfession = initialProfession || cachedProf;
+    const hasTechnologies = initialTechnologies.length > 0 || cachedTechs.length > 0;
+
+    if (hasProfession && hasTechnologies && !isEditMode) {
+      const profToUse = initialProfession || cachedProf;
+      const techsToUse = initialTechnologies.length > 0 ? initialTechnologies : cachedTechs;
+      
+      navigate("/github-screen", {
+        replace: true,
+        state: {
+          profession: profToUse,
+          technologies: techsToUse,
+        },
+      });
+    }
+  }, []);
+
   useEffect(() => {
     if (currentStep === "profession") {
       professionTerminalRef.current?.focus();
@@ -448,8 +530,7 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
     }
 
     technologyTerminalRef.current?.focus();
-    const recommendedTechnologies =
-      PROFESSION_TECHNOLOGIES[selectedProfession] || ALL_TECHNOLOGIES;
+    const recommendedTechnologies = getTechnologyOptions();
 
     if (recommendedTechnologies.length > 0) {
       setHighlightedTechnologyIndex((prev) =>
@@ -481,8 +562,18 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
     return PROFESSION_TECHNOLOGIES[selectedProfession] || ALL_TECHNOLOGIES;
   };
 
+  const getTechnologyOptions = () => {
+    const recommended = getRecommendedTechnologies();
+    return recommended.includes(ADD_MORE_OPTION)
+      ? recommended
+      : [...recommended, ADD_MORE_OPTION];
+  };
+
   const handleProfessionSelect = async (profession: string) => {
     setSelectedProfession(profession);
+    // Cache the profession
+    cacheUtils.setProfession(profession);
+    
     if (!user) {
       setCurrentStep("technologies");
       return;
@@ -503,6 +594,22 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
   };
 
   const toggleTechnology = (tech: string) => {
+    if (tech === ADD_MORE_OPTION) {
+      setSelectedTechnologies((prev) => {
+        const hadOption = prev.includes(tech);
+
+        if (hadOption) {
+          setCustomTech("");
+          setError("");
+          return prev.filter((t) => t !== tech);
+        }
+
+        return [...prev, tech];
+      });
+
+      return;
+    }
+
     setSelectedTechnologies((prev) =>
       prev.includes(tech) ? prev.filter((t) => t !== tech) : [...prev, tech]
     );
@@ -526,14 +633,21 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
     }
   };
   const handleComplete = async () => {
-    if (selectedTechnologies.length === 0) return;
+    const technologiesToSave = selectedTechnologies.filter(
+      (tech) => tech !== ADD_MORE_OPTION
+    );
+
+    if (technologiesToSave.length === 0) return;
+
+    // Cache the technologies
+    cacheUtils.setTechnologies(technologiesToSave);
 
     if (!user) {
       navigate("/github-screen", {
         replace: true,
         state: {
           profession: selectedProfession,
-          technologies: selectedTechnologies,
+          technologies: technologiesToSave,
         },
       });
       return;
@@ -542,7 +656,7 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
     setIsLoading(true);
     try {
       const updatedUser = await authService.updateTechnologies(
-        selectedTechnologies
+        technologiesToSave
       );
       if (updatedUser) {
         // Update the user object in memory before navigating
@@ -552,7 +666,7 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
           replace: true,
           state: {
             profession: updatedUser.profession || selectedProfession,
-            technologies: updatedUser.technologies || selectedTechnologies,
+            technologies: updatedUser.technologies || technologiesToSave,
           },
         });
       }
@@ -607,7 +721,7 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
       return;
     }
 
-    const recommendedTechnologies = getRecommendedTechnologies();
+    const recommendedTechnologies = getTechnologyOptions();
     if (recommendedTechnologies.length === 0) {
       return;
     }
@@ -797,7 +911,7 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
                     Select your technologies:
                   </p>
 
-                  {getRecommendedTechnologies().map((tech: string, index) => {
+                  {getTechnologyOptions().map((tech: string, index) => {
                     const isHighlighted = index === highlightedTechnologyIndex;
                     const isSelected = selectedTechnologies.includes(tech);
 
@@ -844,30 +958,34 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
                 </div>
               </div>
 
-              <div className="mb-6 relative pl-8">
-                <div className="pointer-events-none absolute left-0 top-[6px] h-[calc(100%-8px)] w-4">
-                  <span className="absolute left-0 top-0 h-[2px] w-4 bg-[#a85f27]" />
-                  <span className="absolute left-0 top-0 h-full w-[2px] bg-[#a85f27]" />
-                  <span className="absolute left-0 bottom-0 h-[2px] w-4 bg-[#a85f27]" />
+              {selectedTechnologies.includes(ADD_MORE_OPTION) && (
+                <div className="mb-6 relative pl-8">
+                  <div className="pointer-events-none absolute left-0 top-[6px] h-[calc(100%-8px)] w-4">
+                    <span className="absolute left-0 top-0 h-[2px] w-4 bg-[#a85f27]" />
+                    <span className="absolute left-0 top-0 h-full w-[2px] bg-[#a85f27]" />
+                    <span className="absolute left-0 bottom-0 h-[2px] w-4 bg-[#a85f27]" />
+                  </div>
+
+                  <p className="mb-2 inline-flex items-center gap-2 text-md font-medium text-[#d69f63]">
+                    <span className="h-2.5 w-2.5 rotate-45 border border-[#f2a043] bg-[#2a1305]" />
+                    Add custom technology:
+                  </p>
+
+                  <input
+                    type="text"
+                    value={customTech}
+                    onChange={(e) => setCustomTech(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Type and press Enter"
+                    className="w-full border border-[#5a2602] bg-[#120901] px-3 py-2 text-[#ffd29a] placeholder:text-[#9f6a3d] focus:outline-none focus:ring-2 focus:ring-[#f2a043]"
+                  />
                 </div>
-
-                <p className="mb-2 inline-flex items-center gap-2 text-md font-medium text-[#d69f63]">
-                  <span className="h-2.5 w-2.5 rotate-45 border border-[#f2a043] bg-[#2a1305]" />
-                  Add custom technology:
-                </p>
-
-                <input
-                  type="text"
-                  value={customTech}
-                  onChange={(e) => setCustomTech(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Type and press Enter"
-                  className="w-full border border-[#5a2602] bg-[#120901] px-3 py-2 text-[#ffd29a] placeholder:text-[#9f6a3d] focus:outline-none focus:ring-2 focus:ring-[#f2a043]"
-                />
-              </div>
+              )}
 
               {selectedTechnologies.filter(
-                (tech) => !getRecommendedTechnologies().includes(tech)
+                (tech) =>
+                  tech !== ADD_MORE_OPTION &&
+                  !getRecommendedTechnologies().includes(tech)
               ).length > 0 && (
                 <div className="mb-6 relative pl-8">
                   <div className="pointer-events-none absolute left-0 top-[6px] h-[calc(100%-8px)] w-4">
@@ -883,7 +1001,9 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
                   <div>
                     {selectedTechnologies
                       .filter(
-                        (tech) => !getRecommendedTechnologies().includes(tech)
+                        (tech) =>
+                          tech !== ADD_MORE_OPTION &&
+                          !getRecommendedTechnologies().includes(tech)
                       )
                       .map((tech) => (
                         <button
@@ -909,20 +1029,37 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
 
               <div className="mt-8">
                 <p className="text-sm text-[#b8834f]">
-                  {selectedTechnologies.length} technologies selected
+                  {
+                    selectedTechnologies.filter(
+                      (tech) => tech !== ADD_MORE_OPTION
+                    ).length
+                  } technologies selected
                 </p>
 
                 <button
                   type="button"
                   onClick={() => void handleComplete()}
-                  disabled={selectedTechnologies.length === 0 || isLoading}
-                  className={`mt-2 text-sm font-medium underline decoration-[#59e86f] underline-offset-4 transition-colors ${
-                    selectedTechnologies.length > 0 && !isLoading
+                  disabled={
+                    selectedTechnologies.filter(
+                      (tech) => tech !== ADD_MORE_OPTION
+                    ).length === 0 || isLoading
+                  }
+                  className={`mt-2 inline-flex items-center gap-1 text-sm font-medium text-[#4493f8] absolute bottom-10 right-10 cursor-pointer ${
+                    selectedTechnologies.filter(
+                      (tech) => tech !== ADD_MORE_OPTION
+                    ).length > 0 && !isLoading
                       ? "text-[#59e86f] hover:text-[#8aff9c]"
                       : "cursor-not-allowed text-[#5f5f5f] decoration-[#5f5f5f]"
                   }`}
                 >
-                  {isLoading ? "Saving..." : "Finish and Connect GitHub"}
+                  {isLoading ? (
+                    "Saving..."
+                  ) : (
+                    <>
+                      Finish and Connect GitHub
+                      <FiExternalLink size={14} aria-hidden="true" />
+                    </>
+                  )}
                 </button>
               </div>
             </>

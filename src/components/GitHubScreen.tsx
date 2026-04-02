@@ -8,16 +8,38 @@ import {
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
-import { API_ENDPOINTS, buildApiUrl } from "../config/api";
+import { authService } from "../lib/auth-jwt";
 import "../styles/retro-shared.css";
+
+// Helper to create a temporary mock JWT token for testing without OAuth
+const createMockToken = (profession: string, technologies: string[]): string => {
+  const payload = {
+    id: "temp-onboarding-user",
+    github_id: 0,
+    github_username: "temp_user",
+    name: "Temporary User",
+    profession,
+    technologies,
+    total_public_repos: 0,
+    total_commits: 0,
+    languages: {},
+    github_data: {},
+    exp: Math.floor(Date.now() / 1000) + 86400, // Expire in 24 hours
+  };
+
+  // Create a simple JWT-like token (note: not cryptographically signed for testing)
+  const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
+  const body = btoa(JSON.stringify(payload));
+  const signature = btoa("temp-signature");
+
+  return `${header}.${body}.${signature}`;
+};
 
 type TerminalEntry = {
   id: number;
   text: string;
   variant?: "default" | "boxed";
 };
-
-const PENDING_ONBOARDING_KEY = "pending_onboarding_profile";
 
 const PROMPT_USER = "guest";
 const PROMPT_HOST = "working-one";
@@ -26,9 +48,10 @@ const COMMAND_HELP: string[] = [
   "Available commands:",
   "  help            Show all commands",
   "  status          Show setup progress",
-  "  connect github  Open GitHub OAuth flow",
+  "  connect github  Go to dashboard",
   "  finish          Skip and go to dashboard",
   "  clear           Clear terminal output",
+  "  exit            Quits WORKING-ONE",
 ];
 
 function getPromptPrefix() {
@@ -42,8 +65,7 @@ function getIntroLines(profession: string, technologyCount: number) {
     `selected profession: ${profession || "not provided"}`,
     `selected technologies: ${technologyCount}`,
     "",
-    "Type 'connect github' and press Enter to continue.",
-    "You will be redirected to GitHub OAuth for authentication.",
+    "Type 'connect github' and press Enter to proceed to dashboard.",
     "Type 'help' to list all supported commands.",
   ];
 }
@@ -159,6 +181,23 @@ export default function GitHubScreen() {
       return;
     }
 
+    if (normalized === "exit") {
+      pushEntries(["attempting to close this tab..."]);
+
+      window.close();
+
+      setTimeout(() => {
+        if (!window.closed) {
+          pushEntries([
+            "browser blocked tab close",
+            "press Ctrl+W (Windows/Linux) or Cmd+W (macOS)",
+          ]);
+        }
+      }, 120);
+
+      return;
+    }
+
     if (normalized === "help") {
       pushEntries(COMMAND_HELP);
       return;
@@ -175,22 +214,14 @@ export default function GitHubScreen() {
     }
 
     if (/^connect\s+github$/i.test(command)) {
-      const pendingProfile = {
-        profession,
-        technologies: technologiesFromState || [],
-      };
-
-      try {
-        sessionStorage.setItem(
-          PENDING_ONBOARDING_KEY,
-          JSON.stringify(pendingProfile)
-        );
-      } catch (error) {
-        console.warn("Could not persist onboarding profile before OAuth:", error);
-      }
-
-      pushEntries(["opening github oauth flow..."]);
-      window.location.href = buildApiUrl(API_ENDPOINTS.GITHUB_AUTH);
+      pushEntries(["connecting to dashboard..."]);
+      // Create and set a temporary mock token so user can access dashboard
+      const mockToken = createMockToken(profession, technologiesFromState || []);
+      authService.setToken(mockToken);
+      
+      setTimeout(() => {
+        navigate("/dashboard", { replace: true, state: { refreshUser: true } });
+      }, 500);
       return;
     }
 

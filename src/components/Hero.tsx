@@ -18,6 +18,7 @@ const COMMAND_HELP: string[] = [
   "  about           What is working-one",
   "  features        Core platform features",
   "  clear           Clear terminal output",
+  "  exit            Quits WORKING-ONE",
   "  status          Show system status",
   "  time            Show local time",
   "  whoami          Show current terminal user",
@@ -122,6 +123,23 @@ export default function Hero() {
 
     if (command === "clear") {
       setEntries([]);
+      return;
+    }
+
+    if (command === "exit") {
+      pushEntries(["attempting to close this tab..."]);
+
+      window.close();
+
+      setTimeout(() => {
+        if (!window.closed) {
+          pushEntries([
+            "browser blocked tab close",
+            "press Ctrl+W (Windows/Linux) or Cmd+W (macOS)",
+          ]);
+        }
+      }, 120);
+
       return;
     }
 

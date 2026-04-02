@@ -5,6 +5,7 @@ import {
   Route,
   Navigate,
   Outlet,
+  useLocation,
 } from "react-router-dom";
 import { AuthProvider, useAuth } from "./lib/useAuth";
 import Hero from "./components/Hero.tsx";
@@ -26,9 +27,29 @@ import PeoplePage from "./pages/PeoplePage";
 import ProfilePage from "./pages/ProfilePage";
 import ConnectionsPage from "./pages/ConnectionsPage";
 import JobHunting from "./pages/JobHunting.tsx";
+import NotFoundPage from "./pages/NotFoundPage";
 import { Loader as LoadingScreen } from "./components/loader";
 import "lenis/dist/lenis.css";
 import Lenis from "lenis";
+
+const PROTECTED_PATH_PREFIXES = [
+  "/dashboard",
+  "/hackathons",
+  "/open-source",
+  "/start-learning",
+  "/courses",
+  "/youtube",
+  "/share-socials",
+  "/job-hunting",
+  "/account",
+  "/people",
+  "/profile",
+  "/connections",
+];
+
+function isKnownProtectedPath(pathname: string) {
+  return PROTECTED_PATH_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+}
 
 function Layout() {
   const { user } = useAuth();
@@ -47,13 +68,18 @@ function Layout() {
 
 function AuthenticatedRoutes() {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return null;
   }
 
   if (!user) {
-    return <Navigate to="/" replace />;
+    if (isKnownProtectedPath(location.pathname)) {
+      return <Navigate to="/" replace />;
+    }
+
+    return <NotFoundPage />;
   }
 
   return (
@@ -91,7 +117,7 @@ function AuthenticatedRoutes() {
         <Route path="/profile/:username" element={<ProfilePage />} />
         <Route path="/connections" element={<ConnectionsPage />} />
       </Route>
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }
