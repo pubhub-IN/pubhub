@@ -1,577 +1,343 @@
 import { useEffect, useState } from "react";
-import {
-  LogOut,
-  GitCommit,
-  Code,
-  TrendingUp,
-  Calendar,
-  Flame,
-  Share2,
-  ExternalLink,
-  Loader2,
-  RefreshCcw,
-  Edit2,
-} from "lucide-react";
-import { authService } from "../lib/auth-jwt";
-import { ThemeToggle } from "./ThemeToggle";
-import { Particles } from "./magicui/particles";
-import { ShareModal } from "./ShareModal";
-import { LanguageChart } from "./LanguageChart";
-import type { AuthUser } from "../lib/auth-jwt";
-import { useNavigate, useLocation } from "react-router-dom";
-import { buildApiUrl, API_ENDPOINTS } from "../config/api";
+import { useLocation, useNavigate } from "react-router-dom";
+import { authService, type AuthUser } from "../lib/auth-jwt";
+import { LuWifi, LuWifiHigh, LuWifiLow, LuWifiOff, LuWifiZero } from "react-icons/lu";
+import "../styles/dashboard-terminal.css";
 
 interface DashboardProps {
   user: AuthUser;
 }
 
+type ConnectionSeverity = "OFFLINE" | "VERY LOW" | "LOW" | "MEDIUM" | "HIGH";
+
+type NetworkSnapshot = {
+  supported: boolean;
+  online: boolean;
+  effectiveType: string | null;
+  downlink: number | null;
+  rtt: number | null;
+};
+
+type SignalLevel = ConnectionSeverity;
+
+type NetworkInfoLike = {
+  downlink?: number;
+  effectiveType?: string;
+  rtt?: number;
+  addEventListener?: (type: "change", listener: () => void) => void;
+  removeEventListener?: (type: "change", listener: () => void) => void;
+};
+
+function toShortName(name: string | undefined, username: string) {
+  if (name && name.trim().length > 0) {
+    return name.toUpperCase();
+  }
+  return username.toUpperCase();
+}
+
+function createFallbackSnapshot(): NetworkSnapshot {
+  return {
+    supported: false,
+    online: typeof navigator !== "undefined" ? navigator.onLine : true,
+    effectiveType: null,
+    downlink: null,
+    rtt: null,
+  };
+}
+
+function createInitialSnapshot(): NetworkSnapshot {
+  if (typeof navigator === "undefined") {
+    return createFallbackSnapshot();
+  }
+
+  const nav = navigator as Navigator & {
+    connection?: NetworkInfoLike;
+    mozConnection?: NetworkInfoLike;
+    webkitConnection?: NetworkInfoLike;
+  };
+  const connection = nav.connection || nav.mozConnection || nav.webkitConnection;
+
+  return {
+    supported: Boolean(connection),
+    online: navigator.onLine,
+    effectiveType: connection?.effectiveType ?? null,
+    downlink: typeof connection?.downlink === "number" ? connection.downlink : null,
+    rtt: typeof connection?.rtt === "number" ? connection.rtt : null,
+  };
+}
+
+function getSignalIcon(level: SignalLevel) {
+  switch (level) {
+    case "OFFLINE":
+      return LuWifiOff;
+    case "VERY LOW":
+      return LuWifiZero;
+    case "LOW":
+      return LuWifiLow;
+    case "MEDIUM":
+      return LuWifiHigh;
+    case "HIGH":
+    default:
+      return LuWifi;
+  }
+}
+
+function getSignalTone(level: SignalLevel) {
+  switch (level) {
+    case "OFFLINE":
+      return "#7a7a7a";
+    case "VERY LOW":
+      return "#ff6b6b";
+    case "LOW":
+      return "#ffb84d";
+    case "MEDIUM":
+      return "#d8ff5a";
+    case "HIGH":
+    default:
+      return "#35f160";
+  }
+}
+
+function getSignalLevel(snapshot: NetworkSnapshot): SignalLevel {
+  if (!snapshot.online) {
+    return "OFFLINE";
+  }
+
+  const effectiveType = snapshot.effectiveType?.toLowerCase() ?? null;
+  if (!snapshot.supported) {
+    return "OFFLINE";
+  }
+  if (effectiveType === "slow-2g" || effectiveType === "2g") {
+    return "VERY LOW";
+  }
+  if (effectiveType === "3g") {
+    return "LOW";
+  }
+  if (effectiveType === "4g") {
+    return "HIGH";
+  }
+  if (typeof snapshot.downlink === "number") {
+    if (snapshot.downlink < 0.7) return "VERY LOW";
+    if (snapshot.downlink < 2) return "LOW";
+    if (snapshot.downlink < 8) return "MEDIUM";
+    return "HIGH";
+  }
+
+  return "MEDIUM";
+}
+
+function formatMbps(downlink: number | null) {
+  return typeof downlink === "number" ? `${downlink.toFixed(1)} MBPS` : "-- MBPS";
+}
+
+function formatRtt(rtt: number | null) {
+  return typeof rtt === "number" ? `${Math.round(rtt)} MS` : "-- MS";
+}
+
+function getConnectionTypeLabel(snapshot: NetworkSnapshot) {
+  if (!snapshot.supported) {
+    return "NO INFO";
+  }
+
+  return snapshot.effectiveType ? snapshot.effectiveType.toUpperCase() : "UNKNOWN";
+}
+
 export default function Dashboard({ user }: DashboardProps) {
-  const [isLoading, setIsLoading] = useState(true);
-  const [activeDays, setActiveDays] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
-  const [currentUser, setCurrentUser] = useState(user);
-  // Effect to refresh user data when navigating from onboarding
+
+  const [currentUser, setCurrentUser] = useState<AuthUser>(user);
+  const [activeDays, setActiveDays] = useState(0);
+  const [network, setNetwork] = useState<NetworkSnapshot>(createInitialSnapshot);
+
   useEffect(() => {
-    // Check if we need to refresh user data
-    if (location.state?.refreshUser) {
-      const refreshData = async () => {
-        try {
-          const freshUserData = await authService.getCurrentUser();
-          if (freshUserData) {
-            setCurrentUser(freshUserData);
-            // Clear the state to avoid repeated refreshes
-            navigate(location.pathname, { replace: true, state: {} });
-          }
-        } catch (error) {
-          console.error("Failed to refresh user data:", error);
-        }
-      };
-
-      refreshData();
+    if (!location.state?.refreshUser) {
+      return;
     }
-  }, [location.state, navigate, location.pathname]);
 
-  // Always use the most current user data
-  const userData = currentUser || user;
+    const hydrate = async () => {
+      try {
+        const freshUser = await authService.getCurrentUser();
+        if (freshUser) {
+          setCurrentUser(freshUser);
+        }
+      } catch (error) {
+        console.error("Failed to refresh user in dashboard:", error);
+      } finally {
+        navigate(location.pathname, { replace: true, state: {} });
+      }
+    };
 
-  // Repositories state
-  interface Repo {
-    id: number;
-    repo_id?: number;
-    name: string;
-    html_url: string;
-    updated_at: string;
-    // Add other fields as needed
-  }
-  const [userRepos, setUserRepos] = useState<Repo[]>([]);
-  const [reposLoading, setReposLoading] = useState(true);
-  const [reposError, setReposError] = useState<string | null>(null);
-  const [generatingPost, setGeneratingPost] = useState<string | null>(null);
-  const [generatedContent, setGeneratedContent] = useState<{
-    [key: string]: string;
-  }>({});
-
-  // Share modal state
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const [shareModalRepo, setShareModalRepo] = useState<{
-    id: number;
-    name: string;
-  } | null>(null);
-
-  // Check if we're in dark mode
-  const isDarkMode = document.documentElement.classList.contains("dark");
+    void hydrate();
+  }, [location.pathname, location.state, navigate]);
 
   useEffect(() => {
     const fetchActiveDays = async () => {
       try {
-        const response = (await authService.get(
-          API_ENDPOINTS.USER_ACTIVE_DAYS
-        )) as { activeDays: number };
-        setActiveDays(response.activeDays);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    const fetchUserRepositories = async () => {
-      try {
-        setReposLoading(true);
-        setReposError(null);
-        const response = (await authService.get(API_ENDPOINTS.USER_REPOS)) as {
-          repositories: Repo[];
+        const response = (await authService.get("/api/user/active-days")) as {
+          activeDays: number;
         };
-
-        const normalizedRepositories = (response.repositories || []).map(
-          (repo, index) => ({
-            ...repo,
-            id:
-              typeof repo.id === "number"
-                ? repo.id
-                : typeof repo.repo_id === "number"
-                ? repo.repo_id
-                : index + 1,
-          })
-        );
-
-        setUserRepos(normalizedRepositories);
+        setActiveDays(Number(response.activeDays || 0));
       } catch (error) {
-        console.error("Error fetching repositories:", error);
-        setReposError(
-          error instanceof Error ? error.message : "Failed to load repositories"
-        );
-      } finally {
-        setReposLoading(false);
+        console.error("Failed to fetch active days:", error);
       }
     };
 
-    if (userData) {
-      fetchActiveDays();
-      fetchUserRepositories();
-      setIsLoading(false);
-    }
-  }, [userData]);
+    void fetchActiveDays();
+  }, []);
 
-  const handleLogout = async () => {
-    await authService.logout();
-    window.location.href = "/"; // Redirect to home page
-  };
+  useEffect(() => {
+    const nav = navigator as Navigator & {
+      connection?: NetworkInfoLike;
+      mozConnection?: NetworkInfoLike;
+      webkitConnection?: NetworkInfoLike;
+    };
 
-  // Function to handle generating a post for a repository
-  const handleGeneratePost = async (repoId: number, repoName: string) => {
-    try {
-      setGeneratingPost(repoId.toString());
+    const connection = nav.connection || nav.mozConnection || nav.webkitConnection;
 
-      // Simulate API call to generate content
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Generate a fake post (in a real app, this would call an AI API)
-      const platforms = ["Twitter", "LinkedIn"];
-      const randomPlatform =
-        platforms[Math.floor(Math.random() * platforms.length)];
-
-      let generatedText = "";
-      if (randomPlatform === "Twitter") {
-        generatedText = `🚀 Just pushed updates to my ${repoName} project! Check it out on GitHub and let me know what you think. #OpenSource #Coding #Developer`;
-      } else {
-        generatedText = `I'm excited to share updates to my project "${repoName}"! I've been working on improving the functionality and adding new features. Take a look at the repository and feel free to contribute or provide feedback. #OpenSource #SoftwareDevelopment #Coding`;
+    const readNetworkSnapshot = (): NetworkSnapshot => {
+      if (!connection) {
+        return {
+          supported: false,
+          online: navigator.onLine,
+          effectiveType: null,
+          downlink: null,
+          rtt: null,
+        };
       }
 
-      // Store generated content
-      const content = `${randomPlatform}: ${generatedText}`;
-      setGeneratedContent((prev) => ({
-        ...prev,
-        [repoId]: content,
-      }));
+      return {
+        supported: true,
+        online: navigator.onLine,
+        effectiveType: connection.effectiveType ?? null,
+        downlink: typeof connection.downlink === "number" ? connection.downlink : null,
+        rtt: typeof connection.rtt === "number" ? connection.rtt : null,
+      };
+    };
 
-      // Open share modal
-      setShareModalRepo({ id: repoId, name: repoName });
-      setIsShareModalOpen(true);
-    } catch (error) {
-      console.error("Error generating post:", error);
-    } finally {
-      setGeneratingPost(null);
-    }
-  };
+    const refreshNetwork = () => {
+      setNetwork(readNetworkSnapshot());
+    };
 
-  // Handle opening share modal for existing content
-  const handleOpenShareModal = (repoId: number, repoName: string) => {
-    setShareModalRepo({ id: repoId, name: repoName });
-    setIsShareModalOpen(true);
-  };
+    refreshNetwork();
+    window.addEventListener("online", refreshNetwork);
+    window.addEventListener("offline", refreshNetwork);
+    connection?.addEventListener?.("change", refreshNetwork);
+    const intervalId = window.setInterval(refreshNetwork, 3000);
 
-  const handleCloseShareModal = () => {
-    setIsShareModalOpen(false);
-    setShareModalRepo(null);
-  };
+    return () => {
+      window.removeEventListener("online", refreshNetwork);
+      window.removeEventListener("offline", refreshNetwork);
+      connection?.removeEventListener?.("change", refreshNetwork);
+      window.clearInterval(intervalId);
+    };
+  }, []);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 bg-green-500 rounded-xl mb-4 animate-pulse"></div>
-          <p className="text-gray-600">Loading your dashboard...</p>
-        </div>
-      </div>
-    );
-  }
+  const resolvedUser = currentUser || user;
+  const languageCount = Object.keys(resolvedUser.languages || {}).length;
+  const onboardingTechnologies = (resolvedUser.technologies || []).filter(Boolean);
+
+  const signalLevel = getSignalLevel(network);
+  const signalIcon = getSignalIcon(signalLevel);
+  const SignalIcon = signalIcon;
+  const signalTone = getSignalTone(signalLevel);
+  const networkLabel = getConnectionTypeLabel(network);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-semibold">working-one</h1>
-            </div>
-            <div className="flex items-center gap-8">
-              <div className="flex flex-col gap-2">
-                <div className="flex gap-4">
-                  <div className="flex items-center bg-orange-50 dark:bg-orange-900 px-4 py-2 rounded-lg border border-orange-100 dark:border-orange-800">
-                    <span className="text-xs font-medium text-gray-700 dark:text-gray-200 mr-1">
-                      Days Worked:
-                    </span>
-                    <Flame className="w-5 h-5 text-orange-500 mx-1" />
-                    <span className="font-bold text-orange-600 dark:text-orange-300 mx-1">
-                      {activeDays} /{" "}
-                      {new Date(new Date().getFullYear(), 11, 31).getDate() ===
-                      31
-                        ? 366
-                        : 365}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <ThemeToggle />
-              <button
-                onClick={handleLogout}
-                className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-100 hover:bg-green-200 dark:hover:bg-green-800 transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Logout</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+    <div className="terminal-dashboard">
+      <section className="terminal-frame" aria-label="Police terminal dashboard">
+        <span className="main-bottom-right-triangle"></span>
+        <span className="bottom-half-triangle"></span>
+        <span className="bottom--triangle"></span>
+        <span className="bottom-half-left-triangle"></span>
+        <span className="bottom-half-right-triangle"></span>
+        <span className="top-half-triangle"></span>
+        <span className="top-half-left-triangle"></span>
+        <span className="top-half-right-triangle"></span>
+        <span className="terminal-label font-thin top-[10px] left-[10px]">MINGW64:/C/Users/Working-One/Dashboard</span>
+        <span
+          className="terminal-label signal-indicator bottom-[8px] left-[30px]"
+          style={{ color: signalTone }}
+          aria-label={`Connection ${networkLabel}, downlink ${formatMbps(network.downlink)}, RTT ${formatRtt(network.rtt)}`}
+          title={`Connection ${networkLabel}, downlink ${formatMbps(network.downlink)}, RTT ${formatRtt(network.rtt)}`}
+        >
+          <SignalIcon className="signal-icon" aria-hidden="true" focusable="false" />
+          <span className="signal-type">{networkLabel}</span>
+          <span className="signal-speed">
+            {network.supported ? `${formatMbps(network.downlink)} / ${formatRtt(network.rtt)}` : "NO NETWORK INFO"}
+          </span>
+        </span>
+        <span className="terminal-label bottom-right">PROPERTY OF BALTIMORE POLICE DEPARTMENT</span>
 
-      {/* Main content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {isLoading ? (
-          <div className="flex items-center justify-center h-[calc(100vh-200px)]">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-gradient-to-br from-white via-green-50 to-white dark:from-gray-800 dark:via-green-900/20 dark:to-gray-800 p-6 rounded-xl card-shadow-green relative overflow-hidden border border-green-100/50 dark:border-green-900/30 hover:scale-[1.02] transition-transform duration-300">
-                {/* Shiny effect overlay */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-green-200/10 via-transparent to-green-100/20 dark:from-green-500/5 dark:via-transparent dark:to-green-300/10 z-0 opacity-70"></div>
-                <Particles
-                  className="absolute inset-0 z-0"
-                  quantity={15}
-                  color={isDarkMode ? "#22c55e" : "#4ade80"}
-                  ease={80}
-                  size={0.8}
-                />
-                <div className="flex items-center gap-3 mb-2 relative z-10">
-                  <div className="w-10 h-10 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-800 dark:to-green-900 rounded-lg flex items-center justify-center shadow-md shadow-green-100/50 dark:shadow-green-900/30 ring-1 ring-green-200/50 dark:ring-green-700/50">
-                    <GitCommit className="w-5 h-5 text-green-600 dark:text-green-400" />
+        <div className="terminal-grid h-full">
+          <section className="left-panel left-panel-empty" aria-label="Empty left panel">
+            
+          </section>
+
+          <aside className="right-panel">
+
+            <div className="terminal-box officer-box">
+              <div className="portrait">
+                {resolvedUser.avatar_url ? (
+                  <img
+                    src={resolvedUser.avatar_url}
+                    alt={`${resolvedUser.github_username} portrait`}
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="portrait-fallback">
+                    {resolvedUser.github_username.slice(0, 1).toUpperCase()}
                   </div>
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                    Total Public Repositories
-                  </h3>
-                </div>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 relative z-10">
-                  {userData.total_public_repos || 0}
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400 relative z-10">
-                  On GitHub
-                </p>
+                )}
               </div>
 
-              <div className="bg-gradient-to-br from-white via-blue-50 to-white dark:from-gray-800 dark:via-blue-900/20 dark:to-gray-800 p-6 rounded-xl card-shadow-blue relative overflow-hidden border border-blue-100/50 dark:border-blue-900/30 hover:scale-[1.02] transition-transform duration-300">
-                {/* Shiny effect overlay */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-blue-200/10 via-transparent to-blue-100/20 dark:from-blue-500/5 dark:via-transparent dark:to-blue-300/10 z-0 opacity-70"></div>
-                <Particles
-                  className="absolute inset-0 z-0"
-                  quantity={15}
-                  color={isDarkMode ? "#3b82f6" : "#60a5fa"}
-                  ease={80}
-                  size={0.8}
-                />
-                <div className="flex items-center gap-3 mb-2 relative z-10">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-800 dark:to-blue-900 rounded-lg flex items-center justify-center shadow-md shadow-blue-100/50 dark:shadow-blue-900/30 ring-1 ring-blue-200/50 dark:ring-blue-700/50">
-                    <Code className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                    Languages
-                  </h3>
-                </div>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 relative z-10">
-                  {Object.keys(userData.languages || {}).length}
+              <div className="officer-meta uppercase">
+                <span className="officer-top-border"></span>
+                <span className="officer-bottom-border"></span>
+                <p className="flex flex-col gap-1 font-medium">
+                  Profession: <br /><span className="text-white font-thin">{resolvedUser.profession?.toUpperCase() || "SOFTWARE OPERATOR"}</span>
                 </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400 relative z-10">
-                  Used in repos
+                <p className="font-medium">
+                  name: <span className="text-white font-thin">{toShortName(resolvedUser.name, resolvedUser.github_username)}</span>
                 </p>
-              </div>
-
-              <div className="bg-gradient-to-br from-white via-purple-50 to-white dark:from-gray-800 dark:via-purple-900/20 dark:to-gray-800 p-6 rounded-xl card-shadow-purple relative overflow-hidden border border-purple-100/50 dark:border-purple-900/30 hover:scale-[1.02] transition-transform duration-300">
-                {/* Shiny effect overlay */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-purple-200/10 via-transparent to-purple-100/20 dark:from-purple-500/5 dark:via-transparent dark:to-purple-300/10 z-0 opacity-70"></div>
-                <Particles
-                  className="absolute inset-0 z-0"
-                  quantity={15}
-                  color={isDarkMode ? "#9333ea" : "#a855f7"}
-                  ease={80}
-                  size={0.8}
-                />
-                <div className="flex items-center gap-3 mb-2 relative z-10">
-                  <div className="w-10 h-10 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-800 dark:to-purple-900 rounded-lg flex items-center justify-center shadow-md shadow-purple-100/50 dark:shadow-purple-900/30 ring-1 ring-purple-200/50 dark:ring-purple-700/50">
-                    <TrendingUp className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                  </div>
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                    Technologies
-                  </h3>
-                </div>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 relative z-10">
-                  {userData.technologies?.length || 0}
+                <p className="font-medium">
+                  streak: <span className="text-white font-thin">{activeDays}</span>
                 </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400 relative z-10">
-                  Learning/Working with
-                </p>
-              </div>
-
-              <div className="bg-gradient-to-br from-white via-orange-50 to-white dark:from-gray-800 dark:via-orange-900/20 dark:to-gray-800 p-6 rounded-xl card-shadow-orange relative overflow-hidden border border-orange-100/50 dark:border-orange-900/30 hover:scale-[1.02] transition-transform duration-300">
-                {/* Shiny effect overlay */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-orange-200/10 via-transparent to-orange-100/20 dark:from-orange-500/5 dark:via-transparent dark:to-orange-300/10 z-0 opacity-70"></div>
-                <Particles
-                  className="absolute inset-0 z-0"
-                  quantity={15}
-                  color={isDarkMode ? "#ea580c" : "#f97316"}
-                  ease={80}
-                  size={0.8}
-                />
-                <div className="flex items-center gap-3 mb-2 relative z-10">
-                  <div className="w-10 h-10 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-800 dark:to-orange-900 rounded-lg flex items-center justify-center shadow-md shadow-orange-100/50 dark:shadow-orange-900/30 ring-1 ring-orange-200/50 dark:ring-orange-700/50">
-                    <Calendar className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-                  </div>
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                    Active Days
-                  </h3>
-                </div>
-                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100 relative z-10">
-                  {activeDays}
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400 relative z-10">
-                  Commits from Jan to{" "}
-                  {(() => {
-                    const now = new Date();
-                    const prevMonth = new Date(
-                      now.getFullYear(),
-                      now.getMonth() - 1
-                    );
-                    return prevMonth.toLocaleString("default", {
-                      month: "long",
-                    });
-                  })()}
+                <p className="font-medium">
+                  friends: <span className="text-white font-thin">0</span>
                 </p>
               </div>
             </div>
 
-            {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Language Distribution - Doughnut Chart */}
-              <div className="bg-gradient-to-br from-white via-blue-50/30 to-white dark:from-gray-800 dark:via-blue-900/10 dark:to-gray-800 p-6 rounded-xl shadow-sm border border-blue-100/50 dark:border-blue-900/30 card-shadow-blue card-full-height">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center">
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-800 dark:to-blue-900 rounded-lg flex items-center justify-center shadow-md shadow-blue-100/50 dark:shadow-blue-900/30 ring-1 ring-blue-200/50 dark:ring-blue-700/50 mr-2">
-                    <Code className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  Language Distribution
-                </h3>
-                <div className="mt-4 relative h-72">
-                  <LanguageChart languages={userData.languages || {}} />
-                </div>
-              </div>
+            <div className="terminal-box bio-box">
+                <span className="terminal-box-top-border"></span>
+                <span className="terminal-box-bottom-border"></span>
+                <p className="text-xl font-medium text-white">
+                <span className="text-white font-thin uppercase">total Public Repositories found: <span className="py-1 px-2 rounded-sm bg-[#f2a04373] text-white">{resolvedUser.total_public_repos || 0}</span></span>
+              </p>
+              <p className="text-xl font-medium text-white">
+                <span className="text-white font-thin uppercase">Languages you've worked based on your repositories: <span className="py-1 px-2 rounded-sm bg-[#f2a04373] text-white">{languageCount}</span></span>
+              </p>
 
-              {/* Share on Socials Card */}
-              <div className="bg-gradient-to-br from-white via-purple-50/30 to-white dark:from-gray-800 dark:via-purple-900/10 dark:to-gray-800 p-6 rounded-xl shadow-sm border border-purple-100/50 dark:border-purple-900/30 card-shadow-purple card-full-height">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center">
-                    <div className="w-8 h-8 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-800 dark:to-purple-900 rounded-lg flex items-center justify-center shadow-md shadow-purple-100/50 dark:shadow-purple-900/30 ring-1 ring-purple-200/50 dark:ring-purple-700/50 mr-2">
-                      <Share2 className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                    </div>
-                    Share on Socials
-                  </h3>
-                  <button
-                    onClick={() => navigate("/share-socials")}
-                    className="text-xs px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-md hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors"
-                    aria-label="Go to Share on Socials page"
-                    title="See all repositories"
-                  >
-                    See all
-                  </button>
-                </div>
+                <div>
+              <p className="text-xl font-medium text-white">ONBOARDING TECHNOLOGIES SELECTED:</p>
 
-                <div className="space-y-4 mt-6 max-h-[320px] overflow-y-auto pr-4">
-                  {reposLoading ? (
-                    <div className="flex items-center justify-center h-32">
-                      <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        <span>Loading your repositories...</span>
-                      </div>
-                    </div>
-                  ) : reposError ? (
-                    <div className="bg-red-100 dark:bg-red-900/20 p-4 rounded-lg text-center my-4">
-                      <p className="text-red-700 dark:text-red-400">
-                        {reposError}
-                      </p>
-                      <button
-                        onClick={() => window.location.reload()}
-                        className="mt-2 px-3 py-1 bg-green-200 dark:bg-green-800 rounded-md text-green-700 dark:text-green-200 text-sm hover:bg-green-300 dark:hover:bg-green-700 transition-colors"
-                      >
-                        Try again
-                      </button>
-                    </div>
-                  ) : userRepos.length === 0 ? (
-                    <div className="bg-gray-100 dark:bg-gray-800/50 p-4 rounded-lg text-center">
-                      <p className="text-gray-600 dark:text-gray-400">
-                        No repositories found
-                      </p>
-                    </div>
-                  ) : (
-                    userRepos.map((repo) => (
-                      <div
-                        key={repo.id}
-                        className="bg-white dark:bg-gray-800/50 p-4 rounded-lg border border-gray-100 dark:border-gray-700/50 shadow-sm"
-                      >
-                        <div className="flex justify-between items-start mb-2">
-                          <div className="flex-1">
-                            <h4 className="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-1">
-                              {repo.name}
-                              <a
-                                href={repo.html_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                title={`Open ${repo.name} on GitHub`}
-                                className="inline-flex text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                              >
-                                <ExternalLink className="w-3.5 h-3.5" />
-                              </a>
-                            </h4>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                              Last updated:{" "}
-                              {new Date(repo.updated_at).toLocaleDateString()}
-                            </p>
-                          </div>
-                          {!generatedContent[repo.id] ? (
-                            <button
-                              onClick={() =>
-                                handleGeneratePost(repo.id, repo.name)
-                              }
-                              disabled={generatingPost !== null}
-                              className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-md text-xs font-medium hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
-                            >
-                              {generatingPost === repo.id.toString() ? (
-                                <>
-                                  <Loader2 className="w-3 h-3 animate-spin" />
-                                  Generating...
-                                </>
-                              ) : (
-                                <>Generate</>
-                              )}
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() =>
-                                handleOpenShareModal(repo.id, repo.name)
-                              }
-                              className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-md text-xs font-medium hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors flex items-center gap-1"
-                            >
-                              <Share2 className="w-3 h-3" />
-                              Share
-                            </button>
-                          )}
-                        </div>
-
-                        {generatedContent[repo.id] && (
-                          <div
-                            className="mt-3 bg-green-50/50 dark:bg-green-900/20 p-3 rounded-md text-xs text-gray-700 dark:text-gray-300 border border-green-100/50 dark:border-green-800/30 cursor-pointer hover:bg-green-100/50 dark:hover:bg-green-900/30"
-                            onClick={() =>
-                              handleOpenShareModal(repo.id, repo.name)
-                            }
-                          >
-                            <div className="flex justify-between items-center">
-                              <div className="line-clamp-1">
-                                {generatedContent[repo.id]}
-                              </div>
-                              <Share2 className="w-3.5 h-3.5 text-green-500 dark:text-green-400 ml-2 flex-shrink-0" />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ))
-                  )}
-                </div>
-
-                <div className="flex justify-center mt-4">
-                  <button
-                    onClick={() => window.location.reload()}
-                    className="flex items-center gap-1 text-sm text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 transition-colors"
-                  >
-                    <RefreshCcw className="w-3.5 h-3.5" />
-                    Refresh repositories
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Technologies */}
-            <div className="bg-gradient-to-br from-white via-purple-50/30 to-white dark:from-gray-800 dark:via-purple-900/10 dark:to-gray-800 p-6 rounded-xl border border-purple-100/50 dark:border-purple-900/30 card-shadow-purple">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center">
-                  <div className="w-8 h-8 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-800 dark:to-purple-900 rounded-lg flex items-center justify-center shadow-md shadow-purple-100/50 dark:shadow-purple-900/30 ring-1 ring-purple-200/50 dark:ring-purple-700/50 mr-2">
-                    <TrendingUp className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                  </div>
-                  Technologies You're Working With
-                </h3>
-                <button
-                  onClick={() =>
-                    navigate("/onboarding", {
-                      state: {
-                        editMode: true,
-                        technologies: userData.technologies,
-                        profession: userData.profession,
-                      },
-                    })
-                  }
-                  className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-md text-xs font-medium hover:bg-green-200 dark:hover:bg-green-800/50 transition-colors flex items-center gap-1"
-                  aria-label="Edit technologies"
-                >
-                  <Edit2 className="w-4 h-4" />
-                  Edit
-                </button>
-              </div>
-              {userData.technologies && userData.technologies.length > 0 ? (
-                <div className="flex flex-wrap gap-2 mt-4">
-                  {userData.technologies.map((tech: string, index: number) => {
-                    const delayClass = `delay-${Math.min(index * 50, 950)}`;
-                    return (
-                      <span
-                        key={tech}
-                        className={`px-4 py-2 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 text-green-700 dark:text-green-100 rounded-lg text-sm font-medium border border-green-200/50 dark:border-green-700/50 shadow-sm animate-fade-in ${delayClass}`}
-                      >
-                        {tech}
-                      </span>
-                    );
-                  })}
-                </div>
+              {onboardingTechnologies.length > 0 ? (
+                <ul className="text-lg font-thin text-white capitalize flex flex-wrap gap-2 mt-2" aria-label="Onboarding technologies selected">
+                  {onboardingTechnologies.map((technology) => (
+                    <li key={technology} className="text-sm bg-[#f2a04373] py-1 px-3 rounded-full">
+                      {technology}
+                    </li>
+                  ))}
+                </ul>
               ) : (
-                <div className="bg-purple-50/50 dark:bg-purple-900/20 rounded-lg p-4 mt-4 text-center">
-                  <p className="text-gray-600 dark:text-gray-400 flex flex-col items-center">
-                    <TrendingUp className="w-6 h-6 text-purple-400 dark:text-purple-500 mb-2 opacity-70" />
-                    No technologies selected yet.
-                  </p>
-                </div>
+                <p className="bio-copy">- NONE SELECTED</p>
               )}
+                </div>
             </div>
-          </div>
-        )}
-      </main>
-
-      {/* Share Modal */}
-      {shareModalRepo && (
-        <ShareModal
-          isOpen={isShareModalOpen}
-          onClose={handleCloseShareModal}
-          repoName={shareModalRepo.name}
-          content={generatedContent[shareModalRepo.id] || ""}
-        />
-      )}
+          </aside>
+        </div>
+      </section>
     </div>
   );
 }

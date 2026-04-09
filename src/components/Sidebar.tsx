@@ -51,10 +51,15 @@ export default function Sidebar() {
   const loadPendingRequests = async () => {
     try {
       const response = await authService.getConnectionRequests();
-      const pendingCount =
-        response.requests?.filter(
-          (req: any) => req.status === "pending" && req.recipient
-        )?.length || 0;
+      const requests = response?.requests;
+
+      const pendingCount = Array.isArray(requests)
+        ? requests.filter((req: any) => req?.status === "pending").length
+        : [requests?.received, requests?.sent]
+            .filter(Array.isArray)
+            .flat()
+            .filter((req: any) => req?.status === "pending").length;
+
       setPendingRequests(pendingCount);
     } catch (error) {
       console.error("Error loading pending requests:", error);
@@ -74,7 +79,7 @@ export default function Sidebar() {
       </button>
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full z-40 bg-white dark:bg-gray-800 shadow-lg flex flex-col border-r-4 border-[#555] transition-all duration-200
+        className={`fixed top-0 left-0 h-full z-40 bg-white dark:bg-[#1a0d03] shadow-lg flex flex-col border-r-4 border-[#555] transition-all duration-200
           ${open ? "w-64" : "w-16"} md:w-16 md:hover:w-64`}
         onMouseEnter={() => window.innerWidth >= 768 && setOpen(true)}
         onMouseLeave={() => window.innerWidth >= 768 && setOpen(false)}

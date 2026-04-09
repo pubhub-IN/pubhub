@@ -1,168 +1,178 @@
-import { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
 
 export default function NotFoundPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
+  const [statusCode, setStatusCode] = useState<number | null>(null);
 
   const randomCode = useMemo(() => {
     const segment = Math.random().toString(36).slice(2, 8).toUpperCase();
     return `NF-${segment}`;
   }, []);
 
-  return (
-    <main className="notfound-root flex min-h-screen w-full items-center justify-center px-4 py-8 sm:px-8">
-      <div className="notfound-grid" aria-hidden="true" />
-      <div className="notfound-glow notfound-glow-left" aria-hidden="true" />
-      <div className="notfound-glow notfound-glow-right" aria-hidden="true" />
+  useEffect(() => {
+    const navigationEntry =
+      performance.getEntriesByType("navigation")[0] as
+        | (PerformanceNavigationTiming & { responseStatus?: number })
+        | undefined;
 
-      <section className="notfound-card w-full max-w-3xl overflow-hidden rounded-2xl">
-        <div className="notfound-header flex items-center justify-between border-b px-4 py-3 sm:px-6">
-          <p className="text-xs tracking-[0.18em]">PUBHUB NAVIGATOR</p>
-          <span className="notfound-chip">{randomCode}</span>
+    if (typeof navigationEntry?.responseStatus === "number") {
+      setStatusCode(navigationEntry.responseStatus);
+      return;
+    }
+
+    fetch(window.location.href, { method: "HEAD", cache: "no-store" })
+      .then((response) => {
+        setStatusCode(response.status);
+      })
+      .catch(() => {
+        setStatusCode(null);
+      });
+  }, [location.pathname]);
+
+  const displayStatus = statusCode ?? 404;
+  const avatarUrl = user?.avatar_url?.trim() || "";
+
+  return (
+    <main className="notfound-root flex min-h-screen w-full items-center justify-center p-4 sm:p-8">
+      <section className="notfound-shell w-full max-w-6xl rounded-[24px] p-4 sm:p-6 lg:p-7">
+        <div className="notfound-topbar flex items-center justify-between">
+          <img
+            src="/android-chrome-512x512.png"
+            alt="PubHub logo"
+            className="notfound-logo"
+          />
+
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt="GitHub avatar"
+              className="notfound-avatar"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <div className="notfound-avatar-fallback" aria-label="Default user avatar">
+              W
+            </div>
+          )}
         </div>
 
-        <div className="p-6 sm:p-10">
-          <p className="notfound-kicker">Route not found</p>
-          <h1 className="notfound-title mt-2">404</h1>
-          <p className="notfound-copy mt-4 max-w-xl">
-            The page you requested drifted outside the mapped developer lanes.
-            The route may be outdated, removed, or typed incorrectly.
-          </p>
+        <div className="notfound-body grid items-center gap-8 py-8 sm:gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:py-12">
+          <div className="notfound-image-wrap">
+            <img
+              src="/404-img.png"
+              alt="404"
+              className="notfound-image"
+            />
+          </div>
 
-          <div className="mt-8 flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={() => navigate(user ? "/dashboard" : "/")}
-              className="notfound-btn notfound-btn-primary"
-            >
-              {user ? "Go to dashboard" : "Go to home"}
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate(-1)}
-              className="notfound-btn notfound-btn-ghost"
-            >
-              Go back
-            </button>
+          <div className="notfound-copy-panel flex flex-col justify-center">
+            <h1 className="notfound-title">{displayStatus}</h1>
+            <p className="notfound-copy mt-3 max-w-md">
+              The page you requested drifted outside the mapped terminal lanes.
+              It may have moved, been removed, or never existed in this build.
+            </p>
+
+            <div className="mt-7 flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => navigate("/")}
+                className="notfound-btn notfound-btn-primary"
+              >
+                <ArrowLeft size={16} aria-hidden="true" />
+                <span>Go home</span>
+              </button>
+            </div>
+
+            <p className="notfound-meta mt-5">
+              route: {location.pathname} | ref: {randomCode}
+            </p>
           </div>
         </div>
       </section>
 
       <style>{`
         .notfound-root {
-          --bg-ink: #09070c;
-          --bg-mid: #121022;
-          --line: rgba(140, 194, 255, 0.18);
-          --edge: rgba(140, 194, 255, 0.35);
-          --text-main: #f4f7ff;
-          --text-muted: #a9b6d6;
-          --accent: #75d6ff;
-          --accent-2: #a0ffcf;
-          --panel: rgba(18, 16, 34, 0.72);
-
-          position: relative;
-          overflow: hidden;
-          background:
-            radial-gradient(1200px 600px at 15% 10%, #1b2c52 0%, transparent 55%),
-            radial-gradient(800px 500px at 90% 80%, #19413d 0%, transparent 60%),
-            linear-gradient(145deg, var(--bg-ink) 0%, var(--bg-mid) 55%, #090a13 100%);
-          color: var(--text-main);
-          font-family: "Space Mono", "JetBrains Mono", "Fira Code", monospace;
+          background: #ffffff;
+          color: #16181d;
+          font-family: "Poppins", sans-serif;
         }
 
-        .notfound-grid {
-          position: absolute;
-          inset: 0;
-          background-image:
-            linear-gradient(var(--line) 1px, transparent 1px),
-            linear-gradient(90deg, var(--line) 1px, transparent 1px);
-          background-size: 32px 32px;
-          mask-image: radial-gradient(circle at center, black 20%, transparent 100%);
-          opacity: 0.35;
-          pointer-events: none;
-          animation: gridShift 18s linear infinite;
+        .notfound-shell {
+          background: #f8f8f8;
+          border: 1px solid #ececec;
+          box-shadow: 0 18px 45px rgba(0, 0, 0, 0.08);
         }
 
-        .notfound-glow {
-          position: absolute;
-          width: 32rem;
-          height: 32rem;
-          filter: blur(80px);
+        .notfound-logo {
+          height: 26px;
+          width: 26px;
+          object-fit: contain;
+        }
+
+        .notfound-avatar,
+        .notfound-avatar-fallback {
+          height: 38px;
+          width: 38px;
           border-radius: 9999px;
-          opacity: 0.3;
-          pointer-events: none;
         }
 
-        .notfound-glow-left {
-          left: -10rem;
-          top: -12rem;
-          background: #2d8cff;
-          animation: floatLeft 10s ease-in-out infinite;
+        .notfound-avatar {
+          object-fit: cover;
+          border: 1px solid #ececec;
         }
 
-        .notfound-glow-right {
-          right: -8rem;
-          bottom: -16rem;
-          background: #26d29a;
-          animation: floatRight 12s ease-in-out infinite;
+        .notfound-avatar-fallback {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: #f2c94c;
+          color: #1f1f1f;
+          font-weight: 700;
+          font-size: 0.95rem;
         }
 
-        .notfound-card {
-          position: relative;
-          z-index: 2;
-          background: var(--panel);
-          backdrop-filter: blur(8px);
-          border: 1px solid var(--edge);
-          box-shadow:
-            0 20px 60px rgba(0, 0, 0, 0.45),
-            inset 0 0 0 1px rgba(255, 255, 255, 0.04);
-          animation: cardIn 520ms cubic-bezier(0.19, 1, 0.22, 1);
-        }
-
-        .notfound-header {
-          border-color: rgba(140, 194, 255, 0.24);
-          color: var(--text-muted);
-        }
-
-        .notfound-chip {
-          border: 1px solid rgba(160, 255, 207, 0.35);
-          background: rgba(160, 255, 207, 0.08);
-          color: var(--accent-2);
-          padding: 0.22rem 0.55rem;
-          border-radius: 9999px;
-          font-size: 0.72rem;
-          letter-spacing: 0.08em;
-        }
-
-        .notfound-kicker {
-          color: var(--accent-2);
-          letter-spacing: 0.18em;
-          text-transform: uppercase;
-          font-size: 0.72rem;
+        .notfound-image-wrap {
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .notfound-title {
-          font-size: clamp(3.8rem, 16vw, 8rem);
-          line-height: 0.95;
-          letter-spacing: -0.04em;
-          text-shadow: 0 0 22px rgba(117, 214, 255, 0.28);
+          font-size: clamp(2.9rem, 10vw, 5.2rem);
+          line-height: 1;
+          letter-spacing: -0.03em;
+          font-weight: 700;
+          color: #14161a;
         }
 
         .notfound-copy {
-          color: var(--text-muted);
-          font-size: 0.98rem;
-          line-height: 1.7;
+          color: #6b7280;
+          font-size: 1.7rem;
+          line-height: 1.35;
+          font-weight: 500;
+        }
+
+        .notfound-image {
+          display: block;
+          width: auto;
+          height: 80%;
+          object-fit: contain;
         }
 
         .notfound-btn {
           border-radius: 9999px;
-          font-size: 0.86rem;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          padding: 0.72rem 1.15rem;
-          transition: transform 140ms ease, box-shadow 180ms ease, background-color 180ms ease;
+          font-size: 0.92rem;
+          padding: 0.72rem 1.2rem;
+          transition: transform 140ms ease, background-color 180ms ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-weight: 600;
         }
 
         .notfound-btn:hover {
@@ -170,63 +180,28 @@ export default function NotFoundPage() {
         }
 
         .notfound-btn-primary {
-          background: linear-gradient(95deg, var(--accent), #6ce3cc);
-          color: #04151d;
-          box-shadow: 0 10px 28px rgba(117, 214, 255, 0.32);
+          background: #16181d;
+          color: #ffffff;
         }
 
         .notfound-btn-primary:hover {
-          box-shadow: 0 14px 30px rgba(117, 214, 255, 0.4);
+          background: #090a0d;
         }
 
-        .notfound-btn-ghost {
-          border: 1px solid rgba(169, 182, 214, 0.35);
-          color: var(--text-main);
-          background: rgba(9, 7, 12, 0.35);
+        .notfound-meta {
+          color: #9ca3af;
+          font-size: 0.78rem;
+          letter-spacing: 0.02em;
+          word-break: break-all;
         }
 
-        .notfound-btn-ghost:hover {
-          background: rgba(9, 7, 12, 0.55);
-          border-color: rgba(169, 182, 214, 0.55);
-        }
+        @media (max-width: 1023px) {
+          .notfound-image-wrap {
+            order: -1;
+          }
 
-        @keyframes cardIn {
-          from {
-            opacity: 0;
-            transform: translateY(16px) scale(0.985);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-
-        @keyframes gridShift {
-          from {
-            transform: translate3d(0, 0, 0);
-          }
-          to {
-            transform: translate3d(32px, 32px, 0);
-          }
-        }
-
-        @keyframes floatLeft {
-          0%,
-          100% {
-            transform: translate(0, 0);
-          }
-          50% {
-            transform: translate(24px, 22px);
-          }
-        }
-
-        @keyframes floatRight {
-          0%,
-          100% {
-            transform: translate(0, 0);
-          }
-          50% {
-            transform: translate(-26px, -18px);
+          .notfound-copy {
+            font-size: 1.15rem;
           }
         }
       `}</style>

@@ -7,39 +7,21 @@ import {
   useState,
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import ShutdownScreen from "./ShutdownScreen";
 import { useAuth } from "../lib/useAuth";
-import { authService } from "../lib/auth-jwt";
+import { buildApiUrl, API_ENDPOINTS } from "../config/api";
 import "../styles/retro-shared.css";
-
-// Helper to create a temporary mock JWT token for testing without OAuth
-const createMockToken = (profession: string, technologies: string[]): string => {
-  const payload = {
-    id: "temp-onboarding-user",
-    github_id: 0,
-    github_username: "temp_user",
-    name: "Temporary User",
-    profession,
-    technologies,
-    total_public_repos: 0,
-    total_commits: 0,
-    languages: {},
-    github_data: {},
-    exp: Math.floor(Date.now() / 1000) + 86400, // Expire in 24 hours
-  };
-
-  // Create a simple JWT-like token (note: not cryptographically signed for testing)
-  const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
-  const body = btoa(JSON.stringify(payload));
-  const signature = btoa("temp-signature");
-
-  return `${header}.${body}.${signature}`;
-};
 
 type TerminalEntry = {
   id: number;
   text: string;
   variant?: "default" | "boxed";
 };
+
+type ShutdownPhase = "idle" | "logging" | "animating" | "sleeping";
+
+const SHUTDOWN_STATE_KEY = "working-one-shutdown-state";
+const PENDING_ONBOARDING_KEY = "pending_onboarding_profile";
 
 const PROMPT_USER = "guest";
 const PROMPT_HOST = "working-one";
@@ -48,10 +30,10 @@ const COMMAND_HELP: string[] = [
   "Available commands:",
   "  help            Show all commands",
   "  status          Show setup progress",
-  "  connect github  Go to dashboard",
+  "  login           Github OAuth",
   "  finish          Skip and go to dashboard",
   "  clear           Clear terminal output",
-  "  exit            Quits WORKING-ONE",
+  "  exit            Shutdown WORKING-ONE",
 ];
 
 function getPromptPrefix() {
@@ -65,7 +47,7 @@ function getIntroLines(profession: string, technologyCount: number) {
     `selected profession: ${profession || "not provided"}`,
     `selected technologies: ${technologyCount}`,
     "",
-    "Type 'connect github' and press Enter to proceed to dashboard.",
+    "Type 'login' and press Enter to proceed with Github OAuth.",
     "Type 'help' to list all supported commands.",
   ];
 }
@@ -93,6 +75,7 @@ export default function GitHubScreen() {
     }))
   );
   const [caretVisible, setCaretVisible] = useState(true);
+  const [shutdownPhase, setShutdownPhase] = useState<ShutdownPhase>("idle");
   const [currentTime, setCurrentTime] = useState(() =>
     new Date().toLocaleTimeString([], {
       hour: "2-digit",
@@ -104,8 +87,20 @@ export default function GitHubScreen() {
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const shutdownTimersRef = useRef<number[]>([]);
 
   const promptPrefix = useMemo(() => getPromptPrefix(), []);
+
+  const isShutdownStored = () => window.localStorage.getItem(SHUTDOWN_STATE_KEY) === "sleeping";
+
+  const setShutdownStored = (value: boolean) => {
+    if (value) {
+      window.localStorage.setItem(SHUTDOWN_STATE_KEY, "sleeping");
+      return;
+    }
+
+    window.localStorage.removeItem(SHUTDOWN_STATE_KEY);
+  };
 
   useEffect(() => {
     const blink = window.setInterval(() => {
@@ -139,6 +134,23 @@ export default function GitHubScreen() {
     inputRef.current?.focus();
   }, []);
 
+  useEffect(() => {
+    if (!isShutdownStored()) {
+      return;
+    }
+
+    setShutdownPhase("sleeping");
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      for (const timer of shutdownTimersRef.current) {
+        window.clearTimeout(timer);
+      }
+      shutdownTimersRef.current = [];
+    };
+  }, []);
+
   const pushEntries = (
     lines: string[],
     variant: TerminalEntry["variant"] = "default"
@@ -163,9 +175,67 @@ export default function GitHubScreen() {
   const printStatus = () => {
     pushEntries([
       "terminal: ready",
-      "next command: connect github",
+      "next command: login",
       "oauth destination: github",
     ]);
+  };
+
+  const scheduleShutdownStep = (fn: () => void, delayMs: number) => {
+    const timer = window.setTimeout(fn, delayMs);
+    shutdownTimersRef.current.push(timer);
+  };
+
+  const resetShutdownTimers = () => {
+    for (const timer of shutdownTimersRef.current) {
+      window.clearTimeout(timer);
+    }
+    shutdownTimersRef.current = [];
+  };
+
+  const restartSystem = () => {
+    resetShutdownTimers();
+    setShutdownStored(false);
+    setShutdownPhase("idle");
+    setEntries(
+      getIntroLines(profession, technologyCount).map((line, index) => ({
+        id: index,
+        text: line,
+      }))
+    );
+    setInput("");
+    setCommandHistory([]);
+    setHistoryIndex(null);
+    setDraftInput("");
+
+    window.setTimeout(() => {
+      inputRef.current?.focus();
+    }, 80);
+  };
+
+  const startShutdownSequence = () => {
+    if (shutdownPhase !== "idle") {
+      return;
+    }
+
+    setShutdownStored(true);
+
+    const shutdownLogs = [
+      "[shutdown] received exit signal",
+      "[shutdown] stopping git-sync.service ... done",
+      "[shutdown] stopping auth-session.service ... done",
+      "[shutdown] stopping ui-renderer.service ... done",
+      "[shutdown] closing network interfaces ... done",
+      "[shutdown] system entering sleep mode",
+    ];
+
+    setShutdownPhase("logging");
+
+    shutdownLogs.forEach((line, index) => {
+      scheduleShutdownStep(() => pushEntries([line]), index * 260);
+    });
+
+    scheduleShutdownStep(() => setShutdownPhase("animating"), shutdownLogs.length * 260 + 120);
+    scheduleShutdownStep(() => setShutdownPhase("sleeping"), shutdownLogs.length * 260 + 2320);
   };
 
   const runCommand = (rawCommand: string) => {
@@ -176,24 +246,17 @@ export default function GitHubScreen() {
       return;
     }
 
+    if (shutdownPhase !== "idle") {
+      return;
+    }
+
     if (normalized === "clear") {
       setEntries([]);
       return;
     }
 
     if (normalized === "exit") {
-      pushEntries(["attempting to close this tab..."]);
-
-      window.close();
-
-      setTimeout(() => {
-        if (!window.closed) {
-          pushEntries([
-            "browser blocked tab close",
-            "press Ctrl+W (Windows/Linux) or Cmd+W (macOS)",
-          ]);
-        }
-      }, 120);
+      startShutdownSequence();
 
       return;
     }
@@ -213,15 +276,29 @@ export default function GitHubScreen() {
       return;
     }
 
-    if (/^connect\s+github$/i.test(command)) {
-      pushEntries(["connecting to dashboard..."]);
-      // Create and set a temporary mock token so user can access dashboard
-      const mockToken = createMockToken(profession, technologiesFromState || []);
-      authService.setToken(mockToken);
-      
-      setTimeout(() => {
-        navigate("/dashboard", { replace: true, state: { refreshUser: true } });
-      }, 500);
+    if (/^login$/i.test(command)) {
+      pushEntries(["initiating Github OAuth..."]);
+
+      const profileToPersist = {
+        profession,
+        technologies: technologiesFromState || user?.technologies || [],
+      };
+
+      if (
+        profileToPersist.profession ||
+        (Array.isArray(profileToPersist.technologies) &&
+          profileToPersist.technologies.length > 0)
+      ) {
+        sessionStorage.setItem(
+          PENDING_ONBOARDING_KEY,
+          JSON.stringify(profileToPersist)
+        );
+      }
+
+      // Use real OAuth flow so backend can fetch and persist live GitHub data.
+      const url = new URL(buildApiUrl(API_ENDPOINTS.GITHUB_AUTH));
+      url.searchParams.set("returnTo", window.location.origin);
+      window.location.href = url.toString();
       return;
     }
 
@@ -233,6 +310,10 @@ export default function GitHubScreen() {
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (shutdownPhase !== "idle") {
+      return;
+    }
 
     const rawCommand = input;
     const text = rawCommand.trim();
@@ -250,6 +331,10 @@ export default function GitHubScreen() {
   };
 
   const onInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (shutdownPhase !== "idle") {
+      return;
+    }
+
     if (event.key === "ArrowUp") {
       if (!commandHistory.length) {
         return;
@@ -297,7 +382,11 @@ export default function GitHubScreen() {
     <div
       className="retro-shell h-screen min-h-screen w-full overflow-hidden"
       style={{ minHeight: "100dvh", height: "100dvh" }}
-      onClick={() => inputRef.current?.focus()}
+      onClick={() => {
+        if (shutdownPhase === "idle") {
+          inputRef.current?.focus();
+        }
+      }}
       role="presentation"
     >
       <div className="retro-terminal relative h-full min-h-full w-full bg-[#120900]/95">
@@ -353,6 +442,7 @@ export default function GitHubScreen() {
                 onChange={(event) => setInput(event.target.value)}
                 onKeyDown={onInputKeyDown}
                 className="w-full bg-transparent pr-2 outline-none caret-transparent"
+                disabled={shutdownPhase !== "idle"}
                 spellCheck={false}
                 autoCapitalize="off"
                 autoCorrect="off"
@@ -372,6 +462,14 @@ export default function GitHubScreen() {
         </div>
 
         <div className="retro-scanlines" />
+
+        {shutdownPhase === "animating" && (
+          <ShutdownScreen phase="animating" onRestart={restartSystem} />
+        )}
+
+        {shutdownPhase === "sleeping" && (
+          <ShutdownScreen phase="sleeping" onRestart={restartSystem} />
+        )}
       </div>
 
       <style>{`

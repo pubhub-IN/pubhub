@@ -18,7 +18,7 @@ export interface User {
 
 // Session refresh interval (25 minutes)
 const SESSION_REFRESH_INTERVAL = 25 * 60 * 1000;
-let refreshTimer: NodeJS.Timeout | null = null;
+let refreshTimer: ReturnType<typeof setInterval> | null = null;
 
 // Utility to check if server is running
 export const checkServerHealth = async (): Promise<boolean> => {
@@ -177,7 +177,9 @@ export const authService = {
 
   // Get GitHub auth URL
   getGitHubAuthUrl() {
-    return buildApiUrl(API_ENDPOINTS.GITHUB_AUTH);
+    const url = new URL(buildApiUrl(API_ENDPOINTS.GITHUB_AUTH));
+    url.searchParams.set("returnTo", window.location.origin);
+    return url.toString();
   },
 
   // Logout

@@ -14,12 +14,33 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, "config/.env") });
 
 const app = express();
+app.set("trust proxy", 1);
 const PORT = Number(process.env.PORT || 3000);
-const FRONTEND_URL = process.env.FRONTEND_URL || process.env.VITE_FRONTEND_URL || "http://localhost:5173";
+
+const configuredOrigins = [
+  process.env.FRONTEND_URL,
+  process.env.VITE_FRONTEND_URL,
+  ...(process.env.CORS_ORIGINS || "").split(",").map((origin) => origin.trim()),
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+].filter(Boolean);
+
+const allowedOrigins = [...new Set(configuredOrigins)];
 
 app.use(
   cors({
-    origin: FRONTEND_URL,
+    origin(origin, callback) {
+      // Allow tools/clients without an Origin header (e.g. curl, server-to-server).
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error(`CORS blocked origin: ${origin}`));
+    },
     credentials: true,
   })
 );

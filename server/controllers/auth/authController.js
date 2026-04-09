@@ -14,10 +14,48 @@ function getOAuthConfig() {
       "http://localhost:5173",
     githubClientId: process.env.GITHUB_CLIENT_ID || "",
     githubClientSecret: process.env.GITHUB_CLIENT_SECRET || "",
-    githubCallbackUrl:
-      process.env.GITHUB_CALLBACK_URL ||
-      "http://localhost:3000/auth/github/callback",
   };
+}
+
+function getGithubCallbackUrl(req) {
+  const forwardedProto = req.headers["x-forwarded-proto"];
+  const protocolHeader = Array.isArray(forwardedProto)
+    ? forwardedProto[0]
+    : forwardedProto;
+  const protocol = (protocolHeader || req.protocol || "http")
+    .split(",")[0]
+    .trim();
+
+  const forwardedHost = req.headers["x-forwarded-host"];
+  const hostHeader = Array.isArray(forwardedHost) ? forwardedHost[0] : forwardedHost;
+  const host = (hostHeader || req.get("host") || "").split(",")[0].trim();
+
+  if (!host) {
+    return process.env.GITHUB_CALLBACK_URL || "http://localhost:3000/auth/github/callback";
+  }
+
+  return `${protocol}://${host}/auth/github/callback`;
+}
+
+function getFrontendRedirectUrl(req) {
+  const requestedReturnTo = req.query?.returnTo;
+
+  if (typeof requestedReturnTo === "string") {
+    try {
+      const parsed = new URL(requestedReturnTo);
+      if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+        return parsed.origin;
+      }
+    } catch {
+      // Ignore invalid returnTo values and fall back to configured frontend URLs.
+    }
+  }
+
+  return (
+    process.env.FRONTEND_URL ||
+    process.env.VITE_FRONTEND_URL ||
+    "http://localhost:5173"
+  );
 }
 
 function hasGithubOAuthConfig() {
@@ -25,9 +63,9 @@ function hasGithubOAuthConfig() {
   return Boolean(githubClientId && githubClientSecret);
 }
 
-function redirectToFrontend(res, query = {}) {
+function redirectToFrontend(res, query = {}, frontendUrlOverride) {
   const { frontendUrl } = getOAuthConfig();
-  const url = new URL(frontendUrl);
+  const url = new URL(frontendUrlOverride || frontendUrl);
   Object.entries(query).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") {
       url.searchParams.set(key, String(value));
@@ -36,9 +74,8 @@ function redirectToFrontend(res, query = {}) {
   res.redirect(url.toString());
 }
 
-async function fetchGithubAccessToken(code) {
-  const { githubClientId, githubClientSecret, githubCallbackUrl } =
-    getOAuthConfig();
+async function fetchGithubAccessToken(code, githubCallbackUrl) {
+  const { githubClientId, githubClientSecret } = getOAuthConfig();
 
   const response = await fetch("https://github.com/login/oauth/access_token", {
     method: "POST",
@@ -128,14 +165,11 @@ async function fetchGithubProfile(accessToken) {
       })
     : [];
 
-  const technologies = Object.keys(languageTotals).filter((name) => name && name !== "Unknown");
-
   return {
     githubUser,
     primaryEmail,
     normalizedRepos,
     languageTotals,
-    technologies,
     activityDays: Array.from(activityDays),
   };
 }
@@ -155,19 +189,24 @@ async function issueAndStoreTokens(user) {
 }
 
 export async function startGithubAuth(_req, res) {
+  const req = _req;
+
   if (!hasGithubOAuthConfig()) {
     return res.status(503).json({
       error: "GitHub OAuth is not configured",
-      required: ["GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET", "GITHUB_CALLBACK_URL"],
+      required: ["GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET"],
     });
   }
 
-  const { githubClientId, githubCallbackUrl } = getOAuthConfig();
+  const { githubClientId } = getOAuthConfig();
+  const githubCallbackUrl = getGithubCallbackUrl(req);
+  const frontendRedirectUrl = getFrontendRedirectUrl(req);
 
   const authUrl = new URL("https://github.com/login/oauth/authorize");
   authUrl.searchParams.set("client_id", githubClientId);
   authUrl.searchParams.set("redirect_uri", githubCallbackUrl);
   authUrl.searchParams.set("scope", "read:user user:email repo");
+  authUrl.searchParams.set("state", Buffer.from(frontendRedirectUrl).toString("base64url"));
 
   return res.redirect(authUrl.toString());
 }
@@ -183,8 +222,9 @@ export async function githubCallback(req, res) {
   }
 
   try {
-    const githubAccessToken = await fetchGithubAccessToken(code);
-    const { githubUser, primaryEmail, normalizedRepos, languageTotals, technologies, activityDays } =
+    const githubCallbackUrl = getGithubCallbackUrl(req);
+    const githubAccessToken = await fetchGithubAccessToken(code, githubCallbackUrl);
+    const { githubUser, primaryEmail, normalizedRepos, languageTotals, activityDays } =
       await fetchGithubProfile(githubAccessToken);
 
     const update = {
@@ -199,7 +239,6 @@ export async function githubCallback(req, res) {
         following: githubUser.following || 0,
         public_gists: githubUser.public_gists || 0,
       },
-      technologies,
       total_public_repos: githubUser.public_repos || normalizedRepos.length,
       languages: languageTotals,
       repositories: normalizedRepos,
@@ -209,12 +248,36 @@ export async function githubCallback(req, res) {
 
     const user = await User.findOneAndUpdate(
       { github_id: githubUser.id },
-      { $set: update, $setOnInsert: { profession: "", linkedin_username: null, x_username: null } },
+      {
+        $set: update,
+        $setOnInsert: {
+          profession: "",
+          technologies: [],
+          linkedin_username: null,
+          x_username: null,
+        },
+      },
       { upsert: true, new: true, runValidators: true }
     );
 
     const { token, refreshToken } = await issueAndStoreTokens(user);
-    return redirectToFrontend(res, { token, refreshToken });
+    const frontendUrl = getFrontendRedirectUrl(req);
+    const state = typeof req.query?.state === "string" ? req.query.state : "";
+    let frontendRedirectUrl = frontendUrl;
+
+    if (state) {
+      try {
+        const decoded = Buffer.from(state, "base64url").toString("utf8");
+        const parsed = new URL(decoded);
+        if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+          frontendRedirectUrl = parsed.origin;
+        }
+      } catch {
+        frontendRedirectUrl = frontendUrl;
+      }
+    }
+
+    return redirectToFrontend(res, { token, refreshToken }, frontendRedirectUrl);
   } catch (error) {
     console.error("GitHub OAuth callback failed:", error.message);
     return redirectToFrontend(res, { error: "github_auth_failed" });

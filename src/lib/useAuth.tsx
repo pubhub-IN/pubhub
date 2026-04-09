@@ -80,6 +80,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
       };
     } catch (error) {
       console.error("Failed to build user from token fallback:", error);
+      // Try to get from sessionStorage as a last resort (for mock tokens during navigation)
+      const pendingMockUser = sessionStorage.getItem("pending-mock-user");
+      if (pendingMockUser) {
+        try {
+          const mockUser = JSON.parse(pendingMockUser) as AuthUser;
+          console.log("Using mock user from sessionStorage:", mockUser.github_username);
+          sessionStorage.removeItem("pending-mock-user");
+          return mockUser;
+        } catch {
+          return null;
+        }
+      }
       return null;
     }
   };
@@ -144,6 +156,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       if (authService.isAuthenticated()) {
         try {
+          // First try to get user from token payload (works for mock tokens)
+          const fallbackUser = getUserFromTokenFallback();
+          if (fallbackUser) {
+            console.log("Init auth: found user in token fallback", fallbackUser.github_username);
+            setUser(fallbackUser);
+
+            // For OAuth callbacks we still need to hydrate from API and apply
+            // pending onboarding data (profession/technologies) to the backend.
+            if (!tokenFromOAuth) {
+              setLoading(false);
+              return;
+            }
+          }
+          
+          // Otherwise, try API call (real OAuth tokens)
           const userData = await authService.getCurrentUser();
 
           if (userData) {
@@ -196,18 +223,38 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     };
 
+    // Listen for auth token updates (e.g., when setting mock token)
+    const handleAuthTokenUpdated = () => {
+      console.log("Auth token updated event received");
+      if (authService.isAuthenticated()) {
+        console.log("Token is authenticated, extracting user from fallback");
+        const fallbackUser = getUserFromTokenFallback();
+        console.log("Fallback user extracted:", fallbackUser?.github_username);
+        if (fallbackUser) {
+          setUser(fallbackUser);
+          console.log("User set from fallback");
+        }
+      } else {
+        console.log("Token is not authenticated");
+      }
+    };
+
     window.addEventListener("user-updated", handleUserUpdated as EventListener);
+    window.addEventListener("auth-token-updated", handleAuthTokenUpdated);
 
     return () => {
       window.removeEventListener(
         "user-updated",
         handleUserUpdated as EventListener
       );
+      window.removeEventListener("auth-token-updated", handleAuthTokenUpdated);
     };
   }, []);
 
   const login = () => {
-    window.location.href = buildApiUrl(API_ENDPOINTS.GITHUB_AUTH);
+    const url = new URL(buildApiUrl(API_ENDPOINTS.GITHUB_AUTH));
+    url.searchParams.set("returnTo", window.location.origin);
+    window.location.href = url.toString();
   };
 
   const logout = async () => {

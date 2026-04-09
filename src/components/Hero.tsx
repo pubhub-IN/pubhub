@@ -1,5 +1,6 @@
 import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ShutdownScreen from "./ShutdownScreen";
 import "../styles/retro-shared.css";
 
 type TerminalEntry = {
@@ -7,6 +8,10 @@ type TerminalEntry = {
   text: string;
   variant?: "default" | "boxed";
 };
+
+type ShutdownPhase = "idle" | "logging" | "animating" | "sleeping";
+
+const SHUTDOWN_STATE_KEY = "working-one-shutdown-state";
 
 const PROMPT_USER = "guest";
 const PROMPT_HOST = "working-one";
@@ -18,7 +23,7 @@ const COMMAND_HELP: string[] = [
   "  about           What is working-one",
   "  features        Core platform features",
   "  clear           Clear terminal output",
-  "  exit            Quits WORKING-ONE",
+  "  exit            Shutdown WORKING-ONE",
   "  status          Show system status",
   "  time            Show local time",
   "  whoami          Show current terminal user",
@@ -33,10 +38,6 @@ function getBootLines() {
     "boot sequence start...",
     "loading working-one shell v1.0.0",
     "establishing secure channel...done",
-    "Welcome to Working One 1.0.0 LTS (GNU/Linux 6.8.0-100-generic x86_64)",
-    " * Documentation:  https://docs.working-one.com",
-    " * Management:     https://dashboard.working-one.com",
-    " * Support:        support@working-one.com",
     "type 'help' to get started",
   ];
 }
@@ -51,6 +52,7 @@ export default function Hero() {
     getBootLines().map((line, index) => ({ id: index, text: line }))
   );
   const [caretVisible, setCaretVisible] = useState(true);
+  const [shutdownPhase, setShutdownPhase] = useState<ShutdownPhase>("idle");
   const [currentTime, setCurrentTime] = useState(() =>
     new Date().toLocaleTimeString([], {
       hour: "2-digit",
@@ -61,8 +63,20 @@ export default function Hero() {
   );
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const shutdownTimersRef = useRef<number[]>([]);
 
   const promptPrefix = useMemo(() => getPromptPrefix(), []);
+
+  const isShutdownStored = () => window.localStorage.getItem(SHUTDOWN_STATE_KEY) === "sleeping";
+
+  const setShutdownStored = (value: boolean) => {
+    if (value) {
+      window.localStorage.setItem(SHUTDOWN_STATE_KEY, "sleeping");
+      return;
+    }
+
+    window.localStorage.removeItem(SHUTDOWN_STATE_KEY);
+  };
 
   useEffect(() => {
     const blink = window.setInterval(() => {
@@ -96,6 +110,23 @@ export default function Hero() {
     inputRef.current?.focus();
   }, []);
 
+  useEffect(() => {
+    if (!isShutdownStored()) {
+      return;
+    }
+
+    setShutdownPhase("sleeping");
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      for (const timer of shutdownTimersRef.current) {
+        window.clearTimeout(timer);
+      }
+      shutdownTimersRef.current = [];
+    };
+  }, []);
+
   const pushEntries = (lines: string[], variant: TerminalEntry["variant"] = "default") => {
     if (!lines.length) {
       return;
@@ -114,10 +145,67 @@ export default function Hero() {
     });
   };
 
+  const scheduleShutdownStep = (fn: () => void, delayMs: number) => {
+    const timer = window.setTimeout(fn, delayMs);
+    shutdownTimersRef.current.push(timer);
+  };
+
+  const resetShutdownTimers = () => {
+    for (const timer of shutdownTimersRef.current) {
+      window.clearTimeout(timer);
+    }
+    shutdownTimersRef.current = [];
+  };
+
+  const restartSystem = () => {
+    resetShutdownTimers();
+    setShutdownStored(false);
+    setShutdownPhase("idle");
+    setEntries(getBootLines().map((line, index) => ({ id: index, text: line })));
+    setInput("");
+    setCommandHistory([]);
+    setHistoryIndex(null);
+    setDraftInput("");
+
+    window.setTimeout(() => {
+      inputRef.current?.focus();
+    }, 80);
+  };
+
+  const startShutdownSequence = () => {
+    if (shutdownPhase !== "idle") {
+      return;
+    }
+
+    setShutdownStored(true);
+
+    const shutdownLogs = [
+      "[shutdown] received exit signal",
+      "[shutdown] stopping shell-session.service ... done",
+      "[shutdown] stopping ui-renderer.service ... done",
+      "[shutdown] saving runtime cache ... done",
+      "[shutdown] powering down display bus ... done",
+      "[shutdown] system entering sleep mode",
+    ];
+
+    setShutdownPhase("logging");
+
+    shutdownLogs.forEach((line, index) => {
+      scheduleShutdownStep(() => pushEntries([line]), index * 260);
+    });
+
+    scheduleShutdownStep(() => setShutdownPhase("animating"), shutdownLogs.length * 260 + 120);
+    scheduleShutdownStep(() => setShutdownPhase("sleeping"), shutdownLogs.length * 260 + 2320);
+  };
+
   const runCommand = (rawCommand: string) => {
     const command = rawCommand.trim().toLowerCase();
 
     if (!command) {
+      return;
+    }
+
+    if (shutdownPhase !== "idle") {
       return;
     }
 
@@ -127,18 +215,7 @@ export default function Hero() {
     }
 
     if (command === "exit") {
-      pushEntries(["attempting to close this tab..."]);
-
-      window.close();
-
-      setTimeout(() => {
-        if (!window.closed) {
-          pushEntries([
-            "browser blocked tab close",
-            "press Ctrl+W (Windows/Linux) or Cmd+W (macOS)",
-          ]);
-        }
-      }, 120);
+      startShutdownSequence();
 
       return;
     }
@@ -219,6 +296,10 @@ export default function Hero() {
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    if (shutdownPhase !== "idle") {
+      return;
+    }
+
     const rawCommand = input;
     const text = rawCommand.trim();
     setInput("");
@@ -235,6 +316,10 @@ export default function Hero() {
   };
 
   const onInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (shutdownPhase !== "idle") {
+      return;
+    }
+
     if (event.key === "ArrowUp") {
       if (!commandHistory.length) {
         return;
@@ -282,7 +367,11 @@ export default function Hero() {
     <div
       className="retro-shell h-screen min-h-screen w-full overflow-hidden"
       style={{ minHeight: "100dvh", height: "100dvh" }}
-      onClick={() => inputRef.current?.focus()}
+      onClick={() => {
+        if (shutdownPhase === "idle") {
+          inputRef.current?.focus();
+        }
+      }}
       role="presentation"
     >
       <div className="retro-terminal relative h-full min-h-full w-full bg-[#120900]/95">
@@ -327,6 +416,7 @@ export default function Hero() {
                 onChange={(event) => setInput(event.target.value)}
                 onKeyDown={onInputKeyDown}
                 className="w-full bg-transparent pr-2 outline-none caret-transparent"
+                disabled={shutdownPhase !== "idle"}
                 spellCheck={false}
                 autoCapitalize="off"
                 autoCorrect="off"
@@ -346,6 +436,14 @@ export default function Hero() {
         </div>
 
         <div className="retro-scanlines" />
+
+        {shutdownPhase === "animating" && (
+          <ShutdownScreen phase="animating" onRestart={restartSystem} />
+        )}
+
+        {shutdownPhase === "sleeping" && (
+          <ShutdownScreen phase="sleeping" onRestart={restartSystem} />
+        )}
       </div>
 
       <style>{`

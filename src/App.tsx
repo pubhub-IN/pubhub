@@ -52,7 +52,7 @@ function isKnownProtectedPath(pathname: string) {
 }
 
 function Layout() {
-  const { user } = useAuth();
+  // const { user } = useAuth();
 
   return (
     <div className="flex min-h-screen">
@@ -60,7 +60,7 @@ function Layout() {
       <div className="flex-1 ml-16 md:ml-16 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 overflow-x-hidden">
         <Outlet />
         {/* AI Assistant is globally accessible on all authenticated pages */}
-        <AIAssistant user={user || undefined} />
+        {/* <AIAssistant user={user || undefined} /> */}
       </div>
     </div>
   );
@@ -70,18 +70,31 @@ function AuthenticatedRoutes() {
   const { user, loading } = useAuth();
   const location = useLocation();
 
+  console.log("AuthenticatedRoutes render:", { loading, user: user?.github_username, path: location.pathname });
+
   if (loading) {
-    return null;
+    console.log("AuthenticatedRoutes: still loading");
+    return null;  // Show nothing while loading
   }
 
   if (!user) {
+    // Check if there's a token in localStorage (might be a mock token we just set)
+    const token = localStorage.getItem("working_one_jwt_token");
+    if (token) {
+      console.log("Token exists but user not yet set, returning null to wait for auth context update");
+      return null;  // Wait for the token to be processed
+    }
+    
+    console.log("AuthenticatedRoutes: user is null and no token, path is", location.pathname);
     if (isKnownProtectedPath(location.pathname)) {
+      console.log("Known protected path, redirecting to home");
       return <Navigate to="/" replace />;
     }
 
     return <NotFoundPage />;
   }
 
+  console.log("AuthenticatedRoutes: user is authenticated as", user.github_username);
   return (
     <Routes>
       <Route element={<Layout />}>

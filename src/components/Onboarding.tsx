@@ -637,7 +637,12 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
       (tech) => tech !== ADD_MORE_OPTION
     );
 
-    if (technologiesToSave.length === 0) return;
+    if (technologiesToSave.length === 0) {
+      setError("Please select at least one technology.");
+      return;
+    }
+
+    setError("");
 
     // Cache the technologies
     cacheUtils.setTechnologies(technologiesToSave);
@@ -658,20 +663,36 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
       const updatedUser = await authService.updateTechnologies(
         technologiesToSave
       );
-      if (updatedUser) {
-        // Update the user object in memory before navigating
-        onComplete?.(updatedUser);
 
-        navigate("/github-screen", {
+      const nextUser =
+        updatedUser ||
+        ({
+          ...user,
+          profession: selectedProfession || user.profession,
+          technologies: technologiesToSave,
+        } as AuthUser);
+
+      // Keep auth context in sync even if API returns an unexpected empty payload.
+      onComplete?.(nextUser);
+
+      if (isEditMode) {
+        navigate("/dashboard", {
           replace: true,
-          state: {
-            profession: updatedUser.profession || selectedProfession,
-            technologies: updatedUser.technologies || technologiesToSave,
-          },
+          state: { refreshUser: true },
         });
+        return;
       }
+
+      navigate("/github-screen", {
+        replace: true,
+        state: {
+          profession: nextUser.profession || selectedProfession,
+          technologies: nextUser.technologies || technologiesToSave,
+        },
+      });
     } catch (error) {
       console.error("Error updating technologies:", error);
+      setError("Failed to save technologies. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -1056,7 +1077,9 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
                     "Saving..."
                   ) : (
                     <>
-                      Finish and Connect GitHub
+                      {isEditMode
+                        ? "Save and Return to Dashboard"
+                        : "Finish and Connect GitHub"}
                       <FiExternalLink size={14} aria-hidden="true" />
                     </>
                   )}
