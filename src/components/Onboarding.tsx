@@ -1079,7 +1079,7 @@ export default function Onboarding({ user, onComplete }: OnboardingProps) {
                     <>
                       {isEditMode
                         ? "Save and Return to Dashboard"
-                        : "Finish and Connect GitHub"}
+                        : "Finish and Continue"}
                       <FiExternalLink size={14} aria-hidden="true" />
                     </>
                   )}

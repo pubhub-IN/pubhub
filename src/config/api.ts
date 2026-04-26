@@ -61,6 +61,7 @@ export const API_ENDPOINTS = {
   // Auth endpoints
   GITHUB_AUTH: "/auth/github",
   GITHUB_CALLBACK: "/auth/github/callback",
+  SKIP_AUTH: "/auth/skip",
   LOGOUT: "/auth/logout",
 
   // User endpoints
@@ -77,6 +78,9 @@ export const API_ENDPOINTS = {
   CONNECTIONS: "/api/connections",
   CONNECTION_REQUESTS: "/api/connection-requests",
   CONNECTION_STATUS: "/api/connections/status",
+
+  // Hackathon endpoints
+  HACKATHONS: "/api/hackathons",
 
   // Job endpoints
   JOBS: "/api/jobs",

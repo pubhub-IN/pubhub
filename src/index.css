@@ -1,9 +1,38 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Share+Tech+Mono&family=VT323&display=swap");
-
 @import "tailwindcss";
 
+/* Neue Plak Fonts */
+@font-face {
+  font-family: "Neue Plak";
+  src: url("/neue-plak/Neue Plak Regular.ttf") format("truetype");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Neue Plak";
+  src: url("/neue-plak/Neue Plak SemiBold.ttf") format("truetype");
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: "Neue Plak";
+  src: url("/neue-plak/Neue Plak Bold.ttf") format("truetype");
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "Neue Plak";
+  src: url("/neue-plak/Neue Plak Light.ttf") format("truetype");
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "Neue Plak";
+  src: url("/neue-plak/Neue Plak Black.ttf") format("truetype");
+  font-weight: 900;
+}
+
 body {
-  font-family: "Poppins", sans-serif;
+  font-family: "Neue Plak", sans-serif;
 }
 
 @layer base {

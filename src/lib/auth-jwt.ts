@@ -23,6 +23,12 @@ export interface AuthUser {
   updated_at: string;
 }
 
+export interface SkipAuthResponse {
+  token: string;
+  refreshToken?: string;
+  user: AuthUser;
+}
+
 class AuthService {
   private decodeJwtPayload(token: string): Record<string, unknown> | null {
     try {
@@ -316,6 +322,39 @@ class AuthService {
       console.error("Error updating social links:", error);
       throw error;
     }
+  }
+
+  // Create or resume a non-GitHub session with username + onboarding details
+  async skipGithubAuth(data: {
+    username: string;
+    profession?: string;
+    technologies?: string[];
+  }): Promise<SkipAuthResponse> {
+    const url = buildApiUrl(API_ENDPOINTS.SKIP_AUTH);
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    const payload = (await response.json().catch(() => ({}))) as {
+      error?: string;
+      token?: string;
+      refreshToken?: string;
+      user?: AuthUser;
+    };
+
+    if (!response.ok || !payload.token || !payload.user) {
+      throw new Error(payload.error || "Failed to create skip session");
+    }
+
+    return {
+      token: payload.token,
+      refreshToken: payload.refreshToken,
+      user: payload.user,
+    };
   }
 
   // Send connection request

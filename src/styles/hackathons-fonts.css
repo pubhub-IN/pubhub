@@ -1,0 +1,30 @@
+@font-face {
+  font-family: "Neue Plak";
+  src: url("/neue-plak/Neue Plak Regular.ttf") format("truetype");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Neue Plak";
+  src: url("/neue-plak/Neue Plak SemiBold.ttf") format("truetype");
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: "Neue Plak";
+  src: url("/neue-plak/Neue Plak Bold.ttf") format("truetype");
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "Neue Plak";
+  src: url("/neue-plak/Neue Plak Light.ttf") format("truetype");
+  font-weight: 300;
+}
+
+.hackathons-page {
+  font-family: "Neue Plak", sans-serif;
+  background:
+    radial-gradient(circle at 20% 18%, rgba(242, 160, 67, 0.12) 0%, transparent 40%),
+    linear-gradient(180deg, #2a1305 0%, #120901 100%);
+}

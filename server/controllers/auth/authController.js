@@ -188,6 +188,76 @@ async function issueAndStoreTokens(user) {
   return { token, refreshToken };
 }
 
+function normalizeSkipUsername(rawUsername) {
+  const trimmed = typeof rawUsername === "string" ? rawUsername.trim() : "";
+  const normalized = trimmed
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9-_]/g, "");
+
+  return { trimmed, normalized };
+}
+
+export async function skipGithubAuth(req, res) {
+  const { trimmed, normalized } = normalizeSkipUsername(req.body?.username);
+
+  if (!normalized || normalized.length < 3) {
+    return res.status(400).json({
+      error: "Username must be at least 3 characters and use letters, numbers, '-' or '_'.",
+    });
+  }
+
+  const profession =
+    typeof req.body?.profession === "string" ? req.body.profession.trim() : "";
+  const technologies = Array.isArray(req.body?.technologies)
+    ? req.body.technologies
+        .filter((item) => typeof item === "string")
+        .map((item) => item.trim())
+        .filter(Boolean)
+    : [];
+
+  const existingUser = await User.findOne({ github_username: normalized });
+
+  if (existingUser?.github_id) {
+    return res.status(409).json({
+      error: "This username is reserved by a GitHub account. Please choose another username.",
+    });
+  }
+
+  const name = trimmed || normalized;
+
+  let user;
+  if (existingUser) {
+    existingUser.name = name;
+    existingUser.profession = profession;
+    existingUser.technologies = technologies;
+    existingUser.last_active_at = new Date();
+    user = await existingUser.save();
+  } else {
+    user = await User.create({
+      github_username: normalized,
+      name,
+      profession,
+      technologies,
+      github_data: {},
+      total_public_repos: 0,
+      total_commits: 0,
+      languages: {},
+      repositories: [],
+      activity_days: [],
+      last_active_at: new Date(),
+    });
+  }
+
+  const { token, refreshToken } = await issueAndStoreTokens(user);
+
+  return res.json({
+    token,
+    refreshToken,
+    user: user.toJSON(),
+  });
+}
+
 export async function startGithubAuth(_req, res) {
   const req = _req;
 

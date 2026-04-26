@@ -1,8 +1,20 @@
+@font-face {
+  font-family: "Neue Plak Text";
+  src: url("/neue-plak/Neue Plak Text Regular.ttf") format("truetype");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Neue Plak Text";
+  src: url("/neue-plak/Neue Plak Text Bold.ttf") format("truetype");
+  font-weight: 700;
+}
+
 .retro-shell {
   background:
     repeating-linear-gradient(0deg, rgba(255, 135, 20, 0.02) 0 2px, transparent 2px 4px);
   color: #f2a043;
-  font-family: "Share Tech Mono", "Courier New", monospace;
+  font-family: "Neue Plak Text", "Courier New", monospace;
 }
 
 .retro-glow-text {

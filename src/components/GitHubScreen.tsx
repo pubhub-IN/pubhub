@@ -9,6 +9,7 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 import ShutdownScreen from "./ShutdownScreen";
 import { useAuth } from "../lib/useAuth";
+import { authService } from "../lib/auth-jwt";
 import { buildApiUrl, API_ENDPOINTS } from "../config/api";
 import "../styles/retro-shared.css";
 
@@ -30,8 +31,9 @@ const COMMAND_HELP: string[] = [
   "Available commands:",
   "  help            Show all commands",
   "  status          Show setup progress",
-  "  login           Github OAuth",
-  "  finish          Skip and go to dashboard",
+  "  login           Connect with Github OAuth",
+  "  skip            Skip Github authentication",
+  "  finish          Alias for skip",
   "  clear           Clear terminal output",
   "  exit            Shutdown WORKING-ONE",
 ];
@@ -48,6 +50,7 @@ function getIntroLines(profession: string, technologyCount: number) {
     `selected technologies: ${technologyCount}`,
     "",
     "Type 'login' and press Enter to proceed with Github OAuth.",
+    "Type 'skip' and press Enter to continue without Github authentication.",
     "Type 'help' to list all supported commands.",
   ];
 }
@@ -76,6 +79,10 @@ export default function GitHubScreen() {
   );
   const [caretVisible, setCaretVisible] = useState(true);
   const [shutdownPhase, setShutdownPhase] = useState<ShutdownPhase>("idle");
+  const [showSkipDialog, setShowSkipDialog] = useState(false);
+  const [skipUsername, setSkipUsername] = useState("");
+  const [skipError, setSkipError] = useState("");
+  const [skipSubmitting, setSkipSubmitting] = useState(false);
   const [currentTime, setCurrentTime] = useState(() =>
     new Date().toLocaleTimeString([], {
       hour: "2-digit",
@@ -87,6 +94,7 @@ export default function GitHubScreen() {
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const skipUsernameInputRef = useRef<HTMLInputElement | null>(null);
   const shutdownTimersRef = useRef<number[]>([]);
 
   const promptPrefix = useMemo(() => getPromptPrefix(), []);
@@ -135,6 +143,20 @@ export default function GitHubScreen() {
   }, []);
 
   useEffect(() => {
+    if (!showSkipDialog) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      skipUsernameInputRef.current?.focus();
+    }, 10);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [showSkipDialog]);
+
+  useEffect(() => {
     if (!isShutdownStored()) {
       return;
     }
@@ -175,7 +197,7 @@ export default function GitHubScreen() {
   const printStatus = () => {
     pushEntries([
       "terminal: ready",
-      "next command: login",
+      "next command: login or skip",
       "oauth destination: github",
     ]);
   };
@@ -238,6 +260,59 @@ export default function GitHubScreen() {
     scheduleShutdownStep(() => setShutdownPhase("sleeping"), shutdownLogs.length * 260 + 2320);
   };
 
+  const openSkipDialog = () => {
+    setSkipError("");
+    setSkipUsername((prev) => prev || user?.github_username || user?.name || "");
+    setShowSkipDialog(true);
+  };
+
+  const closeSkipDialog = () => {
+    if (skipSubmitting) {
+      return;
+    }
+
+    setShowSkipDialog(false);
+    setSkipError("");
+    window.setTimeout(() => {
+      inputRef.current?.focus();
+    }, 40);
+  };
+
+  const submitSkipSession = async () => {
+    const username = skipUsername.trim();
+    if (!username) {
+      setSkipError("Username is required.");
+      return;
+    }
+
+    setSkipSubmitting(true);
+    setSkipError("");
+
+    try {
+      const payload = await authService.skipGithubAuth({
+        username,
+        profession,
+        technologies: technologiesFromState || user?.technologies || [],
+      });
+
+      authService.setToken(payload.token);
+      window.dispatchEvent(new CustomEvent("auth-token-updated"));
+      window.dispatchEvent(new CustomEvent("user-updated", { detail: payload.user }));
+
+      pushEntries([
+        "skip authentication completed.",
+        `saved username: ${payload.user.github_username}`,
+      ]);
+
+      setShowSkipDialog(false);
+      navigate("/dashboard", { replace: true, state: { refreshUser: true } });
+    } catch (error) {
+      setSkipError(error instanceof Error ? error.message : "Failed to continue with skip flow.");
+    } finally {
+      setSkipSubmitting(false);
+    }
+  };
+
   const runCommand = (rawCommand: string) => {
     const command = rawCommand.trim();
     const normalized = command.toLowerCase();
@@ -271,8 +346,9 @@ export default function GitHubScreen() {
       return;
     }
 
-    if (normalized === "finish") {
-      navigate("/dashboard", { replace: true, state: { refreshUser: true } });
+    if (normalized === "skip" || normalized === "finish") {
+      pushEntries(["skip command detected. opening username prompt..."]);
+      openSkipDialog();
       return;
     }
 
@@ -311,7 +387,7 @@ export default function GitHubScreen() {
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (shutdownPhase !== "idle") {
+    if (shutdownPhase !== "idle" || showSkipDialog) {
       return;
     }
 
@@ -331,7 +407,7 @@ export default function GitHubScreen() {
   };
 
   const onInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (shutdownPhase !== "idle") {
+    if (shutdownPhase !== "idle" || showSkipDialog) {
       return;
     }
 
@@ -378,12 +454,27 @@ export default function GitHubScreen() {
     }
   };
 
+  const onSkipDialogKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      if (!skipSubmitting) {
+        void submitSkipSession();
+      }
+      return;
+    }
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeSkipDialog();
+    }
+  };
+
   return (
     <div
       className="retro-shell h-screen min-h-screen w-full overflow-hidden"
       style={{ minHeight: "100dvh", height: "100dvh" }}
       onClick={() => {
-        if (shutdownPhase === "idle") {
+        if (shutdownPhase === "idle" && !showSkipDialog) {
           inputRef.current?.focus();
         }
       }}
@@ -469,6 +560,60 @@ export default function GitHubScreen() {
 
         {shutdownPhase === "sleeping" && (
           <ShutdownScreen phase="sleeping" onRestart={restartSystem} />
+        )}
+
+        {showSkipDialog && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#080301]/80 px-4">
+            <div className="w-full max-w-[460px] rounded-md border border-[#5a2602] bg-[#120901] p-4 shadow-[0_0_0_1px_rgba(242,160,67,0.15),0_20px_40px_rgba(0,0,0,0.5)]">
+              <h2 className="retro-glow-text text-lg uppercase tracking-[0.08em] text-[#ffd7ad]">
+                please enter your user name.
+              </h2>
+
+              <div className="mt-4 space-y-3">
+                <label htmlFor="skip-username" className="block text-sm text-[#f2a043]">
+                  User name
+                </label>
+                <input
+                  id="skip-username"
+                  ref={skipUsernameInputRef}
+                  value={skipUsername}
+                  onChange={(event) => setSkipUsername(event.target.value)}
+                  onKeyDown={onSkipDialogKeyDown}
+                  disabled={skipSubmitting}
+                  className="w-full rounded-sm border border-[#5a2602] bg-[#1a0d03] px-3 py-2 text-[#ffe3c3] outline-none focus:border-[#f2a043]"
+                  placeholder="enter username"
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  spellCheck={false}
+                />
+
+                {skipError && (
+                  <p className="text-sm text-[#ff8d8d]">{skipError}</p>
+                )}
+
+                <div className="flex items-center justify-end gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={closeSkipDialog}
+                    disabled={skipSubmitting}
+                    className="rounded-sm border border-[#5a2602] px-3 py-1.5 text-sm text-[#d8a26f] transition-colors hover:bg-[#2a1305] disabled:opacity-60"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void submitSkipSession();
+                    }}
+                    disabled={skipSubmitting}
+                    className="rounded-sm border border-[#f2a043] bg-[#f2a0431a] px-4 py-1.5 text-sm font-medium text-[#ffd7ad] transition-colors hover:bg-[#f2a04333] disabled:opacity-60"
+                  >
+                    {skipSubmitting ? "Saving..." : "Enter"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </div>
 

@@ -1,5 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap');
+/* Neue Plak Fonts */
+@font-face {
+  font-family: "Neue Plak Mono";
+  src: url("/neue-plak/Neue Plak Text Regular.ttf") format("truetype");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Neue Plak Mono";
+  src: url("/neue-plak/Neue Plak Text Bold.ttf") format("truetype");
+  font-weight: 700;
+}
 
 :root {
   --term-bg: #120901;
@@ -20,7 +30,7 @@
   justify-content: center;
   padding: 1rem;
   color: var(--term-text);
-  font-family: "DM Mono", monospace;
+  font-family: "Neue Plak Mono", monospace;
   overflow: hidden;
   background: var(--term-bg);
 }
@@ -355,10 +365,37 @@
 }
 
 .portrait {
+  position: relative;
+  display: grid;
+  place-items: center;
   border: 2px solid var(--term-line);
   height: 150px;
   width: 150px;
   overflow: hidden;
+}
+
+.portrait-edit-button {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  justify-content: center;
+  color: #ffe0bc;
+  background: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transition: opacity 180ms ease, transform 180ms ease, background-color 180ms ease;
+}
+
+.portrait-edit-button:hover {
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.portrait:hover .portrait-edit-button,
+.portrait:focus-within .portrait-edit-button {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .terminal-grid::after {
@@ -414,6 +451,83 @@
   padding: 1rem;
   overflow: hidden;
   font-family: "Share Tech Mono", monospace;
+}
+
+.avatar-preview-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(5, 2, 1, 0.72);
+  backdrop-filter: blur(1px);
+}
+
+.avatar-preview-modal {
+  width: min(420px, 92vw);
+  border: 1px solid #5a2602;
+  background: linear-gradient(180deg, rgba(27, 13, 2, 0.97) 0%, rgba(16, 8, 2, 0.97) 100%);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(242, 160, 67, 0.12);
+  padding: 0.9rem;
+}
+
+.avatar-preview-title {
+  margin: 0;
+  color: var(--term-text-bright);
+  font-size: var(--term-subheading-size);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.avatar-preview-frame {
+  margin-top: 0.7rem;
+  border: 1px solid rgba(242, 160, 67, 0.5);
+  background: #0f0602;
+  height: 220px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.avatar-preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-preview-error {
+  margin-top: 0.55rem;
+  color: #ff8d8d;
+  font-size: 12px;
+}
+
+.avatar-preview-actions {
+  margin-top: 0.8rem;
+  display: flex;
+  gap: 0.45rem;
+  justify-content: flex-end;
+}
+
+.avatar-preview-btn {
+  border: 1px solid #6d3914;
+  background: transparent;
+  color: #f8c98d;
+  padding: 0.35rem 0.62rem;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: background-color 160ms ease;
+}
+
+.avatar-preview-btn:hover {
+  background: rgba(242, 160, 67, 0.12);
+}
+
+.avatar-preview-btn-confirm {
+  border-color: #f2a043;
+  color: #ffdcb5;
+  background: rgba(242, 160, 67, 0.15);
 }
 
 .bio-copy {

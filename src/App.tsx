@@ -13,7 +13,7 @@ import Onboarding from "./components/Onboarding";
 import GitHubScreen from "./components/GitHubScreen";
 import Dashboard from "./components/Dashboard";
 import Sidebar from "./components/Sidebar";
-import { AIAssistant } from "./components/AIAssistant";
+// import { AIAssistant } from "./components/AIAssistant";
 import HackathonsPage from "./pages/HackathonsPage";
 import OpenSourceReposPage from "./pages/OpenSourceReposPage";
 import AccountPage from "./pages/AccountPage";
@@ -99,7 +99,7 @@ function AuthenticatedRoutes() {
     <Routes>
       <Route element={<Layout />}>
         <Route path="/dashboard" element={<Dashboard user={user} />} />
-        <Route path="/hackathons" element={<HackathonsPage user={user} />} />
+        <Route path="/hackathons" element={<HackathonsPage/>} />
         <Route
           path="/open-source"
           element={<OpenSourceReposPage user={user} />}

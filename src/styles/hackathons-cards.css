@@ -1,0 +1,57 @@
+.hackathon-card {
+  position: relative;
+  isolation: isolate;
+}
+
+.hackathon-list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-top: 1px solid #f2a043;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.hackathon-thumb {
+  width: 66px;
+  height: 66px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.hackathon-rank {
+  padding-inline: 10px;
+  font-size: 12px;
+}
+
+.hackathon-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: white;
+  opacity: 0;
+  transform: scaleY(0);
+  transform-origin: var(--hover-origin, top);
+  transition: opacity 320ms ease, transform 320ms ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hackathon-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.hackathon-card.hover-from-top {
+  --hover-origin: top;
+}
+
+.hackathon-card.hover-from-bottom {
+  --hover-origin: bottom;
+}
+
+.hackathon-card.is-active::before {
+  opacity: 1;
+  transform: scaleY(1);
+}
